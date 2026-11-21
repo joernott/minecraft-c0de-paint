@@ -14,6 +14,7 @@ The open points of the concept are listed in [concept_review.md](concept_review.
 - It contains one library. A program includes it with `INCLUDE c0de_paint/cpaint`, a wink at Deluxe Paint, which is usually called DPaint. This document leaves out the library prefix of names, e.g. `CANVAS` for `c0de_paint/cpaint/CANVAS`.
 - The handbook of the library is one of the binders of c0de, in English and German, like the handbook of c0de net.
 - On Modrinth, the mod gets the environment "client and server", like c0de.
+- **Errors:** the library uses the codes of c0de where they fit (INVALID_ARGUMENT, PERMISSION_DENIED, CHUNK_NOT_LOADED, ITEM_MISSING, INVENTORY_FULL) and its own from 1100 on, which it has as INTEGER constants: CANVAS_LIMIT (1100), CANVAS_EMPTY (1101) and NOT_A_PLANE (1102). c0de net uses 1000 to 1099.
 
 ## Types
 
@@ -40,9 +41,9 @@ Coordinates in the world are always `c0de/minecraft/POSITION`. Coordinates in a 
 
 ## Styles
 
-A style is created with one of these functions or constants:
+A style is created with one of these functions. c0de has no constants of library types, and functions are called with CALL, so STYLE_NONE and STYLE_EMPTY are functions without parameters too; a new STYLE variable already holds STYLE_NONE.
 
-| Function / constant | Result |
+| Function | Result |
 |---|---|
 | STYLE_NONE | Don't draw: the voxels stay as they are. In a merge, a voxel that is not set doesn't change the target. |
 | STYLE_EMPTY | Air (`minecraft:air`). Erases voxels that were drawn before. Together with merging, it creates hollow bodies with thick walls. |
@@ -51,7 +52,9 @@ A style is created with one of these functions or constants:
 | STYLE_GRADIENT(blocks, from, to, axes, fuzzy) | A gradient through the blocks, in the order of the array (see below). |
 | STYLE_PATTERN(pattern, from) | The canvas `pattern`, repeated (see below). |
 
-**Weights** are integers of 1 or more. A weight of 0 or less raises an error. This matches the blocks of an inventory, where a slot never holds 0 items.
+**Blocks** are given as BLOCK. An `id` without a namespace gets `minecraft:`, e.g. "stone" is "minecraft:stone".
+
+**Weights** are integers of 1 or more. A weight of 0 or less raises INVALID_ARGUMENT. This matches the blocks of an inventory, where a slot never holds 0 items.
 
 **Random numbers** come from the random number generator of the process, as with RANDOM. If a program is started with a fixed seed, its drawings are the same every time.
 
@@ -78,7 +81,7 @@ STYLE_GRADIENT(blocks, from, to, axes, fuzzy)
   - "xz" measures from the vertical line through `from`, which gives cylinders.
 - **to** (POINT, optional): where the gradient ends.
   - The length of the gradient is the distance from `from` to `to`, measured along `axes`.
-  - Without `to`, the gradient ends at the voxel of the shape that is farthest from `from`.
+  - Without `to`, the gradient ends at the voxel of the part (line, face or inside) that is farthest from `from`.
 - **The weights divide the length.** Each block gets a share of the length in proportion to its weight. Voxels beyond the end get the last block.
 - **Example:**
   - Five black, three gray and two white concrete: a line of 10 voxels gets 5 black, 3 gray and 2 white.
@@ -149,16 +152,16 @@ All operations take the canvas as a reference parameter and change it, unless th
 |---|---|
 | CANVAS_COUNT(canvas) | The number of set voxels. |
 | CANVAS_MIN(canvas), CANVAS_MAX(canvas) | The corners of the bounds, as POINTs. They raise CANVAS_EMPTY for an empty canvas. |
-| CANVAS_GET(canvas, point) | The block of a voxel as BLOCK. Its id is "" if the voxel is not set and "minecraft:air" for air. |
+| CANVAS_GET(canvas, point) | The block of a voxel as BLOCK, with the weight 1. Its id is "" if the voxel is not set and "minecraft:air" for air. |
 | CANVAS_CLEAR(canvas, from, to) | Unsets the voxels in the box from–to. Without from and to, it unsets the whole canvas. |
 | CANVAS_CROP(canvas, from, to) | Unsets all voxels outside the box from–to. |
 | CANVAS_MOVE(canvas, offset) | Moves the content by the POINT `offset`. |
-| CANVAS_REPLACE(canvas, id, style) | Draws every voxel with the block `id` again, with `style`. |
+| CANVAS_REPLACE(canvas, id, style) | Draws every voxel with the block `id` again, with `style`, whatever the states of the block are. |
 | CANVAS_SCALE(canvas, x, y, z, center) | Scales the canvas along each axis. x, y and z are INTEGER percentages; a value below 1 raises an error. Scaling is around `center` (default 0,0,0) and takes the nearest voxel, so blocks keep their states. |
 | CANVAS_ROTATE(canvas, center, axis, degrees) | Rotates around the axis "x", "y" or "z" through the POINT `center`, by any angle (FLOAT, in degrees). Every target voxel takes the nearest source voxel, so there are no holes and no doubled voxels. With angles that aren't multiples of 90°, the edges of shapes become slightly irregular. |
 | CANVAS_MIRROR(canvas, axis, position) | Mirrors at the plane perpendicular to the axis "x", "y" or "z", at the coordinate `position`. Without `position`, it mirrors at the middle of the bounds, so the bounds stay the same. |
 | CANVAS_MERGE(target, source, mode, offset) | Draws the canvas `source`, or each canvas of an array of canvases in order, into `target`, moved by `offset` (default 0,0,0). With mode "OVERWRITE", set voxels of the source replace those of the target. With "KEEP", they only fill voxels of the target that are not set. Voxels that are not set in the source never change the target; air does. |
-| CANVAS_MATERIALS(canvas) | The blocks the canvas needs, as HASH INTEGER from block ID to number, without air. |
+| CANVAS_MATERIALS(canvas) | The blocks the canvas needs, as HASH INTEGER from block ID to number, without air; blocks with different states count together. |
 | CANVAS_FROM_WORLD(from, to, air) | A new canvas with the blocks of the world between the POSITIONs `from` and `to`; `from` becomes 0,0,0. Air becomes not set, or air if `air` is TRUE. Chunks that are not loaded raise CHUNK_NOT_LOADED. The contents of chests and other block data are not copied. |
 
 ### Block states in transformations

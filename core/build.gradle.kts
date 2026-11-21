@@ -39,6 +39,8 @@ dependencies {
 
 tasks.test {
     useJUnitPlatform()
+    // A test that hangs fails instead of blocking the build
+    systemProperty("junit.jupiter.execution.timeout.default", "60 s")
 }
 
 // Formatting: `./gradlew spotlessCheck` (part of `check`) and `./gradlew spotlessApply`

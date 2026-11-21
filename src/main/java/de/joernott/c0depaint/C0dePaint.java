@@ -4,6 +4,7 @@ import de.joernott.c0de.library.ModLibraries;
 import de.joernott.c0de.platform.Platform;
 import de.joernott.c0depaint.core.config.PaintConfig;
 import de.joernott.c0depaint.core.library.CpaintLibrary;
+import de.joernott.c0depaint.world.MinecraftWorld;
 import java.io.IOException;
 import net.minecraft.resources.ResourceLocation;
 import org.slf4j.Logger;
@@ -31,7 +32,7 @@ public final class C0dePaint {
         } catch (IOException e) {
             LOGGER.error("Can't read {}, using the defaults", PaintConfig.SERVER_FILE, e);
         }
-        ModLibraries.register(new CpaintLibrary(C0dePaint::config));
+        ModLibraries.register(new CpaintLibrary(C0dePaint::config, new MinecraftWorld()));
     }
 
     /** The settings of the server. */

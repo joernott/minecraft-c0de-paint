@@ -2,6 +2,7 @@ package de.joernott.c0depaint.gametest.neoforge;
 
 //? if neoforge {
 /*import de.joernott.c0depaint.C0dePaint;
+import de.joernott.c0depaint.gametest.InventoryTests;
 import de.joernott.c0depaint.gametest.SmokeTests;
 import net.minecraft.gametest.framework.GameTest;
 import net.minecraft.gametest.framework.GameTestHelper;
@@ -20,6 +21,11 @@ public class NeoForgeGameTests {
     @GameTest(template = "empty")
     public static void programsIncludeTheLibrary(GameTestHelper helper) {
         SmokeTests.programsIncludeTheLibrary(helper);
+    }
+
+    @GameTest(template = "empty")
+    public static void inventoryBlocksFollowTheSlots(GameTestHelper helper) {
+        InventoryTests.inventoryBlocksFollowTheSlots(helper);
     }
 }
 *///?}
