@@ -9,6 +9,7 @@ import de.joernott.c0de.core.value.FloatValue;
 import de.joernott.c0de.core.value.IntegerValue;
 import de.joernott.c0de.core.value.Value;
 import de.joernott.c0depaint.core.canvas.Limits;
+import de.joernott.c0depaint.core.draw.Bodies;
 import de.joernott.c0depaint.core.draw.Painter;
 import de.joernott.c0depaint.core.draw.Raster;
 import de.joernott.c0depaint.core.draw.Shapes;
@@ -87,7 +88,110 @@ final class DrawFunctions {
                 Args.point("b"),
                 NativeFunction.Parameter.required("start", "FLOAT|INTEGER", NUMBER),
                 NativeFunction.Parameter.required("end", "FLOAT|INTEGER", NUMBER));
+        body(
+                functions,
+                limits,
+                "DRAW_BOX",
+                true,
+                call -> Bodies.box(Args.point(call, "from"), Args.point(call, "to")),
+                Args.point("from"),
+                Args.point("to"));
+        body(
+                functions,
+                limits,
+                "DRAW_ELLIPSOID",
+                false,
+                call -> Bodies.ellipsoid(
+                        Args.point(call, "center"), size(call, "rx"), size(call, "ry"), size(call, "rz")),
+                Args.point("center"),
+                Args.integer("rx"),
+                Args.integer("ry"),
+                Args.integer("rz"));
+        body(
+                functions,
+                limits,
+                "DRAW_CYLINDER",
+                true,
+                call -> Bodies.cylinder(Args.point(call, "center"), size(call, "r"), size(call, "h"), direction(call)),
+                directed());
+        body(
+                functions,
+                limits,
+                "DRAW_CONE",
+                true,
+                call -> Bodies.cone(Args.point(call, "center"), size(call, "r"), size(call, "h"), direction(call)),
+                directed());
+        body(
+                functions,
+                limits,
+                "DRAW_PYRAMID",
+                true,
+                call -> Bodies.pyramid(Args.point(call, "center"), size(call, "r"), size(call, "h"), direction(call)),
+                directed());
+        for (Bodies.Solid solid : Bodies.Solid.values()) {
+            body(
+                    functions,
+                    limits,
+                    "DRAW_" + solid.name(),
+                    true,
+                    call -> Bodies.solid(solid, Args.point(call, "center"), size(call, "r")),
+                    Args.point("center"),
+                    Args.integer("r"));
+        }
         return functions;
+    }
+
+    private static NativeFunction.Parameter[] directed() {
+        return new NativeFunction.Parameter[] {
+            Args.point("center"), Args.integer("r"), Args.integer("h"), Args.text("direction")
+        };
+    }
+
+    private static Bodies.Direction direction(NativeCall call) {
+        return Bodies.Direction.of(((de.joernott.c0de.core.value.StringValue) call.argument("direction")).value());
+    }
+
+    /** A radius or length; values beyond the limits of any canvas raise CANVAS_LIMIT. */
+    private static int size(NativeCall call, String name) {
+        long value = ((IntegerValue) call.argument(name)).value();
+        if (value > 4096) {
+            throw new de.joernott.c0depaint.core.PaintException(
+                    de.joernott.c0depaint.core.PaintError.CANVAS_LIMIT,
+                    name + " is " + value + ", too large for a canvas");
+        }
+        return (int) Math.max(value, Integer.MIN_VALUE);
+    }
+
+    /** A body with the parameters line_style (if it has lines), side_style and fill_style after its own. */
+    private static void body(
+            Map<String, NativeFunction> functions,
+            Supplier<Limits> limits,
+            String name,
+            boolean lines,
+            Function<NativeCall, Shapes.Voxels> shape,
+            NativeFunction.Parameter... parameters) {
+        List<NativeFunction.Parameter> all = new ArrayList<>();
+        all.add(Args.canvasReference("canvas"));
+        all.addAll(List.of(parameters));
+        if (lines) {
+            all.add(Args.optionalStyle("line_style"));
+        }
+        all.add(Args.optionalStyle("side_style"));
+        all.add(Args.optionalStyle("fill_style"));
+        add(
+                functions,
+                function(
+                        name,
+                        NONE,
+                        call -> {
+                            Style[] styles = Painter.resolve(
+                                    lines ? Args.style(call, "line_style") : null,
+                                    Args.style(call, "side_style"),
+                                    Args.style(call, "fill_style"));
+                            draw(call, limits, shape.apply(call), styles);
+                            return NativeResult.none();
+                        },
+                        all.toArray(NativeFunction.Parameter[]::new)));
     }
 
     static void add(Map<String, NativeFunction> functions, NativeFunction function) {

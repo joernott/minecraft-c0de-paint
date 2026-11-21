@@ -84,4 +84,44 @@ class DrawFunctionsTest {
                             PARAMETER fill_style solid ;
                         """));
     }
+
+    @Test
+    void hollowBoxesAndSolids() {
+        // A box with stone sides and an inside of air: all 150 voxels are set
+        assertEquals(150, count("""
+                        ASSIGN b.x 9 ;
+                        ASSIGN b.y 4 ;
+                        ASSIGN b.z 2 ;
+                        CALL c0de_paint/cpaint/DRAW_BOX
+                            PARAMETER canvas c ;
+                            PARAMETER from p ;
+                            PARAMETER to b ;
+                            PARAMETER side_style solid ;
+                            PARAMETER fill_style clear ;
+                        """));
+        long icosahedron = count("""
+                CALL c0de_paint/cpaint/DRAW_ICOSAHEDRON
+                    PARAMETER canvas c ;
+                    PARAMETER center p ;
+                    PARAMETER r 8 ;
+                    PARAMETER line_style solid ;
+                """);
+        assertEquals(
+                de.joernott.c0depaint.core.draw.Bodies.solid(
+                                de.joernott.c0depaint.core.draw.Bodies.Solid.ICOSAHEDRON,
+                                new de.joernott.c0depaint.core.canvas.Point(0, 0, 0),
+                                8)
+                        .lines()
+                        .size(),
+                icosahedron);
+        Programs.crashes(309, CanvasFunctionsTest.SETUP + """
+                        CALL c0de_paint/cpaint/DRAW_CONE
+                            PARAMETER canvas c ;
+                            PARAMETER center p ;
+                            PARAMETER r 3 ;
+                            PARAMETER h 4 ;
+                            PARAMETER direction "up" ;
+                            PARAMETER fill_style solid ;
+                        """);
+    }
 }
