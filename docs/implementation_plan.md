@@ -74,7 +74,7 @@ A task is done when
 | 2.1 | **Build taken over from c0de net:**<ul><li>Stonecutter with the ten nodes;</li><li>the `core` module;</li><li>the Gradle wrapper;</li><li>Spotless and the whitespace check;</li><li>`.gitignore` and `.gitattributes`;</li><li>license BSD 3-Clause.</li></ul> |  |
 | 2.2 | **c0de as a dependency:**<ul><li>For every node, from the Modrinth Maven repository.</li><li>Built and tested with `deps.c0de`.</li><li>Required as `>= deps.c0de_min` and `< the next major version` in `fabric.mod.json` and `neoforge.mods.toml`.</li></ul> |  |
 | 2.3 | **Entry points:**<ul><li>Mod entry points for Fabric and NeoForge.</li><li>The library `c0de_paint/cpaint` is registered with the types CANVAS and STYLE and the structs POINT and BLOCK.</li><li>The configuration `config/c0de_paint.properties` with its four settings.</li></ul> |  |
-| 2.4 | **GameTests on every node:**<ul><li>The library is registered.</li><li>A program with `INCLUDE c0de_paint/cpaint` and `DIM c AS CANVAS` is valid.</li></ul> |  |
+| 2.4 | **GameTests on every node:**<ul><li>The library is registered.</li><li>A program with `INCLUDE c0de_paint/cpaint` and `VARIABLE c TYPE c0de_paint/cpaint/CANVAS` is valid.</li></ul> |  |
 | 2.5 | **CI and VM:**<ul><li>GitHub Actions: checks, unit tests (Linux and Windows), build and GameTests per node.</li><li>Dependabot.</li><li>A clone on the VM builds and tests all nodes.</li><li>`docs/development_environment.md`.</li></ul> |  |
 
 ## Sprint 3: Canvas and styles

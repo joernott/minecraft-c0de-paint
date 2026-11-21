@@ -19,7 +19,7 @@ The open points of the concept are listed in [concept_review.md](concept_review.
 
 c0de paint defines two **library types**, CANVAS and STYLE. They are neither structs nor arrays. A program only works with them through the functions of the library. Library types are a new feature of c0de (see "Changes to c0de").
 
-Like every c0de value, a canvas or style is copied on assignment, as a parameter and as a result. Internally the copy is cheap (copy on write). A variable declared with `DIM c AS CANVAS` contains an empty canvas. A variable declared with `DIM s AS STYLE` contains STYLE_NONE.
+Like every c0de value, a canvas or style is copied on assignment, as a parameter and as a result. Internally the copy is cheap (copy on write). Programs declare them with the TYPE block of c0de: a variable declared with `VARIABLE c TYPE c0de_paint/cpaint/CANVAS` contains an empty canvas, one declared with `VARIABLE s TYPE c0de_paint/cpaint/STYLE` contains STYLE_NONE.
 
 Besides these, the library defines two structs:
 
@@ -228,18 +228,19 @@ The file `config/c0de_paint.properties` on the server contains:
 
 ## Changes to c0de
 
-c0de paint needs these additions to c0de, made in a sprint of c0de:
+c0de paint needs these additions to c0de, made in sprint 19 of c0de (c0de 0.7.0; see [Library type](https://github.com/joernott/minecraft-c0de/blob/main/docs/concept/04-data.md#library-type) in the concept of c0de):
 
 - **Library types.** A library can define types of its own besides structs. A library type has:
   - a name;
   - a default value;
   - copy-on-write copies;
   - a comparison;
-  - a text for PRINT and the debugger (e.g. "CANVAS 20×10×8, 1600 voxels");
-  - saving and loading with the cursor, in a compact form, so that canvases survive a server restart;
-  - its share in the memory limits of a process.
+  - a text for SAY, displays and the debugger (e.g. "CANVAS 20×10×8, 1600 voxels");
+  - saving and loading with the cursor, in a compact form, so that canvases survive a server restart.
+
+  c0de has no memory limits per process; c0de paint limits canvases itself with `canvasMin` and `canvasMax`.
 - **Conversions.** Converting a library type to YAML or JSON raises an error.
-- **Waiting functions.** Library functions can wait for several ticks, as MOVE_ITEMS does, also when they come from another mod.
+- **Work in parts.** A library function keeps its progress while the cursor stays on its CALL line (`call.state()`), so canvas operations can be spread over several ticks.
 
 c0de net doesn't need to change: the interface of the libraries only gets additions.
 

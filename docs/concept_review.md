@@ -52,7 +52,7 @@ This file records the review of [concept.md](concept.md). The concept has been r
   - **BLOCK:** a block with its block states and weight is a struct. Programs can then write lists of blocks by hand, and only STYLE is a library type.
 - **The canvas grows by itself.**
   - **Drawing:** functions draw into a canvas passed by reference, and the canvas grows with its content. Both of your wishes are met: no fixed size and no copies.
-  - **Declaring:** `DIM c AS CANVAS` gives an empty canvas, so no CANVAS_CREATE is needed.
+  - **Declaring:** `VARIABLE c TYPE c0de_paint/cpaint/CANVAS` gives an empty canvas, so no CANVAS_CREATE is needed.
   - **The limit:** drawing beyond the limit raises CANVAS_LIMIT and draws nothing.
 - **Styles fall back inward.** A part with STYLE_NONE takes the style of the next part inward (line → face → inside). A box with only a fill style is therefore full, and a box with only a side style is hollow.
 - **Shapes defined by points.**
