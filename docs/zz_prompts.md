@@ -71,3 +71,7 @@ Decisions:
 push both and start c0de sprint 19, please test task 17.7. A Windows update on my machine drastically slowed down the VM and some other operations, so the performance of the VM should be better. If the test is only flaky on Github, please disregard that as github runners frequently have performance problems when their servers are crowded.
 
 Answer to the question about the type block of library types: a new TYPE block (instead of reusing TYPE_STRUCT).
+
+## 2026-11-21 – Sprint 19 choices confirmed, c0de paint goes ahead
+
+I confirm the choices you made in c0de sprint 19. As long as there is no content change in c0de-net, don't release a new version. Please go ahead with as many sprints/tasks of c0de-paint as you can

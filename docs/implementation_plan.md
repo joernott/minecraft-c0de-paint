@@ -40,7 +40,7 @@ A task is done when
 | Sprint | Goal | Result | Done |
 |---|---|---|:---:|
 | 0 | Concept and plan | Concept, review and implementation plan | ✅ |
-| 1 | Library types in c0de | c0de 0.7.0: libraries can define types of their own (sprint 19 of c0de) |  |
+| 1 | Library types in c0de | c0de 0.7.0: libraries can define types of their own (sprint 19 of c0de) |✅ |
 | 2 | Project skeleton | The mod loads on all nodes with c0de 0.7.0; programs can include `c0de_paint/cpaint`; CI and VM are ready |  |
 | 3 | Canvas and styles | Programs declare canvases and styles, set and read voxels, and merge canvases |  |
 | 4 | 2D shapes | Lines, rectangles, polygons, ellipses and arcs in any plane |  |
@@ -63,7 +63,7 @@ A task is done when
 
 | Task | Description | Done |
 |---|---|:---:|
-| 1.1 | Sprint 19 of c0de is done, and c0de 0.7.0 is released: library types, their saving with the cursor, functions of other mods that wait for several ticks. |  |
+| 1.1 | Sprint 19 of c0de is done, and c0de 0.7.0 is released: library types, their saving with the cursor, functions of other mods that wait for several ticks   Done on 2026-11-21: c0de 0.7.0 is released on GitHub, Modrinth and CurseForge. | ✅ |
 
 ## Sprint 2: Project skeleton
 
