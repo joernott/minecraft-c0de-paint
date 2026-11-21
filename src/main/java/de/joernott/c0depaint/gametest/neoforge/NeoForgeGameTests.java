@@ -4,6 +4,7 @@ package de.joernott.c0depaint.gametest.neoforge;
 /*import de.joernott.c0depaint.C0dePaint;
 import de.joernott.c0depaint.gametest.InventoryTests;
 import de.joernott.c0depaint.gametest.SmokeTests;
+import de.joernott.c0depaint.gametest.TransformTests;
 import net.minecraft.gametest.framework.GameTest;
 import net.minecraft.gametest.framework.GameTestHelper;
 import net.neoforged.neoforge.gametest.GameTestHolder;
@@ -26,6 +27,11 @@ public class NeoForgeGameTests {
     @GameTest(template = "empty")
     public static void inventoryBlocksFollowTheSlots(GameTestHelper helper) {
         InventoryTests.inventoryBlocksFollowTheSlots(helper);
+    }
+
+    @GameTest(template = "empty")
+    public static void statesTurnAndMirror(GameTestHelper helper) {
+        TransformTests.statesTurnAndMirror(helper);
     }
 }
 *///?}

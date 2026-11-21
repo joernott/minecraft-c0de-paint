@@ -158,8 +158,8 @@ All operations take the canvas as a reference parameter and change it, unless th
 | CANVAS_MOVE(canvas, offset) | Moves the content by the POINT `offset`. |
 | CANVAS_REPLACE(canvas, id, style) | Draws every voxel with the block `id` again, with `style`, whatever the states of the block are. |
 | CANVAS_SCALE(canvas, x, y, z, center) | Scales the canvas along each axis. x, y and z are INTEGER percentages; a value below 1 raises an error. Scaling is around `center` (default 0,0,0) and takes the nearest voxel, so blocks keep their states. |
-| CANVAS_ROTATE(canvas, center, axis, degrees) | Rotates around the axis "x", "y" or "z" through the POINT `center`, by any angle (FLOAT, in degrees). Every target voxel takes the nearest source voxel, so there are no holes and no doubled voxels. With angles that aren't multiples of 90°, the edges of shapes become slightly irregular. |
-| CANVAS_MIRROR(canvas, axis, position) | Mirrors at the plane perpendicular to the axis "x", "y" or "z", at the coordinate `position`. Without `position`, it mirrors at the middle of the bounds, so the bounds stay the same. |
+| CANVAS_ROTATE(canvas, center, axis, degrees) | Rotates around the axis "x", "y" or "z" through the POINT `center`, by any angle (FLOAT, in degrees), by the right-hand rule: +90° about y turns east (+x) to north (−z). Every target voxel takes the nearest source voxel, so there are no holes and no doubled voxels. With angles that aren't multiples of 90°, the edges of shapes become slightly irregular. |
+| CANVAS_MIRROR(canvas, axis, position) | Mirrors at the plane perpendicular to the axis "x", "y" or "z", at the coordinate `position` (INTEGER or FLOAT; 4.5 is the plane between the voxels 4 and 5). Without `position`, it mirrors at the middle of the bounds, so the bounds stay the same. |
 | CANVAS_MERGE(target, source, mode, offset) | Draws the canvas `source`, or each canvas of an array of canvases in order, into `target`, moved by `offset` (default 0,0,0). With mode "OVERWRITE", set voxels of the source replace those of the target. With "KEEP", they only fill voxels of the target that are not set. Voxels that are not set in the source never change the target; air does. |
 | CANVAS_MATERIALS(canvas) | The blocks the canvas needs, as HASH INTEGER from block ID to number, without air; blocks with different states count together. |
 | CANVAS_FROM_WORLD(from, to, air) | A new canvas with the blocks of the world between the POSITIONs `from` and `to`; `from` becomes 0,0,0. Air becomes not set, or air if `air` is TRUE. Chunks that are not loaded raise CHUNK_NOT_LOADED. The contents of chests and other block data are not copied. |
@@ -171,6 +171,8 @@ All operations take the canvas as a reference parameter and change it, unless th
   - The direction is rounded to the nearest multiple of 90° (for `rotation`, the nearest of its 16 steps).
   - A state that the block can't take stays unchanged. For example, stairs can't face upwards.
 - **Mirroring:** CANVAS_MIRROR flips the same states, and also the hinges of doors.
+- **Upside down:** when a rotation about x or z by 180° or a mirror at y turns a block upside down, `half` and the `type` of slabs swap top and bottom.
+- The sides of fences, walls, panes and redstone wire turn and mirror with the block.
 
 ## Rendering
 
@@ -227,7 +229,7 @@ The file `config/c0de_paint.properties` on the server contains:
 | canvasMax | 127 | 0 to 1023 | Largest coordinate of a canvas on every axis. |
 | renderBlocksPerTick | 64 | 1 to 1024 | Blocks that RENDER_CANVAS places per tick. |
 | renderMiningSpeed | 1 | 0 to 100 | How much faster than a player RENDER_CANVAS mines blocks with tools; 0 means instantly, as in creative mode. |
-| canvasVoxelsPerTick | 65536 | 1024 to 1048576 | Voxels that a canvas operation processes per tick. Larger operations are spread over several ticks, while the process waits. |
+| canvasVoxelsPerTick | 65536 | 1024 to 1048576 | Voxels that a drawing function, CANVAS_SCALE, CANVAS_ROTATE or CANVAS_MIRROR processes per tick. Larger operations are spread over several ticks, while the process waits. The shape is computed in the first tick. The other canvas operations work in one tick. |
 
 ## Changes to c0de
 

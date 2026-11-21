@@ -24,6 +24,9 @@ import net.minecraft.world.Container;
 import net.minecraft.world.item.BlockItem;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.block.Blocks;
+import net.minecraft.world.level.block.state.BlockState;
+import net.minecraft.world.level.block.state.StateDefinition;
+import net.minecraft.world.level.block.state.properties.Property;
 
 /** The world of Minecraft for c0de_paint/cpaint, through the process host of c0de. */
 public final class MinecraftWorld implements PaintWorld {
@@ -49,6 +52,36 @@ public final class MinecraftWorld implements PaintWorld {
         List<Weighted> blocks = new ArrayList<>();
         counts.forEach((id, count) -> blocks.add(new Weighted(new Block(id), (int) Math.min(count, Integer.MAX_VALUE))));
         return blocks;
+    }
+
+    /**
+     * The block if it has every state with its value, else null. Blocks that Minecraft doesn't know stay as they are
+     * transformed; rendering reports them.
+     */
+    @Override
+    public Block valid(Block block) {
+        ResourceLocation id = ResourceLocation.tryParse(block.id());
+        if (id == null || !BuiltInRegistries.BLOCK.containsKey(id)) {
+            return block;
+        }
+        StateDefinition<net.minecraft.world.level.block.Block, BlockState> states =
+                registered(id).getStateDefinition();
+        for (Map.Entry<String, String> state : block.properties().entrySet()) {
+            Property<?> property = states.getProperty(state.getKey());
+            if (property == null || property.getValue(state.getValue()).isEmpty()) {
+                return null;
+            }
+        }
+        return block;
+    }
+
+    /** The registered block, or air. */
+    public static net.minecraft.world.level.block.Block registered(ResourceLocation id) {
+        //? if >=1.21.2 {
+        /*return BuiltInRegistries.BLOCK.getValue(id);
+        *///?} else {
+        return BuiltInRegistries.BLOCK.get(id);
+        //?}
     }
 
     /** The process host of the calling process, or INVALID_ARGUMENT outside of the game. */

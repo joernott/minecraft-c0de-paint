@@ -124,4 +124,47 @@ class DrawFunctionsTest {
                             PARAMETER fill_style solid ;
                         """);
     }
+
+    @Test
+    void largeDrawingsAreSpreadOverSeveralTicks() {
+        String program = Programs.program("", CanvasFunctionsTest.SETUP + """
+                        ASSIGN p.x 19 ;
+                        ASSIGN p.y 19 ;
+                        ASSIGN p.z 19 ;
+                        CALL c0de_paint/cpaint/DRAW_BOX
+                            PARAMETER canvas c ;
+                            PARAMETER from q ;
+                            PARAMETER to p ;
+                            PARAMETER fill_style solid ;
+                        """);
+        java.util.Properties properties = new java.util.Properties();
+        properties.setProperty("canvasVoxelsPerTick", "1024");
+        de.joernott.c0depaint.core.config.PaintConfig saved = Programs.config;
+        try {
+            int small = steps(program, properties);
+            int large = steps(program, new java.util.Properties());
+            // The inside (8000 voxels), the faces (2168) and the edges (224) take the fill style: 10392 voxels in
+            // parts of 1024, so the CALL line runs in 11 ticks instead of 1
+            assertEquals(10, small - large);
+        } finally {
+            Programs.config = saved;
+        }
+    }
+
+    private static int steps(String text, java.util.Properties properties) {
+        Programs.config = de.joernott.c0depaint.core.config.PaintConfig.of(
+                properties, de.joernott.c0depaint.core.config.PaintConfig.SERVER, "test");
+        var cursor = new de.joernott.c0de.core.cursor.Cursor(
+                de.joernott.c0de.core.program.ProgramParser.parse(de.joernott.c0de.core.line.Notation.parse(text)),
+                "main",
+                Map.of(),
+                Programs.settings());
+        int steps = 0;
+        while (!cursor.ended() && steps < 100_000) {
+            cursor.step();
+            steps++;
+        }
+        assertEquals(de.joernott.c0de.core.cursor.CursorState.FINISHED, cursor.state(), () -> "" + cursor.error());
+        return steps;
+    }
 }

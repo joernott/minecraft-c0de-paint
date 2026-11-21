@@ -4,7 +4,6 @@ import static de.joernott.c0depaint.core.library.Args.function;
 
 import de.joernott.c0de.core.library.NativeCall;
 import de.joernott.c0de.core.library.NativeFunction;
-import de.joernott.c0de.core.library.NativeResult;
 import de.joernott.c0de.core.value.FloatValue;
 import de.joernott.c0de.core.value.IntegerValue;
 import de.joernott.c0de.core.value.Value;
@@ -14,11 +13,13 @@ import de.joernott.c0depaint.core.draw.Painter;
 import de.joernott.c0depaint.core.draw.Raster;
 import de.joernott.c0depaint.core.draw.Shapes;
 import de.joernott.c0depaint.core.style.Style;
+import de.joernott.c0depaint.core.transform.Job;
 import java.util.ArrayList;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.function.Function;
+import java.util.function.IntSupplier;
 import java.util.function.Predicate;
 import java.util.function.Supplier;
 
@@ -30,23 +31,22 @@ final class DrawFunctions {
 
     private DrawFunctions() {}
 
-    static Map<String, NativeFunction> functions(Supplier<Limits> limits) {
+    static Map<String, NativeFunction> functions(Supplier<Limits> limits, IntSupplier budget) {
         Map<String, NativeFunction> functions = new LinkedHashMap<>();
         add(
                 functions,
                 function(
                         "DRAW_LINE",
                         NONE,
-                        call -> {
-                            Painter.draw(
-                                    Args.canvasReference(call, "canvas"),
-                                    limits.get(),
-                                    call.process().random(),
-                                    List.of(new Painter.Part(
-                                            Raster.line(Args.point(call, "from"), Args.point(call, "to")),
-                                            Args.style(call, "style"))));
-                            return NativeResult.none();
-                        },
+                        call -> Args.inParts(
+                                call,
+                                budget.getAsInt(),
+                                () -> Painter.job(
+                                        Args.canvasReference(call, "canvas"),
+                                        limits.get(),
+                                        List.of(new Painter.Part(
+                                                Raster.line(Args.point(call, "from"), Args.point(call, "to")),
+                                                Args.style(call, "style"))))),
                         Args.canvasReference("canvas"),
                         Args.point("from"),
                         Args.point("to"),
@@ -54,6 +54,7 @@ final class DrawFunctions {
         flat(
                 functions,
                 limits,
+                budget,
                 "DRAW_RECTANGLE",
                 call -> Shapes.rectangle(Args.point(call, "a"), Args.point(call, "b"), Args.point(call, "c")),
                 Args.point("a"),
@@ -62,12 +63,14 @@ final class DrawFunctions {
         flat(
                 functions,
                 limits,
+                budget,
                 "DRAW_POLYGON",
                 call -> Shapes.polygon(Args.points(call, "points")),
                 NativeFunction.Parameter.required("points", "ARRAY STRUCT " + Args.POINT, Args.POINTS));
         flat(
                 functions,
                 limits,
+                budget,
                 "DRAW_ELLIPSE",
                 call -> Shapes.ellipse(Args.point(call, "center"), Args.point(call, "a"), Args.point(call, "b")),
                 Args.point("center"),
@@ -76,6 +79,7 @@ final class DrawFunctions {
         flat(
                 functions,
                 limits,
+                budget,
                 "DRAW_ARC",
                 call -> Shapes.arc(
                         Args.point(call, "center"),
@@ -91,6 +95,7 @@ final class DrawFunctions {
         body(
                 functions,
                 limits,
+                budget,
                 "DRAW_BOX",
                 true,
                 call -> Bodies.box(Args.point(call, "from"), Args.point(call, "to")),
@@ -99,6 +104,7 @@ final class DrawFunctions {
         body(
                 functions,
                 limits,
+                budget,
                 "DRAW_ELLIPSOID",
                 false,
                 call -> Bodies.ellipsoid(
@@ -110,6 +116,7 @@ final class DrawFunctions {
         body(
                 functions,
                 limits,
+                budget,
                 "DRAW_CYLINDER",
                 true,
                 call -> Bodies.cylinder(Args.point(call, "center"), size(call, "r"), size(call, "h"), direction(call)),
@@ -117,6 +124,7 @@ final class DrawFunctions {
         body(
                 functions,
                 limits,
+                budget,
                 "DRAW_CONE",
                 true,
                 call -> Bodies.cone(Args.point(call, "center"), size(call, "r"), size(call, "h"), direction(call)),
@@ -124,6 +132,7 @@ final class DrawFunctions {
         body(
                 functions,
                 limits,
+                budget,
                 "DRAW_PYRAMID",
                 true,
                 call -> Bodies.pyramid(Args.point(call, "center"), size(call, "r"), size(call, "h"), direction(call)),
@@ -132,6 +141,7 @@ final class DrawFunctions {
             body(
                     functions,
                     limits,
+                    budget,
                     "DRAW_" + solid.name(),
                     true,
                     call -> Bodies.solid(solid, Args.point(call, "center"), size(call, "r")),
@@ -166,6 +176,7 @@ final class DrawFunctions {
     private static void body(
             Map<String, NativeFunction> functions,
             Supplier<Limits> limits,
+            IntSupplier budget,
             String name,
             boolean lines,
             Function<NativeCall, Shapes.Voxels> shape,
@@ -183,14 +194,17 @@ final class DrawFunctions {
                 function(
                         name,
                         NONE,
-                        call -> {
-                            Style[] styles = Painter.resolve(
-                                    lines ? Args.style(call, "line_style") : null,
-                                    Args.style(call, "side_style"),
-                                    Args.style(call, "fill_style"));
-                            draw(call, limits, shape.apply(call), styles);
-                            return NativeResult.none();
-                        },
+                        call -> Args.inParts(
+                                call,
+                                budget.getAsInt(),
+                                () -> job(
+                                        call,
+                                        limits,
+                                        shape.apply(call),
+                                        Painter.resolve(
+                                                lines ? Args.style(call, "line_style") : null,
+                                                Args.style(call, "side_style"),
+                                                Args.style(call, "fill_style")))),
                         all.toArray(NativeFunction.Parameter[]::new)));
     }
 
@@ -207,6 +221,7 @@ final class DrawFunctions {
     private static void flat(
             Map<String, NativeFunction> functions,
             Supplier<Limits> limits,
+            IntSupplier budget,
             String name,
             Function<NativeCall, Shapes.Voxels> shape,
             NativeFunction.Parameter... parameters) {
@@ -220,17 +235,20 @@ final class DrawFunctions {
                 function(
                         name,
                         NONE,
-                        call -> {
-                            Style[] styles = Painter.resolve(
-                                    Args.style(call, "line_style"), null, Args.style(call, "fill_style"));
-                            draw(call, limits, shape.apply(call), styles);
-                            return NativeResult.none();
-                        },
+                        call -> Args.inParts(
+                                call,
+                                budget.getAsInt(),
+                                () -> job(
+                                        call,
+                                        limits,
+                                        shape.apply(call),
+                                        Painter.resolve(
+                                                Args.style(call, "line_style"), null, Args.style(call, "fill_style")))),
                         all.toArray(NativeFunction.Parameter[]::new)));
     }
 
     /** Draws the parts of a shape with the styles of line, side and fill (after the fallback of STYLE_NONE). */
-    static void draw(NativeCall call, Supplier<Limits> limits, Shapes.Voxels voxels, Style[] styles) {
+    static Job job(NativeCall call, Supplier<Limits> limits, Shapes.Voxels voxels, Style[] styles) {
         List<Painter.Part> parts = new ArrayList<>();
         parts.add(new Painter.Part(voxels.inside(), styles[2]));
         if (styles[1] != null) {
@@ -239,10 +257,6 @@ final class DrawFunctions {
         if (styles[0] != null) {
             parts.add(new Painter.Part(voxels.lines(), styles[0]));
         }
-        Painter.draw(
-                Args.canvasReference(call, "canvas"),
-                limits.get(),
-                call.process().random(),
-                parts);
+        return Painter.job(Args.canvasReference(call, "canvas"), limits.get(), parts);
     }
 }

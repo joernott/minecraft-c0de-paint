@@ -27,8 +27,9 @@ public sealed interface Style
      * @param random the random number generator of the process
      */
     default void paint(Canvas canvas, List<Point> voxels, RandomGenerator random) {
+        Prepared prepared = prepare(voxels);
         for (Point voxel : voxels) {
-            Block block = block(voxel, random);
+            Block block = prepared.block(voxel, random);
             if (block != null) {
                 canvas.set(voxel, block);
             }
@@ -37,6 +38,18 @@ public sealed interface Style
 
     /** The block of a voxel, or null if the voxel stays as it is. */
     Block block(Point voxel, RandomGenerator random);
+
+    /** The blocks of the voxels of one part, which may be drawn in several portions. */
+    @FunctionalInterface
+    interface Prepared {
+        /** The block of a voxel, or null if the voxel stays as it is. */
+        Block block(Point voxel, RandomGenerator random);
+    }
+
+    /** Prepares drawing the voxels of one part, e.g. the length of a gradient without {@code to}. */
+    default Prepared prepare(List<Point> voxels) {
+        return this::block;
+    }
 
     /** A short description for SAY, displays and the debugger, e.g. "STYLE SOLID minecraft:stone". */
     String text();
@@ -254,7 +267,7 @@ public sealed interface Style
         }
 
         @Override
-        public void paint(Canvas canvas, List<Point> voxels, RandomGenerator random) {
+        public Prepared prepare(List<Point> voxels) {
             double length = 0;
             if (to != null) {
                 length = distance(to);
@@ -263,9 +276,8 @@ public sealed interface Style
                     length = Math.max(length, distance(voxel));
                 }
             }
-            for (Point voxel : voxels) {
-                canvas.set(voxel, block(voxel, length, random));
-            }
+            double fixed = length;
+            return (voxel, random) -> block(voxel, fixed, random);
         }
 
         @Override

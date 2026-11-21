@@ -77,12 +77,18 @@ public final class CpaintLibrary implements Library {
         return new Limits(settings.get(PaintConfig.CANVAS_MIN), settings.get(PaintConfig.CANVAS_MAX));
     }
 
+    /** The voxels a canvas operation processes per tick. */
+    public int budget() {
+        return config.get().get(PaintConfig.CANVAS_VOXELS_PER_TICK);
+    }
+
     @Override
     public Map<String, NativeFunction> functions() {
         Map<String, NativeFunction> functions = new LinkedHashMap<>();
         functions.putAll(StyleFunctions.functions());
         functions.putAll(CanvasFunctions.functions(this::limits));
-        functions.putAll(DrawFunctions.functions(this::limits));
+        functions.putAll(DrawFunctions.functions(this::limits, this::budget));
+        functions.putAll(TransformFunctions.functions(this::limits, this::budget, world));
         functions.put(
                 "INVENTORY_BLOCKS",
                 Args.function(

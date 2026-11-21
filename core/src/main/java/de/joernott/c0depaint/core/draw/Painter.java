@@ -4,6 +4,7 @@ import de.joernott.c0depaint.core.canvas.Canvas;
 import de.joernott.c0depaint.core.canvas.Limits;
 import de.joernott.c0depaint.core.canvas.Point;
 import de.joernott.c0depaint.core.style.Style;
+import de.joernott.c0depaint.core.transform.Job;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.LinkedHashSet;
@@ -40,6 +41,53 @@ public final class Painter {
         Style inward = resolvedSide == null ? fill : resolvedSide;
         Style resolvedLine = line == null ? null : line.isNone() ? inward : line;
         return new Style[] {resolvedLine, resolvedSide, fill};
+    }
+
+    /**
+     * The drawing of the parts as a job that draws at most a number of voxels per tick. The limits are checked before
+     * the first voxel; the styles are prepared with all voxels of their part, e.g. the length of a gradient.
+     */
+    public static Job job(Canvas canvas, Limits limits, List<Part> parts) {
+        List<List<Point>> voxels = new ArrayList<>();
+        List<Style.Prepared> styles = new ArrayList<>();
+        for (Part part : parts) {
+            List<Point> unique = new ArrayList<>(new LinkedHashSet<>(part.voxels()));
+            if (!part.style().isNone()) {
+                unique.forEach(limits::check);
+            }
+            voxels.add(unique);
+            styles.add(part.style().isNone() ? null : part.style().prepare(unique));
+        }
+        return new Job() {
+            private int part;
+            private int next;
+
+            @Override
+            public boolean step(int budget, RandomGenerator random) {
+                int done = 0;
+                while (part < voxels.size() && done < budget) {
+                    Style.Prepared style = styles.get(part);
+                    List<Point> list = voxels.get(part);
+                    if (style == null) {
+                        part++;
+                        next = 0;
+                        continue;
+                    }
+                    for (; next < list.size() && done < budget; next++, done++) {
+                        Point voxel = list.get(next);
+                        de.joernott.c0depaint.core.canvas.Block block = style.block(voxel, random);
+                        if (block != null) {
+                            canvas.set(voxel, block);
+                        }
+                    }
+                    if (next >= list.size()) {
+                        part++;
+                        next = 0;
+                    }
+                }
+                return part >= voxels.size();
+            }
+        };
     }
 
     /** Draws the parts, from the inside out. */

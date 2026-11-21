@@ -333,7 +333,7 @@ class CanvasFunctionsTest {
         while (!cursor.ended()
                 && steps < 10_000
                 && cursor.line() < text.lines().toList().indexOf("    NOOP")) {
-            cursor.stepOnce();
+            cursor.step();
             steps++;
         }
         assertTrue(!cursor.ended() && steps > 0, "The program should still run");

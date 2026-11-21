@@ -20,6 +20,7 @@ import de.joernott.c0depaint.core.canvas.Canvas;
 import de.joernott.c0depaint.core.canvas.Point;
 import de.joernott.c0depaint.core.style.Style;
 import de.joernott.c0depaint.core.style.Weighted;
+import de.joernott.c0depaint.core.transform.Job;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -113,6 +114,20 @@ final class Args {
                 return NativeResult.error(PaintError.INVALID_ARGUMENT.code(), e.getMessage());
             }
         });
+    }
+
+    /**
+     * Runs a job in parts (docs/concept.md#configuration, canvasVoxelsPerTick): the first call starts it, and while it
+     * isn't done, the process waits on the CALL line and the function does the next part in the next tick.
+     */
+    static NativeResult inParts(NativeCall call, int budget, java.util.function.Supplier<Job> start) {
+        Job job = call.state() instanceof Job running ? running : start.get();
+        if (job.step(budget, call.process().random())) {
+            call.setState(null);
+            return NativeResult.none();
+        }
+        call.setState(job);
+        return NativeResult.waitForValue();
     }
 
     // ------------------------------------------------------------------------------------------------- values

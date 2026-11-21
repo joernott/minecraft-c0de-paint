@@ -120,6 +120,16 @@ public final class Canvas {
         set(point.x(), point.y(), point.z(), block);
     }
 
+    /** Replaces the content with the content of another canvas, sharing its sections until one of them changes. */
+    public void assign(Canvas other) {
+        sections.clear();
+        other.sections.values().forEach(section -> section.shared = true);
+        sections.putAll(other.sections);
+        count = other.count;
+        bounds = other.bounds;
+        boundsKnown = other.boundsKnown;
+    }
+
     /** Unsets all voxels. */
     public void clear() {
         sections.clear();

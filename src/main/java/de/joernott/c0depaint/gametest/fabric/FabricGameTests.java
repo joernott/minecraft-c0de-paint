@@ -3,6 +3,7 @@ package de.joernott.c0depaint.gametest.fabric;
 //? if fabric {
 import de.joernott.c0depaint.gametest.InventoryTests;
 import de.joernott.c0depaint.gametest.SmokeTests;
+import de.joernott.c0depaint.gametest.TransformTests;
 import net.minecraft.gametest.framework.GameTest;
 import net.minecraft.gametest.framework.GameTestHelper;
 
@@ -25,6 +26,11 @@ public class FabricGameTests {
     @GameTest(template = SmokeTests.EMPTY_STRUCTURE, timeoutTicks = 100)
     public void inventoryBlocksFollowTheSlots(GameTestHelper helper) {
         InventoryTests.inventoryBlocksFollowTheSlots(helper);
+    }
+
+    @GameTest(template = SmokeTests.EMPTY_STRUCTURE, timeoutTicks = 100)
+    public void statesTurnAndMirror(GameTestHelper helper) {
+        TransformTests.statesTurnAndMirror(helper);
     }
 }
 //?}

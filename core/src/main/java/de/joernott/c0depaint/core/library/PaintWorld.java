@@ -4,6 +4,7 @@ import de.joernott.c0de.core.error.C0deException;
 import de.joernott.c0de.core.error.ErrorCode;
 import de.joernott.c0de.core.library.NativeCall;
 import de.joernott.c0de.core.value.StructValue;
+import de.joernott.c0depaint.core.canvas.Block;
 import de.joernott.c0depaint.core.style.Weighted;
 import java.util.List;
 
@@ -22,6 +23,14 @@ public interface PaintWorld {
      */
     default List<Weighted> inventoryBlocks(NativeCall call, StructValue position) {
         throw unavailable("INVENTORY_BLOCKS");
+    }
+
+    /**
+     * The block if it can take its states, or null: a transformation keeps the states of blocks that can't take the
+     * transformed ones (docs/concept.md#block-states-in-transformations). Without a world, every block is valid.
+     */
+    default Block valid(Block block) {
+        return block;
     }
 
     /** The error of a function that needs the world where there is none. */
