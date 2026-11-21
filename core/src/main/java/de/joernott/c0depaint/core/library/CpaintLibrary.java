@@ -101,6 +101,42 @@ public final class CpaintLibrary implements Library {
                                 MinecraftLibraryDefinition.NAME + "/POSITION",
                                 value -> value instanceof de.joernott.c0de.core.value.StructValue struct
                                         && struct.definition().equals(MinecraftLibraryDefinition.POSITION))));
+        Args.add(
+                functions,
+                Args.function(
+                        "RENDER_CANVAS",
+                        java.util.List.of(),
+                        call -> Args.inParts(
+                                call,
+                                Integer.MAX_VALUE,
+                                () -> world.render(
+                                        call,
+                                        Args.canvas(call, "canvas").copy(),
+                                        (de.joernott.c0de.core.value.StructValue) call.argument("position"),
+                                        config.get())),
+                        Args.canvas("canvas"),
+                        Args.position("position"),
+                        Args.optionalPosition("input"),
+                        Args.optionalPosition("tools"),
+                        Args.optionalPosition("output")));
+        Args.add(
+                functions,
+                Args.function(
+                        "CANVAS_FROM_WORLD",
+                        java.util.List.of("result"),
+                        call -> de.joernott.c0de.core.library.NativeResult.of(new CanvasValue(world.fromWorld(
+                                call,
+                                (de.joernott.c0de.core.value.StructValue) call.argument("from"),
+                                (de.joernott.c0de.core.value.StructValue) call.argument("to"),
+                                ((de.joernott.c0de.core.value.BooleanValue) call.argument("air")).value(),
+                                limits()))),
+                        Args.position("from"),
+                        Args.position("to"),
+                        de.joernott.c0de.core.library.NativeFunction.Parameter.withDefault(
+                                "air",
+                                "BOOLEAN",
+                                value -> value instanceof de.joernott.c0de.core.value.BooleanValue,
+                                de.joernott.c0de.core.value.BooleanValue.FALSE)));
         return functions;
     }
 }

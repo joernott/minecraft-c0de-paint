@@ -64,4 +64,23 @@ final class Processes {
         helper.assertTrue(cursor.state() == CursorState.FINISHED, "The program didn't finish: " + cursor.error());
         return cursor.results();
     }
+
+    /**
+     * Runs the cursor over ticks, a few steps per tick, and runs the checks when it has ended (at the latest after
+     * {@link TestCompat#MAX_WAIT} ticks).
+     */
+    static void finish(GameTestHelper helper, Cursor cursor, Runnable checks) {
+        finish(helper, cursor, checks, TestCompat.MAX_WAIT);
+    }
+
+    private static void finish(GameTestHelper helper, Cursor cursor, Runnable checks, int ticksLeft) {
+        for (int i = 0; i < 20 && !cursor.ended(); i++) {
+            cursor.step();
+        }
+        if (cursor.ended() || ticksLeft <= 0) {
+            checks.run();
+        } else {
+            helper.runAfterDelay(1, () -> finish(helper, cursor, checks, ticksLeft - 1));
+        }
+    }
 }

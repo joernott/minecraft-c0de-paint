@@ -2,6 +2,7 @@ package de.joernott.c0depaint.gametest.fabric;
 
 //? if fabric {
 import de.joernott.c0depaint.gametest.InventoryTests;
+import de.joernott.c0depaint.gametest.RenderTests;
 import de.joernott.c0depaint.gametest.SmokeTests;
 import de.joernott.c0depaint.gametest.TransformTests;
 import net.minecraft.gametest.framework.GameTest;
@@ -31,6 +32,26 @@ public class FabricGameTests {
     @GameTest(template = SmokeTests.EMPTY_STRUCTURE, timeoutTicks = 100)
     public void statesTurnAndMirror(GameTestHelper helper) {
         TransformTests.statesTurnAndMirror(helper);
+    }
+
+    @GameTest(template = SmokeTests.EMPTY_STRUCTURE, timeoutTicks = 2000)
+    public void renderingWithoutInputNeedsRights(GameTestHelper helper) {
+        RenderTests.renderingWithoutInputNeedsRights(helper);
+    }
+
+    @GameTest(template = SmokeTests.EMPTY_STRUCTURE, timeoutTicks = 2000)
+    public void renderingTakesTheBlocksFromTheInput(GameTestHelper helper) {
+        RenderTests.renderingTakesTheBlocksFromTheInput(helper);
+    }
+
+    @GameTest(template = SmokeTests.EMPTY_STRUCTURE, timeoutTicks = 2000)
+    public void blocksInTheWayAreMined(GameTestHelper helper) {
+        RenderTests.blocksInTheWayAreMined(helper);
+    }
+
+    @GameTest(template = SmokeTests.EMPTY_STRUCTURE, timeoutTicks = 2000)
+    public void theWorldIsCopiedIntoACanvas(GameTestHelper helper) {
+        RenderTests.theWorldIsCopiedIntoACanvas(helper);
     }
 }
 //?}

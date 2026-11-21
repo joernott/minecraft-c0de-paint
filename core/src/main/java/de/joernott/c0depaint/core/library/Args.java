@@ -99,6 +99,23 @@ final class Args {
         return NativeFunction.Parameter.withDefault(name, "INTEGER", INTEGER, new IntegerValue(defaultValue));
     }
 
+    static final Predicate<Value> A_POSITION = value -> value instanceof StructValue struct
+            && struct.definition().equals(de.joernott.c0de.core.library.minecraft.MinecraftLibraryDefinition.POSITION);
+    static final String POSITION =
+            de.joernott.c0de.core.library.minecraft.MinecraftLibraryDefinition.NAME + "/POSITION";
+
+    static NativeFunction.Parameter position(String name) {
+        return NativeFunction.Parameter.required(name, POSITION, A_POSITION);
+    }
+
+    static NativeFunction.Parameter optionalPosition(String name) {
+        return NativeFunction.Parameter.optional(name, POSITION, A_POSITION);
+    }
+
+    static void add(java.util.Map<String, NativeFunction> functions, NativeFunction function) {
+        functions.put(function.name(), function);
+    }
+
     /** A function whose model errors become errors of the CALL statement. */
     static NativeFunction function(
             String name,

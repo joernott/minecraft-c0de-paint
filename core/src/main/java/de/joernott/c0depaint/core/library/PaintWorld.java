@@ -5,7 +5,11 @@ import de.joernott.c0de.core.error.ErrorCode;
 import de.joernott.c0de.core.library.NativeCall;
 import de.joernott.c0de.core.value.StructValue;
 import de.joernott.c0depaint.core.canvas.Block;
+import de.joernott.c0depaint.core.canvas.Canvas;
+import de.joernott.c0depaint.core.canvas.Limits;
+import de.joernott.c0depaint.core.config.PaintConfig;
 import de.joernott.c0depaint.core.style.Weighted;
+import de.joernott.c0depaint.core.transform.Job;
 import java.util.List;
 
 /**
@@ -31,6 +35,27 @@ public interface PaintWorld {
      */
     default Block valid(Block block) {
         return block;
+    }
+
+    /**
+     * The rendering of a canvas (RENDER_CANVAS) as a job that runs while the process waits: the checks before the first
+     * block happen when the job is created.
+     *
+     * @param call the CALL of RENDER_CANVAS
+     * @param canvas the canvas, a copy that doesn't change while rendering
+     * @param position where the voxel 0,0,0 lands
+     * @param settings the settings of c0de paint
+     */
+    default Job render(NativeCall call, Canvas canvas, StructValue position, PaintConfig settings) {
+        throw unavailable("RENDER_CANVAS");
+    }
+
+    /**
+     * The blocks of the world between two positions as a canvas (CANVAS_FROM_WORLD): {@code from} becomes 0,0,0; air
+     * becomes not set, or air if {@code air} is true.
+     */
+    default Canvas fromWorld(NativeCall call, StructValue from, StructValue to, boolean air, Limits limits) {
+        throw unavailable("CANVAS_FROM_WORLD");
     }
 
     /** The error of a function that needs the world where there is none. */

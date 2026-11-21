@@ -8,6 +8,11 @@ import de.joernott.c0de.core.value.StringValue;
 import de.joernott.c0de.core.value.StructValue;
 import de.joernott.c0de.library.ProcessHost;
 import de.joernott.c0depaint.core.canvas.Block;
+import de.joernott.c0depaint.core.canvas.Canvas;
+import de.joernott.c0depaint.core.canvas.Limits;
+import de.joernott.c0depaint.core.canvas.Point;
+import de.joernott.c0depaint.core.config.PaintConfig;
+import de.joernott.c0depaint.core.transform.Job;
 import de.joernott.c0depaint.core.library.PaintWorld;
 import de.joernott.c0depaint.core.style.Weighted;
 import java.util.ArrayList;
@@ -73,6 +78,76 @@ public final class MinecraftWorld implements PaintWorld {
             }
         }
         return block;
+    }
+
+    @Override
+    public Job render(NativeCall call, Canvas canvas, StructValue position, PaintConfig settings) {
+        return Renderer.start(call, canvas, position, settings);
+    }
+
+    /**
+     * CANVAS_FROM_WORLD: the blocks with all their states, without the data of block entities. Raises CHUNK_NOT_LOADED
+     * before the first voxel if a chunk of the region isn't loaded, and CANVAS_LIMIT if the region is larger than a
+     * canvas may be.
+     */
+    @Override
+    public Canvas fromWorld(NativeCall call, StructValue from, StructValue to, boolean air, Limits limits) {
+        Place start = place(call, from);
+        Place end = place(call, to);
+        if (start.level() != end.level()) {
+            throw C0deException.of(ErrorCode.INVALID_ARGUMENT, "from and to lie in different dimensions");
+        }
+        BlockPos min = new BlockPos(
+                Math.min(start.pos().getX(), end.pos().getX()),
+                Math.min(start.pos().getY(), end.pos().getY()),
+                Math.min(start.pos().getZ(), end.pos().getZ()));
+        BlockPos max = new BlockPos(
+                Math.max(start.pos().getX(), end.pos().getX()),
+                Math.max(start.pos().getY(), end.pos().getY()),
+                Math.max(start.pos().getZ(), end.pos().getZ()));
+        // The voxels of the corners, relative to from
+        limits.check(new Point(
+                min.getX() - start.pos().getX(), min.getY() - start.pos().getY(), min.getZ() - start.pos().getZ()));
+        limits.check(new Point(
+                max.getX() - start.pos().getX(), max.getY() - start.pos().getY(), max.getZ() - start.pos().getZ()));
+        ServerLevel level = start.level();
+        for (int cx = min.getX() >> 4; cx <= max.getX() >> 4; cx++) {
+            for (int cz = min.getZ() >> 4; cz <= max.getZ() >> 4; cz++) {
+                BlockPos corner = new BlockPos(cx << 4, min.getY(), cz << 4);
+                if (!level.isLoaded(corner)) {
+                    throw C0deException.of(
+                            ErrorCode.CHUNK_NOT_LOADED, "The chunk of " + corner.toShortString() + " is not loaded");
+                }
+            }
+        }
+        Canvas canvas = new Canvas();
+        Map<BlockState, Block> blocks = new java.util.HashMap<>();
+        for (BlockPos pos : BlockPos.betweenClosed(min, max)) {
+            BlockState state = level.getBlockState(pos);
+            if (state.isAir() && !air) {
+                continue;
+            }
+            Block block = state.isAir() ? Block.AIR : blocks.computeIfAbsent(state, MinecraftWorld::block);
+            canvas.set(
+                    pos.getX() - start.pos().getX(),
+                    pos.getY() - start.pos().getY(),
+                    pos.getZ() - start.pos().getZ(),
+                    block);
+        }
+        return canvas;
+    }
+
+    /** The block of a canvas for a block state, with all its states. */
+    static Block block(BlockState state) {
+        Map<String, String> properties = new java.util.TreeMap<>();
+        for (Property<?> property : state.getProperties()) {
+            properties.put(property.getName(), valueName(state, property));
+        }
+        return Block.of(BuiltInRegistries.BLOCK.getKey(state.getBlock()).toString(), properties);
+    }
+
+    private static <T extends Comparable<T>> String valueName(BlockState state, Property<T> property) {
+        return property.getName(state.getValue(property));
     }
 
     /** The registered block, or air. */
