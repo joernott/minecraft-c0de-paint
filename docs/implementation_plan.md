@@ -108,11 +108,11 @@ A task is done when
 
 | Task | Description | Done |
 |---|---|:---:|
-| 5.1 | DRAW_BOX with edges, sides and inside. |  |
-| 5.2 | DRAW_ELLIPSOID with face and inside. |  |
-| 5.3 | DRAW_CYLINDER and DRAW_CONE: the six directions, rims as lines. |  |
-| 5.4 | DRAW_PYRAMID with a square base. |  |
-| 5.5 | DRAW_TETRAHEDRON, DRAW_OCTAHEDRON, DRAW_DODECAHEDRON and DRAW_ICOSAHEDRON: corners at the distance r, fixed orientations (pictures for the handbook). |  |
+| 5.1 | DRAW_BOX with edges, sides and inside.   Done on 2026-11-21: the faces are the voxels of the body with a neighbour outside through a face (`Raster.surface`). | ✅ |
+| 5.2 | DRAW_ELLIPSOID with face and inside.   Done on 2026-11-21: a radius of 0 makes the ellipsoid flat on that axis. | ✅ |
+| 5.3 | DRAW_CYLINDER and DRAW_CONE: the six directions, rims as lines.   Done on 2026-11-21: a cylinder has h layers (0 to h−1), the tip of a cone lies at h; the rims are the outlines of the end layers. | ✅ |
+| 5.4 | DRAW_PYRAMID with a square base.   Done on 2026-11-21. | ✅ |
+| 5.5 | DRAW_TETRAHEDRON, DRAW_OCTAHEDRON, DRAW_DODECAHEDRON and DRAW_ICOSAHEDRON: corners at the distance r, fixed orientations (pictures for the handbook).   Done on 2026-11-21: the faces are found as the planes through three corners that have all corners on one side; the orientations are the classic ones (tetrahedron in alternate corners of a cube, octahedron on the axes, icosahedron and dodecahedron with the golden ratio). The pictures follow with the handbook (8.1). | ✅ |
 
 ## Sprint 6: Transformations
 
