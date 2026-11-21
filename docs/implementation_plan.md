@@ -143,9 +143,10 @@ A task is done when
 
 | Task | Description | Done |
 |---|---|:---:|
-| 8.1 | **Handbook:**<ul><li>The handbook of `c0de_paint/cpaint` as a binder of c0de's handbooks, in English and German.</li><li>Pictures of the shapes, styles and Platonic solids.</li><li>README and CHANGELOG.</li></ul> |  |
-| 8.2 | **Runner library for the program runner of c0de:**<ul><li>The library without Minecraft, `c0de-paint-runner-<version>.jar`.</li><li>RENDER_CANVAS writes the placed blocks layer by layer to a YAML file, which the tests compare with the expected result.</li></ul> |  |
-| 8.3 | **Release 0.1.0 for all nodes:**<ul><li>GitHub, Modrinth (environment "client and server") and CurseForge.</li><li>Only with the consent of the user, who pushes the tag.</li></ul> |  |
+| 8.1 | **Handbook:**<ul><li>The handbook of `c0de_paint/cpaint` as a binder of c0de's handbooks, in English and German.</li><li>Pictures of the shapes, styles and Platonic solids.</li><li>README and CHANGELOG.</li></ul>   Done on 2026-11-21: `docs/reference/paint.md` and `docs/de/reference/paint.md`, generated into the book `c0de_paint:paint` by `scripts/generate_book.py`; the binder is crafted from an INCLUDE block and eight dyes in the colours of the rainbow, with a pink label (my decision); README and CHANGELOG. The pictures follow in 8.1.1. | ✅ |
+| 8.1.1 | Pictures of the shapes, styles and Platonic solids for the handbook. |  |
+| 8.2 | **Runner library for the program runner of c0de:**<ul><li>The library without Minecraft, `c0de-paint-runner-<version>.jar`.</li><li>RENDER_CANVAS writes the placed blocks layer by layer to a YAML file, which the tests compare with the expected result.</li></ul>   Done on 2026-11-21: module `runner` with `PaintRunnerLibraries` and `RunnerWorld`; RENDER_CANVAS appends a YAML document per call to `c0de-paint-render.yaml` (or the file in the system property `c0depaint.render`); INVENTORY_BLOCKS and CANVAS_FROM_WORLD raise INVALID_ARGUMENT. Its tests also validate the programs of the handbook in both languages. | ✅ |
+| 8.3 | **Release 0.1.0 for all nodes:**<ul><li>GitHub, Modrinth (environment "client and server") and CurseForge.</li><li>Only with the consent of the user, who pushes the tag.</li></ul>   Prepared on 2026-11-21: the workflows `release.yml` and `curseforge.yml` from c0de net; open: the Modrinth and CurseForge projects (their IDs in `stonecutter.properties.toml`), the consent of the user and the tag. |  |
 | 8.4 | **c0de.at (in www-c0de, as its own sprint there):**<ul><li>The documentation of c0de 0.7.0 with the library types.</li><li>The new library `c0de_paint/cpaint` with its handbook in English and German.</li><li>Recipes for c0de paint, tested with the runner library.</li><li>Screenshots.</li></ul> |  |
 
 ## Risks

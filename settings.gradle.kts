@@ -27,6 +27,9 @@ rootProject.name = "c0de_paint"
 // c0de, without Minecraft or a mod loader
 include("core")
 
+// c0de_paint/cpaint for the program runner of c0de (task 8.2): the library without Minecraft, c0de-paint-runner-<version>.jar
+include("runner")
+
 stonecutter {
     create(rootProject) {
         // Creates the nodes `versions/{version}-{loader}`, built with `build.{loader}.gradle.kts`.

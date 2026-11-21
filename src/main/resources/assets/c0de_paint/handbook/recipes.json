@@ -1,0 +1,37 @@
+{
+  "c0de_paint:handbook": {
+    "slots": [
+      [
+        "minecraft:red_dye"
+      ],
+      [
+        "minecraft:orange_dye"
+      ],
+      [
+        "minecraft:yellow_dye"
+      ],
+      [
+        "minecraft:magenta_dye"
+      ],
+      [
+        "c0de:include_block"
+      ],
+      [
+        "minecraft:lime_dye"
+      ],
+      [
+        "minecraft:purple_dye"
+      ],
+      [
+        "minecraft:blue_dye"
+      ],
+      [
+        "minecraft:light_blue_dye"
+      ]
+    ],
+    "result": "c0de:handbook",
+    "count": 1,
+    "book": "c0de_paint:paint",
+    "color": "#E05A9C"
+  }
+}

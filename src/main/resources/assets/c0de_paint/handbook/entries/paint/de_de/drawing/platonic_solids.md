@@ -1,0 +1,27 @@
+```json
+{
+  "title": "Platonische Körper",
+  "icon": "minecraft:brush",
+  "category": "drawing",
+  "ordinal": 11
+}
+```
+
+DRAW\_TETRAHEDRON, DRAW\_OCTAHEDRON, DRAW\_DODECAHEDRON und DRAW\_ICOSAHEDRON zeichnen den platonischen Körper um `center`, alle Ecken im Abstand `r` davon. Die Linien sind ihre Kanten. Jeder hat eine feste Ausrichtung: Das Tetraeder hat seine Ecken in jeder zweiten Ecke eines Würfels, das Oktaeder auf den Achsen, Ikosaeder und Dodekaeder sind über den goldenen Schnitt an den Achsen ausgerichtet. Andere Ausrichtungen entstehen mit CANVAS\_ROTATE. Der Würfel ist DRAW\_BOX.
+
+**Parameter und Ergebnisse**
+
+- `canvas` TYPE c0de\_paint/cpaint/CANVAS: die Leinwand (eine Variable)
+- `center` STRUCT c0de\_paint/cpaint/POINT: der Mittelpunkt
+- `r` INTEGER: der Abstand der Ecken
+- `line_style`, `side_style`, `fill_style` TYPE c0de\_paint/cpaint/STYLE: die Stile (optional)
+
+**Beispiel**
+
+```c0de
+CALL c0de_paint/cpaint/DRAW_ICOSAHEDRON
+  PARAMETER canvas c ;
+  PARAMETER center middle ;
+  PARAMETER r 12 ;
+  PARAMETER line_style gold ;
+```

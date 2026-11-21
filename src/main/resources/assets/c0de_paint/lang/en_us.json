@@ -1,0 +1,4 @@
+{
+  "book.c0de_paint.paint.name": "c0de paint Handbook",
+  "book.c0de_paint.paint.landing_text": "c0de paint adds the library c0de\\_paint/cpaint to c0de. Programs draw lines, flat shapes and bodies into canvases, combine and transform them, and build them in the world. This handbook describes the types, the styles, the drawing functions, the canvas operations, rendering, the errors and the settings, with examples."
+}

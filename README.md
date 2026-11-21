@@ -7,11 +7,12 @@ INCLUDE c0de_paint/cpaint
 VARIABLE c TYPE c0de_paint/cpaint/CANVAS
 ```
 
+- [Handbook](docs/reference/paint.md) ([Deutsch](docs/de/reference/paint.md))
 - [Concept](docs/concept.md)
 - [Implementation plan](docs/implementation_plan.md)
 - [Development environment](docs/development_environment.md)
 
-c0de paint requires c0de 0.7.0 or later. It is in development; nothing is released yet.
+c0de paint requires c0de 0.7.0 or later. In the game, its handbook is a binder of the handbooks of c0de. For the program runner of c0de, the runner library `c0de-paint-runner-<version>.jar` adds the library; there, RENDER_CANVAS writes the placed blocks to a YAML file.
 
 ## License
 

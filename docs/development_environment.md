@@ -21,6 +21,9 @@ Common commands:
 | `./gradlew :<node>:runGameTestServer` | GameTests of a NeoForge node |
 | `./gradlew :<node>:runClient` | A development client with c0de and c0de paint |
 | `scripts/check-whitespace.sh` | Whitespace of all files outside of `core` |
+| `./gradlew :runner:check :runner:jar` | Tests and builds the runner library `c0de-paint-runner-<version>.jar`; the tests also check the programs of the handbook |
+| `python scripts/generate_book.py` | Generates the handbook in the game (the book `c0de_paint:paint` of the handbooks of c0de), its crafting grid and the recipe of its binder from `docs/reference/paint.md` and its German translation; the CI fails if the committed files differ |
+| `python scripts/generate_recipe_images.py` | Draws the recipe of the binder for the handbook (`docs/reference/images`); needs the jars of c0de and Minecraft from a build of `1.21.1-fabric` |
 
 ## Development VM
 
@@ -35,4 +38,4 @@ The tests then run in that clone, e.g. `./gradlew :1.21.1-neoforge:runGameTestSe
 
 ## GitHub Actions
 
-`.github/workflows/build.yml` runs on every push: whitespace, the version of the active node, formatting and unit tests of `core` (Linux and Windows), and for every node the build and the GameTests. The jars are uploaded as artifacts. The release workflows of c0de net are added with the first release (task 8.3).
+`.github/workflows/build.yml` runs on every push: whitespace, the version of the active node, formatting and unit tests of `core` (Linux and Windows), and for every node the build and the GameTests. The jars are uploaded as artifacts. `.github/workflows/release.yml` and `curseforge.yml` publish a version as in c0de net: pushing the tag `v<mod.version>` builds and tests every node, publishes to Modrinth and CurseForge (secrets `MODRINTH_TOKEN` and `CURSEFORGE_TOKEN`, project IDs `publish.modrinth_id` and `publish.curseforge_id` in `stonecutter.properties.toml`, still empty) and creates a GitHub release with the jars, the runner library and the changelog section.

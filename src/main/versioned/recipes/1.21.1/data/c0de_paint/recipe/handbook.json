@@ -1,0 +1,48 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "category": "misc",
+  "pattern": [
+    "ROY",
+    "MIL",
+    "PBC"
+  ],
+  "key": {
+    "R": {
+      "item": "minecraft:red_dye"
+    },
+    "O": {
+      "item": "minecraft:orange_dye"
+    },
+    "Y": {
+      "item": "minecraft:yellow_dye"
+    },
+    "L": {
+      "item": "minecraft:lime_dye"
+    },
+    "C": {
+      "item": "minecraft:light_blue_dye"
+    },
+    "B": {
+      "item": "minecraft:blue_dye"
+    },
+    "P": {
+      "item": "minecraft:purple_dye"
+    },
+    "M": {
+      "item": "minecraft:magenta_dye"
+    },
+    "I": {
+      "item": "c0de:include_block"
+    }
+  },
+  "result": {
+    "id": "c0de:handbook",
+    "count": 1,
+    "components": {
+      "minecraft:custom_data": {
+        "book": "c0de_paint:paint",
+        "color": 14703260
+      }
+    }
+  }
+}
