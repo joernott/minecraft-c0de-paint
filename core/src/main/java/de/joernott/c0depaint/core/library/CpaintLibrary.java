@@ -82,6 +82,7 @@ public final class CpaintLibrary implements Library {
         Map<String, NativeFunction> functions = new LinkedHashMap<>();
         functions.putAll(StyleFunctions.functions());
         functions.putAll(CanvasFunctions.functions(this::limits));
+        functions.putAll(DrawFunctions.functions(this::limits));
         functions.put(
                 "INVENTORY_BLOCKS",
                 Args.function(
