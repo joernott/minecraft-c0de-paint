@@ -120,11 +120,11 @@ A task is done when
 
 | Task | Description | Done |
 |---|---|:---:|
-| 6.1 | CANVAS_SCALE: percentages of 1 or more, around `center`, nearest voxel. |  |
-| 6.2 | CANVAS_ROTATE: any angle about x, y or z, every target voxel takes the nearest source voxel (no holes, no doubled voxels). |  |
-| 6.3 | CANVAS_MIRROR at a plane, by default at the middle of the bounds. |  |
-| 6.4 | **Block states in the mod:**<ul><li>When rotating: `facing`, `axis`, `rotation` and the shapes of stairs and rails, rounded to 90° (16 steps for `rotation`).</li><li>When mirroring: the same states, and door hinges.</li><li>A state the block can't take stays unchanged.</li><li>GameTests with stairs, logs and doors.</li></ul> |  |
-| 6.5 | Canvas operations and drawing functions process at most `canvasVoxelsPerTick` voxels per tick; the process waits for the rest. A GameTest with a large canvas checks that the ticks stay within the budget. |  |
+| 6.1 | CANVAS_SCALE: percentages of 1 or more, around `center`, nearest voxel.   Done on 2026-11-21: every voxel of the box of the result takes the nearest voxel of the source; the result is built in a canvas of its own, so an error (CANVAS_LIMIT) leaves the canvas unchanged. | ✅ |
+| 6.2 | CANVAS_ROTATE: any angle about x, y or z, every target voxel takes the nearest source voxel (no holes, no doubled voxels).   Done on 2026-11-21: right-hand rule (+90° about y turns east to north); exact for multiples of 90°; a filled square turned by 30° has no holes (unit test). | ✅ |
+| 6.3 | CANVAS_MIRROR at a plane, by default at the middle of the bounds.   Done on 2026-11-21: `position` may be FLOAT, e.g. 4.5 for the plane between two voxels. | ✅ |
+| 6.4 | **Block states in the mod:**<ul><li>When rotating: `facing`, `axis`, `rotation` and the shapes of stairs and rails, rounded to 90° (16 steps for `rotation`).</li><li>When mirroring: the same states, and door hinges.</li><li>A state the block can't take stays unchanged.</li><li>GameTests with stairs, logs and doors.</li></ul>   Done on 2026-11-21: the new states are computed in `core` (`BlockStates`, also `half`, the `type` of slabs and the sides of fences); the mod checks them against the state definition of the block (`MinecraftWorld.valid`). GameTest `statesTurnAndMirror` on all ten nodes on the VM. | ✅ |
+| 6.5 | Canvas operations and drawing functions process at most `canvasVoxelsPerTick` voxels per tick; the process waits for the rest. A GameTest with a large canvas checks that the ticks stay within the budget.   Done on 2026-11-21: `Job` with `call.state()`; the drawing functions and the three transformations; the other canvas operations work in one tick (decision, in the concept). Checked by the unit test `largeDrawingsAreSpreadOverSeveralTicks` instead of a GameTest: it counts the steps of the cursor. | ✅ |
 
 ## Sprint 7: Rendering
 
