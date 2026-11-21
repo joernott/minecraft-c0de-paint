@@ -97,10 +97,10 @@ A task is done when
 
 | Task | Description | Done |
 |---|---|:---:|
-| 4.1 | **Rasterization in `core`:**<ul><li>3D lines that connect through edges and corners.</li><li>A voxel belongs to a shape when its center is inside.</li><li>Lines and faces one voxel thick.</li><li>Planes from three points (NOT_A_PLANE).</li><li>The fallback of STYLE_NONE inward (line → face → inside).</li></ul> |  |
-| 4.2 | DRAW_LINE and DRAW_RECTANGLE. |  |
-| 4.3 | DRAW_POLYGON: closed automatically, the plane from the first three points not on one line, other points projected onto it. |  |
-| 4.4 | DRAW_ELLIPSE and DRAW_ARC: semi-axes from points, angles in degrees, the pie slice of the fill style. Tests with tilted planes (such as a circle tilted by 10°). |  |
+| 4.1 | **Rasterization in `core`:**<ul><li>3D lines that connect through edges and corners.</li><li>A voxel belongs to a shape when its center is inside.</li><li>Lines and faces one voxel thick.</li><li>Planes from three points (NOT_A_PLANE).</li><li>The fallback of STYLE_NONE inward (line → face → inside).</li></ul>   Done on 2026-11-21: `Raster` (lines, planes, flat regions column by column along the steepest axis of the plane, bodies, surfaces) and `Painter` (inside, faces, lines in this order; limits checked before the first voxel). Unit tests `ShapesTest`. | ✅ |
+| 4.2 | DRAW_LINE and DRAW_RECTANGLE.   Done on 2026-11-21: `c` only gives the distance of the second side. | ✅ |
+| 4.3 | DRAW_POLYGON: closed automatically, the plane from the first three points not on one line, other points projected onto it.   Done on 2026-11-21. | ✅ |
+| 4.4 | DRAW_ELLIPSE and DRAW_ARC: semi-axes from points, angles in degrees, the pie slice of the fill style. Tests with tilted planes (such as a circle tilted by 10°).   Done on 2026-11-21: the angles of DRAW_ARC are those of the parameter of the ellipse, so the pie slice ends on the arc; the line of an arc is the curve only. A circle tilted by about 10° is a unit test. | ✅ |
 
 ## Sprint 5: Bodies
 
