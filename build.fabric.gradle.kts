@@ -1,0 +1,206 @@
+plugins {
+    // Applies the right Loom variant depending on the Minecraft version
+    id("dev.kikugie.loom-back-compat")
+    id("me.modmuss50.mod-publish-plugin") version "2.2.1"
+}
+
+// DO NOT set group = ...!
+version = "${property("mod.version")}+${sc.current.version}"
+base.archivesName = "${property("mod.id") as String}-fabric"
+
+val requiredJava: JavaVersion = when {
+    sc.current.parsed >= "26.1" -> JavaVersion.VERSION_25
+    else -> JavaVersion.VERSION_21
+}
+
+// The development runs of 1.21.1 keep their directories (run/fabric, run/neoforge); the other versions get
+// their own (e.g. run/fabric-1.21.11), because mods in the mods folders work for one version only
+val runSuffix = if (sc.current.version == "1.21.1") "" else "-${sc.current.version}"
+
+repositories {
+    maven("https://maven.parchmentmc.org") { name = "ParchmentMC" }
+    maven("https://maven.blamejared.com") { name = "BlameJared" }
+    c0deReleases()
+}
+
+// The canvas and the library are compiled into every node
+sourceSets.main {
+    java.srcDir(rootProject.file("core/src/main/java"))
+    // Data whose format changed between the Minecraft versions (buildSrc/VersionedResources.kt)
+    versionedResourceDirs(rootProject.file("src/main/versioned")) { sc.current.parsed >= it }
+        .forEach { resources.srcDir(it) }
+}
+
+dependencies {
+    minecraft("com.mojang:minecraft:${sc.current.version}")
+    val parchment = sc.properties.getOrNull("deps.parchment")
+    if (parchment != null) {
+        mappings(loom.layered {
+            officialMojangMappings()
+            parchment("org.parchmentmc.data:parchment-${sc.current.version}:$parchment@zip")
+        })
+    } else {
+        // Applies Mojang mappings on obfuscated versions, does nothing on 26.1+
+        loomx.applyMojangMappings()
+    }
+
+    // Use `mod{dependency type}` even on 26.1+ - loom-back-compat converts them
+    modImplementation("net.fabricmc:fabric-loader:${sc.properties.get("deps.fabric_loader")}")
+    // Players install the complete Fabric API, which fabric.mod.json requires
+    modImplementation("net.fabricmc.fabric-api:fabric-api:${sc.properties.get("deps.fabric_api")}")
+    // c0de of the same Minecraft version, which runs the programs that use the library
+    modImplementation(c0de("fabric", sc.current.version, sc.properties["deps.c0de"]))
+    // c0de embeds snakeyaml and, since 0.6.0, kdbx and Bouncy Castle (its persistent vault) with jar-in-jar; the
+    // development runs before 26.1 don't load the embedded jars
+    if (sc.current.parsed < "26.1") {
+        localRuntime("org.snakeyaml:snakeyaml-engine:3.2")
+        localRuntime("de.soderer:kdbx:26.1.10")
+        localRuntime("org.bouncycastle:bcprov-jdk18on:1.86")
+    }
+}
+
+loom {
+    fabricModJsonPath = rootProject.file("src/main/resources/fabric.mod.json")
+
+    decompilerOptions.named("vineflower") {
+        options.put("mark-corresponding-synthetics", "1") // Adds names to lambdas - useful for mixins
+    }
+
+    runConfigs.all {
+        preferGradleTask = true
+        generateRunConfig = true
+        runDirectory = rootProject.file("run/fabric$runSuffix")
+        jvmArguments.addAll("-Xms2G", "-Xmx6G")
+    }
+
+    runs {
+        // Fixed user names for multiplayer tests, as in c0de
+        named("client") {
+            programArgs("--username", "Tester1")
+        }
+        // A second client for multiplayer tests: its own game directory and user name
+        register("client2") {
+            client()
+            programArgs("--username", "Tester2")
+            runDirectory = rootProject.file("run/fabric-client2$runSuffix")
+        }
+        register("gametest") {
+            server()
+            jvmArguments.add("-Dfabric-api.gametest")
+            jvmArguments.add("-Dfabric-api.gametest.report-file=${project.layout.buildDirectory.get()}/reports/gametest/junit.xml")
+            runDirectory = project.file("build/gametest")
+        }
+    }
+}
+
+java {
+    withSourcesJar()
+    targetCompatibility = requiredJava
+    sourceCompatibility = requiredJava
+
+    toolchain {
+        vendor = JvmVendorSpec.ADOPTIUM
+        languageVersion = JavaLanguageVersion.of(requiredJava.majorVersion)
+    }
+}
+
+tasks {
+    processResources {
+        fun MutableMap<String, String>.register(key: String, value: String) {
+            inputs.property(key, value)
+            set(key, value)
+        }
+
+        val props = buildMap {
+            register("id", sc.properties["mod.id"])
+            register("name", sc.properties["mod.name"])
+            register("version", sc.properties["mod.version"])
+            register("description", sc.properties["mod.description"])
+            register("authors", sc.properties["mod.authors"])
+            register("license", sc.properties["mod.license"])
+            register("sources", sc.properties["mod.sources_url"])
+            register("issues", sc.properties["mod.issues_url"])
+            register("minecraft", sc.properties["mod.mc_compat"])
+            // c0de from deps.c0de_min up to the next major version (task 2.2)
+            val c0deMin = sc.properties["deps.c0de_min"]
+            register("c0de_min", c0deMin)
+            register("c0de_next", "${c0deMin.substringBefore('.').toInt() + 1}.0.0")
+            register("loader", Regex("\\d+\\.\\d+").find(sc.properties.get("deps.fabric_loader"))!!.value)
+        }
+
+        filesMatching("fabric.mod.json") { expand(props) }
+
+        exclude("META-INF/neoforge.mods.toml")
+    }
+
+    // Includes the license file in the built mod
+    withType<Jar> {
+        val name = project.property("mod.id")
+        inputs.property("mod_id", name)
+        from(rootProject.file("LICENSE")) { rename { "${it}_$name" } }
+    }
+
+    register<Copy>("buildAndCollect") {
+        group = "build"
+        description = "Builds mod jars and copies results to `build/libs/{mod version}/`"
+
+        inputs.property("version", project.property("mod.version"))
+        // loomx.mod(Sources)Jar returns the jar task for the applied loom variant
+        from(loomx.modJar.flatMap { it.archiveFile }, loomx.modSourcesJar.flatMap { it.archiveFile })
+        into(rootProject.layout.buildDirectory.file("libs/${project.property("mod.version")}"))
+    }
+}
+
+// Publishing to Modrinth and CurseForge (task 8.3): `publishMods` is a dry run unless MODRINTH_TOKEN, CURSEFORGE_TOKEN
+// and both project IDs are set
+publishMods {
+    val modVersion = property("mod.version") as String
+    val projectId = sc.properties.get("publish.modrinth_id")
+    val token = providers.environmentVariable("MODRINTH_TOKEN")
+    val curseforgeId = sc.properties.get("publish.curseforge_id")
+    val curseforgeToken = providers.environmentVariable("CURSEFORGE_TOKEN")
+    // A version that is already released on GitHub is published from the jars of its release
+    // (-Ppublish.released_jars=<folder>, .github/workflows/curseforge.yml)
+    // The jar task stays the input of the publishing tasks, so the release builds the jars it publishes
+    val releasedJars = providers.gradleProperty("publish.released_jars").orNull
+    val root = rootProject.layout.projectDirectory
+    val releasedJar = "${base.archivesName.get()}-${project.version}.jar"
+    if (releasedJars == null) {
+        file = loomx.modJar.flatMap { it.archiveFile }
+    } else {
+        file = root.file("$releasedJars/$releasedJar")
+    }
+    version = "${modVersion}+${sc.current.version}-fabric"
+    displayName = "c0de paint $modVersion for Fabric ${sc.current.version}"
+    changelog = providers.fileContents(rootProject.layout.projectDirectory.file("CHANGELOG.md")).asText
+        .map { changelogSection(it, modVersion) }
+    type = if (modVersion.startsWith("0.")) ALPHA else STABLE
+    modLoaders.add("fabric")
+    dryRun = token.zip(curseforgeToken) { modrinth, curseforge -> modrinth.isBlank() || curseforge.isBlank() }
+        .map { it || projectId.isBlank() || curseforgeId.isBlank() }.orElse(true)
+    modrinth {
+        this.projectId = projectId
+        accessToken = token
+        // c0de must be installed on clients and servers, and so must its companion mods
+        environment = CLIENT_AND_SERVER
+        minecraftVersions.addAll(sc.properties.get("mod.mc_releases").split(",").map { it.trim() })
+        requires("fabric-api", "c0de")
+    }
+    curseforge {
+        this.projectId = curseforgeId
+        accessToken = curseforgeToken
+        clientRequired = true
+        serverRequired = true
+        // -Ppublish.curseforge_without_c0de leaves c0de out: CurseForge refuses it as a dependency until its project is
+        // approved; add it to the files on curseforge.com afterwards
+        val c0de = !providers.gradleProperty("publish.curseforge_without_c0de").isPresent
+        minecraftVersions.addAll(sc.properties.get("mod.mc_releases").split(",").map { it.trim() })
+        requires("fabric-api")
+        if (c0de) requires("c0de")
+    }
+}
+
+// All compile errors at once, which helps when porting to a new Minecraft version
+tasks.withType<JavaCompile>().configureEach {
+    options.compilerArgs.addAll(listOf("-Xmaxerrs", "2000"))
+}
