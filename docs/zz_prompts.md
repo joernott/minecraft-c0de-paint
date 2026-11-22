@@ -75,3 +75,10 @@ Answer to the question about the type block of library types: a new TYPE block (
 ## 2026-11-21 – Sprint 19 choices confirmed, c0de paint goes ahead
 
 I confirm the choices you made in c0de sprint 19. As long as there is no content change in c0de-net, don't release a new version. Please go ahead with as many sprints/tasks of c0de-paint as you can
+
+## 2026-11-22 – Push, Modrinth, logo and test servers
+
+yourdecisions are fine.
+1: Yes, please do
+2: On Modrinth, the slug is c0de-paint and the id is zuHwh3ir. For curseforge, I need a logo first before I can create a project. Please create a logo in 2 variants, similar to what we did with c0de-paint. The curseforge variant is a 400x400 png, the regular logo is 256x256 pixels large. The logo should have the two slashes for c0de in the background and a paintbrush placed diagonally in front of it with a head in multiple colors in the upper left corner and the handle pinting to the lower right corner. Also, I would like to test the library a bit myself before releasing it. Can you deploy a server on the VM with c0de, c0de-net and c0de-paint and the same combo for the local client in the "run" folder, similar to what we have for the other two mods?
+3: Please delay that until I have tested c0de in game

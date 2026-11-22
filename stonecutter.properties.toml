@@ -10,7 +10,7 @@ mod.license = "BSD-3-Clause"
 mod.sources_url = "https://github.com/joernott/minecraft-c0de-paint"
 mod.issues_url = "https://github.com/joernott/minecraft-c0de-paint/issues"
 # The ID of the Modrinth project (task 8.3); publishMods is a dry run without it or without MODRINTH_TOKEN
-publish.modrinth_id = ""
+publish.modrinth_id = "zuHwh3ir"
 # The ID of the CurseForge project (task 8.3); publishMods is a dry run without it or without CURSEFORGE_TOKEN
 publish.curseforge_id = ""
 
