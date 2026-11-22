@@ -41,12 +41,12 @@ A task is done when
 |---|---|---|:---:|
 | 0 | Concept and plan | Concept, review and implementation plan | ✅ |
 | 1 | Library types in c0de | c0de 0.7.0: libraries can define types of their own (sprint 19 of c0de) |✅ |
-| 2 | Project skeleton | The mod loads on all nodes with c0de 0.7.0; programs can include `c0de_paint/cpaint`; CI and VM are ready |  |
-| 3 | Canvas and styles | Programs declare canvases and styles, set and read voxels, and merge canvases |  |
-| 4 | 2D shapes | Lines, rectangles, polygons, ellipses and arcs in any plane |  |
-| 5 | Bodies | Boxes, ellipsoids, cylinders, cones, pyramids and the Platonic solids |  |
-| 6 | Transformations | Scaling, rotating and mirroring, with block states, spread over several ticks |  |
-| 7 | Rendering | RENDER_CANVAS puts canvases into the world; canvases are copied from the world |  |
+| 2 | Project skeleton | The mod loads on all nodes with c0de 0.7.0; programs can include `c0de_paint/cpaint`; CI and VM are ready |✅ |
+| 3 | Canvas and styles | Programs declare canvases and styles, set and read voxels, and merge canvases |✅ |
+| 4 | 2D shapes | Lines, rectangles, polygons, ellipses and arcs in any plane |✅ |
+| 5 | Bodies | Boxes, ellipsoids, cylinders, cones, pyramids and the Platonic solids |✅ |
+| 6 | Transformations | Scaling, rotating and mirroring, with block states, spread over several ticks |✅ |
+| 7 | Rendering | RENDER_CANVAS puts canvases into the world; canvases are copied from the world |✅ |
 | 8 | Documentation and release 0.1.0 | Handbook in English and German, runner library, release, c0de.at |  |
 
 ## Sprint 0: Concept and plan
@@ -75,7 +75,7 @@ A task is done when
 | 2.2 | **c0de as a dependency:**<ul><li>For every node, from the Modrinth Maven repository.</li><li>Built and tested with `deps.c0de`.</li><li>Required as `>= deps.c0de_min` and `< the next major version` in `fabric.mod.json` and `neoforge.mods.toml`.</li></ul>   Done on 2026-11-21: from the GitHub releases of c0de, as in c0de net (c0de is not on the Modrinth Maven repository); `deps.c0de` 0.7.0, required `>=0.7.0 <1.0.0`. | ✅ |
 | 2.3 | **Entry points:**<ul><li>Mod entry points for Fabric and NeoForge.</li><li>The library `c0de_paint/cpaint` is registered with the types CANVAS and STYLE and the structs POINT and BLOCK.</li><li>The configuration `config/c0de_paint.properties` with its four settings.</li></ul>   Done on 2026-11-21: decided that `core` contains the library itself, compiled against the interpreter of c0de (its runner jar), so programs with the library run in the unit tests; what needs the world becomes an interface of `core`. The canvas storage of 3.2 came with the type CANVAS. Five settings (with `canvasVoxelsPerTick`). | ✅ |
 | 2.4 | **GameTests on every node:**<ul><li>The library is registered.</li><li>A program with `INCLUDE c0de_paint/cpaint` and `VARIABLE c TYPE c0de_paint/cpaint/CANVAS` is valid.</li></ul>   Done on 2026-11-21: `libraryIsRegistered` and `programsIncludeTheLibrary` pass on all ten nodes on the VM. | ✅ |
-| 2.5 | **CI and VM:**<ul><li>GitHub Actions: checks, unit tests (Linux and Windows), build and GameTests per node.</li><li>Dependabot.</li><li>A clone on the VM builds and tests all nodes.</li><li>`docs/development_environment.md`.</li></ul>   On 2026-11-21: workflow `build.yml` without the handbook, runner and client jobs; Dependabot; the clone on the VM builds and tests all nodes; `docs/development_environment.md`. Open: the first CI run, after the branch is pushed. |  |
+| 2.5 | **CI and VM:**<ul><li>GitHub Actions: checks, unit tests (Linux and Windows), build and GameTests per node.</li><li>Dependabot.</li><li>A clone on the VM builds and tests all nodes.</li><li>`docs/development_environment.md`.</li></ul>   On 2026-11-21: workflow `build.yml` without the handbook, runner and client jobs; Dependabot; the clone on the VM builds and tests all nodes; `docs/development_environment.md`. The first CI run (of sprint-8, which contains all sprints) was green on 2026-11-22. | ✅ |
 
 ## Sprint 3: Canvas and styles
 
