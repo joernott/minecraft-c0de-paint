@@ -108,3 +108,8 @@ c0de-related:
 ## 2026-11-22 – Tag v0.7.1 pushed
 
 The tag has been pushed
+
+
+## 2026-11-22 – DRAW_SPIRAL
+
+While I am testing: There is another draw function, I would like you to implement: DRAW_SPIRAL. It should have similar parameters to drawing an ellipse plus a direction parameter, a float parameter for elevation, defining how many blocks higher the next placed block should be, defaulting to 1, but also handling smaller numbers, so 0.5 would mean "every second block" and finally a parameter for height, determining how high the spiral goes.

@@ -8,7 +8,7 @@
 
 - **Canvases**: a three-dimensional grid of voxels that grows with its content. Every voxel is empty or holds a block with its states; air is a block too, so a drawing can carve out what is in the world.
 - **Styles**: draw a line, a face or the inside of a shape with nothing, air, one block, random blocks by weight, a gradient (spheres, layers or cylinders, with fuzzy borders) or a repeating pattern. INVENTORY_BLOCKS takes the blocks and their weights from a chest.
-- **Flat shapes in any plane**: lines, rectangles, polygons, ellipses, arcs and pie slices, also tilted, one voxel thick and without holes.
+- **Flat shapes in any plane**: lines, rectangles, polygons, ellipses, arcs and pie slices, also tilted, one voxel thick and without holes, and spirals that rise around an axis, with a ramp like a spiral staircase.
 - **Bodies**: boxes, spheres and ellipsoids, cylinders, cones, pyramids and the Platonic solids: tetrahedron, octahedron, dodecahedron and icosahedron. Each has its own style for edges, faces and inside, so a box is full, hollow or just a frame.
 - **Canvas operations**: count, read, clear, crop, move, replace and merge canvases, list the materials, and scale, rotate by any angle and mirror them. Stairs, logs, doors, rails and signs turn with the building.
 - **Rendering**: RENDER_CANVAS builds a canvas in the world, from bottom to top, with torches and ladders after the walls they hang on. Operators build directly; every other player builds with blocks from a chest, mines what is in the way with the tools of a second chest and puts the drops into a third. Everything is checked before the first block, so an error doesn't leave half a building. CANVAS_FROM_WORLD copies a part of the world into a canvas.

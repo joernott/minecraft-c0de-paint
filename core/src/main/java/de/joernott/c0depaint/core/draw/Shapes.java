@@ -4,8 +4,11 @@ import de.joernott.c0depaint.core.PaintError;
 import de.joernott.c0depaint.core.PaintException;
 import de.joernott.c0depaint.core.canvas.Point;
 import java.util.ArrayList;
+import java.util.LinkedHashSet;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
+import java.util.TreeMap;
 
 /** The flat shapes (docs/concept.md#functions): their outlines and areas as voxels, in any plane. */
 public final class Shapes {
@@ -137,6 +140,91 @@ public final class Shapes {
         Ellipse ellipse = Ellipse.of(center, a, b);
         Set<Point> inside = ellipse.plane().fill(ellipse.corners(), ellipse::inside);
         return new Voxels(Raster.path(ellipse.curve(0, 2 * Math.PI), true), Set.of(), inside);
+    }
+
+    /**
+     * A spiral on the ellipse of DRAW_ELLIPSE that rises in a direction: it starts at a and turns towards b; every voxel
+     * of the line lies {@code elevation} layers higher than the one before (rounded down, so 0.5 rises every second
+     * voxel), up to the layer h - 1. The inside is the ramp between the axis through the center and the line, like the
+     * steps of a spiral staircase: every voxel of the ellipse takes the layer of the nearest voxel of the line in each
+     * turn, and the axis is drawn in every layer.
+     *
+     * @throws IllegalArgumentException if the elevation is not more than 0 or h is less than 1
+     */
+    public static Voxels spiral(Point center, Point a, Point b, Bodies.Direction direction, double elevation, int h) {
+        if (!(elevation > 0) || Double.isInfinite(elevation)) {
+            throw new IllegalArgumentException("The elevation is " + elevation + ", not more than 0");
+        }
+        if (h < 1) {
+            throw new IllegalArgumentException("The height is " + h + ", not 1 or more");
+        }
+        Ellipse ellipse = Ellipse.of(center, a, b);
+        List<Point> turn = new ArrayList<>(Raster.path(ellipse.curve(0, 2 * Math.PI), true));
+        int perTurn = turn.size();
+        // The voxels of the line: one per step, until the layer h is reached
+        long steps = (long) Math.ceil(h / elevation) + 1;
+        Raster.check(steps);
+        Set<Point> line = new LinkedHashSet<>();
+        for (long k = 0; ; k++) {
+            int layer = layer(k, elevation);
+            if (layer >= h) {
+                break;
+            }
+            line.add(direction.point(turn.get((int) (k % perTurn)), layer, 0, 0));
+        }
+        // The angles of the voxels of one turn, to find the step of a voxel of the ramp
+        TreeMap<Double, Integer> angles = new TreeMap<>();
+        for (int j = 0; j < perTurn; j++) {
+            angles.putIfAbsent(angle(ellipse, Vec.of(turn.get(j))), j);
+        }
+        Set<Point> disc = ellipse.plane().fill(ellipse.corners(), ellipse::inside);
+        long turns = steps / perTurn + 2;
+        Raster.check(turns * disc.size());
+        Set<Point> inside = new LinkedHashSet<>();
+        for (int layer = 0; layer < h; layer++) {
+            inside.add(direction.point(center, layer, 0, 0));
+        }
+        for (Point voxel : disc) {
+            if (voxel.equals(center)) {
+                continue;
+            }
+            int j = nearest(angles, angle(ellipse, Vec.of(voxel)));
+            for (long m = 0; m < turns; m++) {
+                int layer = layer(j + m * perTurn, elevation);
+                if (layer >= h) {
+                    break;
+                }
+                inside.add(direction.point(voxel, layer, 0, 0));
+            }
+        }
+        return new Voxels(line, Set.of(), inside);
+    }
+
+    /** The layer of the step k of a spiral: k times the elevation, rounded down. */
+    private static int layer(long k, double elevation) {
+        return (int) Math.min(Integer.MAX_VALUE, Math.floor(k * elevation + 1e-9));
+    }
+
+    /** The angle of the parameter of the ellipse at a point, from 0 to 2π, counted from a towards b. */
+    private static double angle(Ellipse ellipse, Vec point) {
+        double[] st = ellipse.plane().coordinates(point);
+        double angle = Math.atan2(st[1] / ellipse.ry(), st[0] / ellipse.rx());
+        return angle < 0 ? angle + 2 * Math.PI : angle;
+    }
+
+    /** The index of the voxel of the turn whose angle is nearest, across the start of the turn. */
+    private static int nearest(TreeMap<Double, Integer> angles, double angle) {
+        Map.Entry<Double, Integer> below = angles.floorEntry(angle);
+        Map.Entry<Double, Integer> above = angles.ceilingEntry(angle);
+        if (below == null) {
+            below = angles.lastEntry();
+        }
+        if (above == null) {
+            above = angles.firstEntry();
+        }
+        double toBelow = (angle - below.getKey() + 2 * Math.PI) % (2 * Math.PI);
+        double toAbove = (above.getKey() - angle + 2 * Math.PI) % (2 * Math.PI);
+        return toBelow <= toAbove ? below.getValue() : above.getValue();
     }
 
     /**

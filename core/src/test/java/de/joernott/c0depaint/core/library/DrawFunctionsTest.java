@@ -86,6 +86,44 @@ class DrawFunctionsTest {
     }
 
     @Test
+    void spirals() {
+        // A spiral of 12 layers around the y axis: 12 voxels, one per layer, with the default elevation
+        assertEquals(12, count("""
+                        CALL c0de_paint/cpaint/DRAW_SPIRAL
+                            PARAMETER canvas c ;
+                            PARAMETER center p ;
+                            PARAMETER a a ;
+                            PARAMETER b b ;
+                            PARAMETER direction "+y" ;
+                            PARAMETER h 12 ;
+                            PARAMETER line_style solid ;
+                        """));
+        // Every second voxel rises: 24 voxels
+        assertEquals(24, count("""
+                        CALL c0de_paint/cpaint/DRAW_SPIRAL
+                            PARAMETER canvas c ;
+                            PARAMETER center p ;
+                            PARAMETER a a ;
+                            PARAMETER b b ;
+                            PARAMETER direction "+y" ;
+                            PARAMETER elevation 0.5 ;
+                            PARAMETER h 12 ;
+                            PARAMETER line_style solid ;
+                        """));
+        Programs.crashes(309, CanvasFunctionsTest.SETUP + POINTS + """
+                        CALL c0de_paint/cpaint/DRAW_SPIRAL
+                            PARAMETER canvas c ;
+                            PARAMETER center p ;
+                            PARAMETER a a ;
+                            PARAMETER b b ;
+                            PARAMETER direction "+y" ;
+                            PARAMETER elevation 0.0 ;
+                            PARAMETER h 12 ;
+                            PARAMETER line_style solid ;
+                        """);
+    }
+
+    @Test
     void hollowBoxesAndSolids() {
         // A box with stone sides and an inside of air: all 150 voxels are set
         assertEquals(150, count("""

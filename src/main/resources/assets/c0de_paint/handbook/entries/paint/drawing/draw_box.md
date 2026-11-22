@@ -3,7 +3,7 @@
   "title": "DRAW_BOX",
   "icon": "minecraft:brush",
   "category": "drawing",
-  "ordinal": 6
+  "ordinal": 7
 }
 ```
 

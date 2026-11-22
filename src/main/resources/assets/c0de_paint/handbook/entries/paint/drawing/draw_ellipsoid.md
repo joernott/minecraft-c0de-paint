@@ -3,7 +3,7 @@
   "title": "DRAW_ELLIPSOID",
   "icon": "minecraft:brush",
   "category": "drawing",
-  "ordinal": 7
+  "ordinal": 8
 }
 ```
 

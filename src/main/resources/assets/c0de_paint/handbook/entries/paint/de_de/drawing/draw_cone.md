@@ -3,7 +3,7 @@
   "title": "DRAW_CONE",
   "icon": "minecraft:brush",
   "category": "drawing",
-  "ordinal": 9
+  "ordinal": 10
 }
 ```
 

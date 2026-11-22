@@ -175,7 +175,7 @@ public final class Raster {
         return surface;
     }
 
-    private static void check(long voxels) {
+    static void check(long voxels) {
         if (voxels > MAX_VOXELS || voxels < 0) {
             throw new PaintException(PaintError.CANVAS_LIMIT, "The shape is too large");
         }

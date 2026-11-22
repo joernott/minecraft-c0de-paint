@@ -3,7 +3,7 @@
   "title": "DRAW_PYRAMID",
   "icon": "minecraft:brush",
   "category": "drawing",
-  "ordinal": 10
+  "ordinal": 11
 }
 ```
 

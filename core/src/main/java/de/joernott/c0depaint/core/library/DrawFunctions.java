@@ -92,6 +92,24 @@ final class DrawFunctions {
                 Args.point("b"),
                 NativeFunction.Parameter.required("start", "FLOAT|INTEGER", NUMBER),
                 NativeFunction.Parameter.required("end", "FLOAT|INTEGER", NUMBER));
+        flat(
+                functions,
+                limits,
+                budget,
+                "DRAW_SPIRAL",
+                call -> Shapes.spiral(
+                        Args.point(call, "center"),
+                        Args.point(call, "a"),
+                        Args.point(call, "b"),
+                        direction(call),
+                        number(call, "elevation"),
+                        size(call, "h")),
+                Args.point("center"),
+                Args.point("a"),
+                Args.point("b"),
+                Args.text("direction"),
+                NativeFunction.Parameter.withDefault("elevation", "FLOAT|INTEGER", NUMBER, new FloatValue(1.0)),
+                Args.integer("h"));
         body(
                 functions,
                 limits,

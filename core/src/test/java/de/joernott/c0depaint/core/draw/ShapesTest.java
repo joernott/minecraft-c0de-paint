@@ -123,4 +123,44 @@ class ShapesTest {
         Shapes.Voxels full = Shapes.arc(p(0, 0, 0), p(10, 0, 0), p(0, 0, 10), -90, 270);
         assertEquals(Shapes.ellipse(p(0, 0, 0), p(10, 0, 0), p(0, 0, 10)).inside(), full.inside());
     }
+
+    /**
+     * A spiral rises one layer per voxel by default, every second voxel with the elevation 0.5, and stops below the
+     * height; its line is connected, and its ramp reaches from the axis to the line in every layer (DRAW_SPIRAL).
+     */
+    @Test
+    void spiralsRiseByTheElevation() {
+        Bodies.Direction up = Bodies.Direction.of("+y");
+        Point center = p(0, 0, 0);
+        Shapes.Voxels circle = Shapes.ellipse(center, p(5, 0, 0), p(0, 0, 5));
+        int perTurn = circle.lines().size();
+        Shapes.Voxels steep = Shapes.spiral(center, p(5, 0, 0), p(0, 0, 5), up, 1, 10);
+        List<Point> line = List.copyOf(steep.lines());
+        assertEquals(10, line.size());
+        for (int i = 0; i < line.size(); i++) {
+            assertEquals(i, line.get(i).y(), "layer of voxel " + i);
+        }
+        assertEquals(p(5, 0, 0), line.getFirst());
+        assertThinAndConnected(line);
+        Shapes.Voxels flat = Shapes.spiral(center, p(5, 0, 0), p(0, 0, 5), up, 0.5, 2 * perTurn);
+        List<Point> slow = List.copyOf(flat.lines());
+        assertEquals(4 * perTurn, slow.size());
+        assertEquals(0, slow.get(1).y());
+        assertEquals(1, slow.get(2).y());
+        assertThinAndConnected(slow);
+        // Two turns with one layer per turn: every layer of the ramp has a part of the disc
+        Shapes.Voxels ramp = Shapes.spiral(center, p(5, 0, 0), p(0, 0, 5), up, 1.0 / perTurn, 2);
+        Set<Point> disc = new HashSet<>(circle.inside());
+        for (int layer = 0; layer < 2; layer++) {
+            int y = layer;
+            assertTrue(ramp.inside().contains(p(0, y, 0)), "axis in layer " + y);
+            long count = ramp.inside().stream().filter(v -> v.y() == y).count();
+            assertEquals(disc.size(), count, "layer " + y);
+        }
+        // Downwards along x, in a plane across the direction
+        Shapes.Voxels sideways = Shapes.spiral(center, p(0, 3, 0), p(0, 0, 3), Bodies.Direction.of("-x"), 2, 6);
+        assertEquals(List.of(0, -2, -4), sideways.lines().stream().map(Point::x).toList());
+        assertThrows(IllegalArgumentException.class, () -> Shapes.spiral(center, p(5, 0, 0), p(0, 0, 5), up, 0, 3));
+        assertThrows(IllegalArgumentException.class, () -> Shapes.spiral(center, p(5, 0, 0), p(0, 0, 5), up, 1, 0));
+    }
 }

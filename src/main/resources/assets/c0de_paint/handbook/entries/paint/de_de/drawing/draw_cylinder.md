@@ -3,7 +3,7 @@
   "title": "DRAW_CYLINDER",
   "icon": "minecraft:brush",
   "category": "drawing",
-  "ordinal": 8
+  "ordinal": 9
 }
 ```
 

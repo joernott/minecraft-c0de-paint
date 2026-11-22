@@ -3,7 +3,7 @@
   "title": "Platonische Körper",
   "icon": "minecraft:brush",
   "category": "drawing",
-  "ordinal": 11
+  "ordinal": 12
 }
 ```
 

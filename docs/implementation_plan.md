@@ -152,6 +152,7 @@ A task is done when
 | 8.3.3 | The description for Modrinth and CurseForge (`docs/modrinth.md`).   Done on 2026-11-22. | ✅ |
 | 8.3.4 | Finding of the test: the first program of the handbook promised windows but drew only a box. Now a hut with two glass windows and an oak door; a GameTest runs the program of the handbook of the mod with an input inventory.   Done on 2026-11-22. |  |
 | 8.3.5 | The findings in c0de of the test are fixed in c0de 0.7.1 (its sprint 20). c0de paint is built and tested against 0.7.1 (`deps.c0de`); it still requires 0.7.0 or newer (`deps.c0de_min`). The test server on the VM and the development client run 0.7.1.   Done on 2026-11-22. | ✅ |
+| 8.3.6 | **DRAW_SPIRAL** (requested by the user while testing): a spiral on the ellipse of DRAW_ELLIPSE that rises in a direction by `elevation` layers per voxel (FLOAT, default 1) up to the height `h`; the fill style draws the ramp to the axis. Unit tests `spiralsRiseByTheElevation` and `spirals`; the handbook in English and German.   Done on 2026-11-22. | ✅ |
 | 8.4 | **c0de.at (in www-c0de, as its own sprint there):**<ul><li>The documentation of c0de 0.7.0 with the library types.</li><li>The new library `c0de_paint/cpaint` with its handbook in English and German.</li><li>Recipes for c0de paint, tested with the runner library.</li><li>Screenshots.</li></ul> |  |
 
 ## Risks
