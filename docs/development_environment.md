@@ -23,6 +23,7 @@ Common commands:
 | `scripts/check-whitespace.sh` | Whitespace of all files outside of `core` |
 | `./gradlew :runner:check :runner:jar` | Tests and builds the runner library `c0de-paint-runner-<version>.jar`; the tests also check the programs of the handbook |
 | `python scripts/generate_book.py` | Generates the handbook in the game (the book `c0de_paint:paint` of the handbooks of c0de), its crafting grid and the recipe of its binder from `docs/reference/paint.md` and its German translation; the CI fails if the committed files differ |
+| `python scripts/generate_logo.py` | Draws the logo (`docs/images/logo.png`, 256 × 256, also the icon of the mod) and its CurseForge variant (`docs/images/logo_curseforge.png`, 400 × 400) |
 | `python scripts/generate_recipe_images.py` | Draws the recipe of the binder for the handbook (`docs/reference/images`); needs the jars of c0de and Minecraft from a build of `1.21.1-fabric` |
 
 ## Development VM
