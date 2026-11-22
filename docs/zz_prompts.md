@@ -113,3 +113,11 @@ The tag has been pushed
 ## 2026-11-22 – DRAW_SPIRAL
 
 While I am testing: There is another draw function, I would like you to implement: DRAW_SPIRAL. It should have similar parameters to drawing an ellipse plus a direction parameter, a float parameter for elevation, defining how many blocks higher the next placed block should be, defaulting to 1, but also handling smaller numbers, so 0.5 would mean "every second block" and finally a parameter for height, determining how high the spiral goes.
+
+
+## 2026-11-22 – Results of the test and release
+
+my tests were successful except for one thing to put on the agenda for the next c0de release:
+- If I have a very long program, right clicking on the program block with a disk failed as the sheet was not fully loaded. I compensated for that by flying back and forth. The sheet stayed loaded long enough for me to click and then later save it. Then I loaded the program on the server but could not place it due to the same problem. On the server, flying down the sheet and back didn't solve the problem. We need to find another solution for that.
+
+Concerning minecraft-c0de-paint, we can go ahead with releasing it and starting the work on the web page
