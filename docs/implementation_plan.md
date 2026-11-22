@@ -151,6 +151,7 @@ A task is done when
 | 8.3.2 | Test by the user before the release: the test server 1.21.1-fabric on the VM with c0de 0.7.0, c0de net and c0de paint; the development client of c0de paint (`./gradlew :1.21.1-fabric:runClient`) with c0de net in `run/fabric/mods`.   Set up on 2026-11-22; open: the test by the user. |  |
 | 8.3.3 | The description for Modrinth and CurseForge (`docs/modrinth.md`).   Done on 2026-11-22. | ✅ |
 | 8.3.4 | Finding of the test: the first program of the handbook promised windows but drew only a box. Now a hut with two glass windows and an oak door; a GameTest runs the program of the handbook of the mod with an input inventory.   Done on 2026-11-22. |  |
+| 8.3.5 | The findings in c0de of the test are fixed in c0de 0.7.1 (its sprint 20). c0de paint is built and tested against 0.7.1 (`deps.c0de`); it still requires 0.7.0 or newer (`deps.c0de_min`). The test server on the VM and the development client run 0.7.1.   Done on 2026-11-22. | ✅ |
 | 8.4 | **c0de.at (in www-c0de, as its own sprint there):**<ul><li>The documentation of c0de 0.7.0 with the library types.</li><li>The new library `c0de_paint/cpaint` with its handbook in English and German.</li><li>Recipes for c0de paint, tested with the runner library.</li><li>Screenshots.</li></ul> |  |
 
 ## Risks
