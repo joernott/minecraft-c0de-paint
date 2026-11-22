@@ -12,7 +12,7 @@ mod.issues_url = "https://github.com/joernott/minecraft-c0de-paint/issues"
 # The ID of the Modrinth project (task 8.3); publishMods is a dry run without it or without MODRINTH_TOKEN
 publish.modrinth_id = "zuHwh3ir"
 # The ID of the CurseForge project (task 8.3); publishMods is a dry run without it or without CURSEFORGE_TOKEN
-publish.curseforge_id = ""
+publish.curseforge_id = "1822987"
 
 # The version of c0de the mod is built and tested against
 deps.c0de = "0.7.0"

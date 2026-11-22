@@ -40,6 +40,11 @@ public class NeoForgeGameTests {
         RenderTests.renderingWithoutInputNeedsRights(helper);
     }
 
+    @GameTest(template = "tall", timeoutTicks = 2000)
+    public static void theFirstProgramOfTheHandbookBuildsAHut(GameTestHelper helper) {
+        RenderTests.theFirstProgramOfTheHandbookBuildsAHut(helper);
+    }
+
     @GameTest(template = "empty", timeoutTicks = 2000)
     public static void renderingTakesTheBlocksFromTheInput(GameTestHelper helper) {
         RenderTests.renderingTakesTheBlocksFromTheInput(helper);

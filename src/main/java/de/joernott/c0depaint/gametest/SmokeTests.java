@@ -16,6 +16,9 @@ public final class SmokeTests {
     /** Structure for tests that don't need any blocks: a single air block. */
     public static final String EMPTY_STRUCTURE = C0dePaint.MOD_ID + ":empty";
 
+    /** An empty structure of 8 x 8 x 8 blocks, for buildings higher than the empty one. */
+    public static final String TALL_STRUCTURE = C0dePaint.MOD_ID + ":tall";
+
     private SmokeTests() {}
 
     /** The library is registered with c0de under its name, with its types. */

@@ -84,3 +84,15 @@ yourdecisions are fine.
 3: Please delay that until I have tested c0de in game
 
 Please generate a mod description for modrinth and curseforge, similar to modrinth.md in the other repos
+
+## 2026-11-22 – CurseForge ID and findings of the first test in the game
+
+the curseforge project id is 1822987.
+
+Findings:
+c0de-paint related:
+-The first program from the handbook just draws a stone box, no windows and no door.
+c0de-related:
+- I created a program and could not right click with a disk to its "PROGRAM" block as the schema does not recognize TYPE
+- I fed the trigger block two constants as input. After running, I got two uninitialized variables in the output. Constants should remain as they are, when they appear in the output, they're constant.
+- I fed some wrong data types to function parameters by accident which was only discovered at runtime. I would expect a red line number if I do that.

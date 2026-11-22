@@ -12,6 +12,8 @@ import net.minecraft.world.Container;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
 import net.minecraft.world.level.block.Blocks;
+import net.minecraft.world.level.block.state.properties.BlockStateProperties;
+import net.minecraft.world.level.block.state.properties.DoubleBlockHalf;
 
 /** RENDER_CANVAS and CANVAS_FROM_WORLD (tasks 7.2 to 7.4). */
 public final class RenderTests {
@@ -159,6 +161,66 @@ public final class RenderTests {
                 helper.assertTrue(dirt && cobblestone, "The drops are missing in the output");
                 helper.succeed();
             });
+        });
+    }
+
+    /**
+     * The first program of the handbook, as in the handbook of the mod, with an input inventory: a hut of stone bricks
+     * with two glass windows and an oak door. The upper half of the door takes no item.
+     */
+    public static void theFirstProgramOfTheHandbookBuildsAHut(GameTestHelper helper) {
+        String entry;
+        try (java.io.InputStream in = RenderTests.class.getResourceAsStream(
+                "/assets/c0de_paint/handbook/entries/paint/getting_started/first_drawing.md")) {
+            helper.assertTrue(in != null, "The handbook entry is missing");
+            entry = new String(in.readAllBytes(), java.nio.charset.StandardCharsets.UTF_8).replace("\r\n", "\n");
+        } catch (java.io.IOException e) {
+            throw new IllegalStateException(e);
+        }
+        int start = entry.indexOf("```c0de\n") + "```c0de\n".length();
+        // The handbook indents by two spaces per level, programs by four
+        String text = entry.substring(start, entry.indexOf("```", start))
+                .lines()
+                .map(line -> " ".repeat(line.length() - line.stripLeading().length()) + line)
+                .collect(java.util.stream.Collectors.joining("\n", "", "\n"))
+                .replaceFirst(
+                        "( *)PARAMETER at STRUCT c0de/minecraft/POSITION\n",
+                        "$0$1PARAMETER input STRUCT c0de/minecraft/POSITION\n")
+                .replaceFirst("( *)PARAMETER position at ;\n", "$0$1PARAMETER input input ;\n");
+        helper.assertTrue(text.contains("PARAMETER input input ;"), "The program has no RENDER_CANVAS");
+        Container input = chest(
+                helper,
+                new BlockPos(7, 1, 7),
+                new ItemStack(Items.STONE_BRICKS, 64),
+                new ItemStack(Items.STONE_BRICKS, 64),
+                new ItemStack(Items.STONE_BRICKS, 28),
+                new ItemStack(Items.GLASS, 12),
+                new ItemStack(Items.OAK_DOOR, 1));
+        Cursor cursor = Processes.cursor(
+                helper,
+                text,
+                Map.of(
+                        "at", Processes.position(helper.absolutePos(new BlockPos(0, 1, 0))),
+                        "input", Processes.position(helper.absolutePos(new BlockPos(7, 1, 7)))));
+        Processes.finish(helper, cursor, () -> {
+            helper.assertTrue(cursor.state() == CursorState.FINISHED, "The program crashed: " + cursor.error());
+            helper.assertBlockPresent(Blocks.STONE_BRICKS, new BlockPos(0, 1, 0));
+            helper.assertBlockPresent(Blocks.STONE_BRICKS, new BlockPos(6, 5, 6));
+            helper.assertBlockPresent(Blocks.AIR, new BlockPos(3, 3, 3));
+            for (int y = 3; y <= 4; y++) {
+                for (int z = 2; z <= 4; z++) {
+                    helper.assertBlockPresent(Blocks.GLASS, new BlockPos(0, y, z));
+                    helper.assertBlockPresent(Blocks.GLASS, new BlockPos(6, y, z));
+                }
+            }
+            helper.assertBlockPresent(Blocks.OAK_DOOR, new BlockPos(3, 2, 0));
+            helper.assertBlockPresent(Blocks.OAK_DOOR, new BlockPos(3, 3, 0));
+            helper.assertTrue(
+                    helper.getBlockState(new BlockPos(3, 3, 0)).getValue(BlockStateProperties.DOUBLE_BLOCK_HALF)
+                            == DoubleBlockHalf.UPPER,
+                    "The upper half of the door is missing");
+            helper.assertTrue(input.isEmpty(), "The input still has items");
+            helper.succeed();
         });
     }
 

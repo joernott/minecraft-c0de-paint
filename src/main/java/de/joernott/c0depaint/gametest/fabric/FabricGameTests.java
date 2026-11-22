@@ -39,6 +39,11 @@ public class FabricGameTests {
         RenderTests.renderingWithoutInputNeedsRights(helper);
     }
 
+    @GameTest(template = SmokeTests.TALL_STRUCTURE, timeoutTicks = 2000)
+    public void theFirstProgramOfTheHandbookBuildsAHut(GameTestHelper helper) {
+        RenderTests.theFirstProgramOfTheHandbookBuildsAHut(helper);
+    }
+
     @GameTest(template = SmokeTests.EMPTY_STRUCTURE, timeoutTicks = 2000)
     public void renderingTakesTheBlocksFromTheInput(GameTestHelper helper) {
         RenderTests.renderingTakesTheBlocksFromTheInput(helper);
