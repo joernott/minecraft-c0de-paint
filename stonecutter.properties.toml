@@ -3,7 +3,7 @@
 mod.id = "c0de_paint"
 mod.name = "c0de paint"
 mod.group = "de.joernott.c0depaint"
-mod.version = "0.1.0"
+mod.version = "0.2.0"
 mod.description = "Drawing library for c0de: c0de_paint/cpaint draws lines, shapes and bodies into canvases, transforms them and builds them in the world."
 mod.authors = "Jörn Ott"
 mod.license = "BSD-3-Clause"

@@ -38,6 +38,15 @@ public interface PaintWorld {
     }
 
     /**
+     * The items that RENDER_CANVAS takes for a block, by item id (CANVAS_ITEMS, task 9.3): empty for air and the parts
+     * that another block places; a block that no item places counts with its own id under the key "" of the map
+     * {@code without}. Without a world, every block is its own item.
+     */
+    default java.util.Map<String, Long> items(Block block) {
+        return block.isAir() ? java.util.Map.of() : java.util.Map.of(block.id(), 1L);
+    }
+
+    /**
      * The rendering of a canvas (RENDER_CANVAS) as a job that runs while the process waits: the checks before the first
      * block happen when the job is created.
      *

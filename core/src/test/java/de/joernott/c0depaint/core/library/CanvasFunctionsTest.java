@@ -197,6 +197,21 @@ class CanvasFunctionsTest {
     }
 
     @Test
+    void canvasItemsCountTheItemsOfTheBlocks() {
+        Map<String, Value> results = run(
+                "    RESULT items HASH INTEGER\n",
+                draw(0, 0, 0, "solid") + draw(1, 0, 0, "solid") + draw(2, 0, 0, "clear") + """
+                        CALL c0de_paint/cpaint/CANVAS_ITEMS
+                            PARAMETER canvas c ;
+                            RESULT result items
+                        """);
+        // Without Minecraft, every block is its own item; air takes nothing
+        assertEquals(
+                Map.of("minecraft:stone", new IntegerValue(2)),
+                ((de.joernott.c0de.core.value.HashValue) results.get("items")).elements());
+    }
+
+    @Test
     void replacedBlocksKeepTheirStatesAndData() {
         String body = """
                 VARIABLE stairs STRUCT c0de_paint/cpaint/BLOCK

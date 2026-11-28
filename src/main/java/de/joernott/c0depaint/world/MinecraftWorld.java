@@ -80,6 +80,17 @@ public final class MinecraftWorld implements PaintWorld {
         return block;
     }
 
+    /** The items of a block for CANVAS_ITEMS, from the same mapping as RENDER_CANVAS (task 9.3). */
+    @Override
+    public Map<String, Long> items(Block block) {
+        MinecraftSchematics server = new MinecraftSchematics();
+        if (block.isAir() || server.part(block)) {
+            return Map.of();
+        }
+        Map<String, Long> items = server.items(block);
+        return items.isEmpty() ? Map.of("", 1L) : items;
+    }
+
     @Override
     public Job render(NativeCall call, Canvas canvas, StructValue position, PaintConfig settings) {
         return Renderer.start(call, canvas, position, settings);

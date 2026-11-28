@@ -230,6 +230,36 @@ final class CanvasFunctions {
                             return NativeResult.of(materials);
                         },
                         Args.canvas("canvas")));
+        add(
+                functions,
+                function(
+                        "CANVAS_ITEMS",
+                        List.of("result", "without_item"),
+                        call -> {
+                            // The items that RENDER_CANVAS takes, counted like SCHEMATIC_MATERIALS (task 9.3)
+                            Map<String, Long> items = new java.util.TreeMap<>();
+                            Map<String, Long> without = new java.util.TreeMap<>();
+                            Args.canvas(call, "canvas").forEach((x, y, z, block) -> {
+                                if (block.isAir()) {
+                                    return;
+                                }
+                                Map<String, Long> needed = world.items(block);
+                                if (needed.containsKey("")) {
+                                    without.merge(block.id(), 1L, Long::sum);
+                                } else {
+                                    needed.forEach((item, count) -> items.merge(item, count, Long::sum));
+                                }
+                            });
+                            HashValue result = new HashValue(Type.Simple.INTEGER);
+                            items.forEach((id, count) -> result.elements().put(id, new IntegerValue(count)));
+                            HashValue withoutItem = new HashValue(Type.Simple.INTEGER);
+                            without.forEach((id, count) -> withoutItem.elements().put(id, new IntegerValue(count)));
+                            Map<String, Value> results = new LinkedHashMap<>();
+                            results.put("result", result);
+                            results.put("without_item", withoutItem);
+                            return NativeResult.of(results);
+                        },
+                        Args.canvas("canvas")));
         return functions;
     }
 

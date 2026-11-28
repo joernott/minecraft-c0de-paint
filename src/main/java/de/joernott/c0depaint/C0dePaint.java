@@ -15,7 +15,9 @@ public final class C0dePaint {
     public static final String MOD_ID = "c0de_paint";
     public static final Logger LOGGER = LoggerFactory.getLogger(MOD_ID);
     /** The version of the mod (mod.version in stonecutter.properties.toml). */
-    public static final String VERSION = /*$ mod_version*/"0.1.0";
+    public static final String VERSION = /*$ mod_version*/"0.2.0";
+    /** The built-in constant with the version of the mod, like C0DE_NET_VERSION (task 9.1.7). */
+    public static final String VERSION_CONSTANT = "C0DE_PAINT_VERSION";
 
     private static volatile PaintConfig config = PaintConfig.defaults(PaintConfig.SERVER);
 
@@ -33,6 +35,7 @@ public final class C0dePaint {
             LOGGER.error("Can't read {}, using the defaults", PaintConfig.SERVER_FILE, e);
         }
         ModLibraries.register(new CpaintLibrary(C0dePaint::config, new MinecraftWorld()));
+        ModLibraries.registerConstant(VERSION_CONSTANT, new de.joernott.c0de.core.value.StringValue(VERSION));
         // c0de_paint/schematics reads the schematics on the clients of the players (task 9.5)
         de.joernott.c0depaint.network.SchematicChannel.register();
         de.joernott.c0depaint.network.PendingFiles.channel(new de.joernott.c0depaint.network.SchematicChannel());
