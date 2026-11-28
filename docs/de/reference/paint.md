@@ -1,6 +1,6 @@
 # c0de paint Handbuch
 
-c0de paint ergänzt c0de um die Bibliothek c0de_paint/cpaint. Programme zeichnen Linien, flache Formen und Körper in Leinwände, kombinieren und verändern sie und bauen sie in der Welt. Dieses Handbuch beschreibt die Typen, die Stile, die Zeichenfunktionen, die Leinwand-Operationen, das Rendern, die Fehler und die Einstellungen, mit Beispielen.
+c0de paint ergänzt c0de um die Bibliotheken c0de_paint/cpaint und c0de_paint/schematics. Programme zeichnen Linien, flache Formen und Körper in Leinwände, kombinieren und verändern sie, lesen Schematics von Litematica und Create und bauen sie in der Welt. Jedes Programm hat die Konstante `C0DE_PAINT_VERSION` mit der Version von c0de paint als Text, etwa "0.2.0". Dieses Handbuch beschreibt die Typen, die Stile, die Zeichenfunktionen, die Leinwand-Operationen, das Rendern, die Fehler und die Einstellungen, mit Beispielen.
 
 ## Erste Schritte
 
@@ -92,16 +92,14 @@ BEGIN
     ASSIGN a.x 3 ;
     ASSIGN a.y 1 ;
     ASSIGN a.z 0 ;
-    CALL c0de_paint/cpaint/DRAW_LINE
+    CALL c0de_paint/cpaint/DRAW_BLOCK
         PARAMETER canvas c ;
-        PARAMETER from a ;
-        PARAMETER to a ;
+        PARAMETER point a ;
         PARAMETER style lower ;
     ASSIGN a.y 2 ;
-    CALL c0de_paint/cpaint/DRAW_LINE
+    CALL c0de_paint/cpaint/DRAW_BLOCK
         PARAMETER canvas c ;
-        PARAMETER from a ;
-        PARAMETER to a ;
+        PARAMETER point a ;
         PARAMETER style upper ;
     NOOP
     CALL c0de_paint/cpaint/RENDER_CANVAS
@@ -128,6 +126,11 @@ Der Server hat die Datei `config/c0de_paint.properties`.
 - `renderBlocksPerTick` (1 bis 1024, Standard 64) ist die Zahl der Blöcke, die RENDER_CANVAS pro Tick setzt.
 - `renderMiningSpeed` (0 bis 100, Standard 1) gibt an, wie viel schneller als ein Spieler RENDER_CANVAS Blöcke mit Werkzeugen abbaut; 0 baut sofort ab.
 - `canvasVoxelsPerTick` (1024 bis 1048576, Standard 65536) ist die Zahl der Voxel, die eine Zeichenfunktion oder eine Transformation pro Tick bearbeitet. Größere Arbeit verteilt sich auf mehrere Ticks, während der Prozess wartet.
+- `maxSchematicSize` (1024 bis 67108864, Standard 4194304) ist die größte Schematic-Datei in Bytes, die c0de_paint/schematics liest.
+
+Jeder Client hat die Datei `config/c0de_paint-client.properties` mit `allowSchematics` (Standard true): ob der Client die Schematics seines Spielers für c0de_paint/schematics liest.
+
+allowBlockChanges, das RENDER_CANVAS ohne input braucht, ist eine Einstellung von c0de in `config/c0de.properties` auf dem Server.
 
 ## Typen
 
@@ -164,7 +167,7 @@ ASSIGN corner.y 4 ;
 
 ### BLOCK
 
-Ein Block eines Stils oder einer Leinwand: `id` STRING, `properties` HASH STRING mit Blockzuständen wie bei PLACE_BLOCK, und `weight` INTEGER. Eine id ohne Namensraum bekommt `minecraft:`, "stone" ist also "minecraft:stone". Gewichte sind 1 oder größer; sie zählen bei zufälligen Blöcken und Verläufen.
+Ein Block eines Stils oder einer Leinwand: `id` STRING, `properties` HASH STRING mit Blockzuständen wie bei PLACE_BLOCK, `weight` INTEGER und `data` STRING. Eine id ohne Namensraum bekommt `minecraft:`, "stone" ist also "minecraft:stone". Gewichte sind 1 oder größer; sie zählen bei zufälligen Blöcken und Verläufen, Leinwände beachten sie nicht. `data` sind die Daten des Blockobjekts als SNBT, der Text, den GET_BLOCK von c0de/minecraft liefert und PLACE_BLOCK nimmt, etwa `{Items:[{Slot:0b,id:"minecraft:stone",count:3}]}` für eine Truhe; "" für keine. Leinwände, Stile und Transformationen behalten sie; wann sie gesetzt werden, steht bei RENDER_CANVAS.
 
 ```c0de
 VARIABLE log STRUCT c0de_paint/cpaint/BLOCK
@@ -658,7 +661,7 @@ CALL c0de_paint/cpaint/CANVAS_GET
 
 ### CANVAS_CLEAR und CANVAS_CROP
 
-CANVAS_CLEAR setzt die Voxel im Quader von `from` bis `to` zurück, ohne die beiden alle Voxel. CANVAS_CROP setzt alle Voxel außerhalb des Quaders zurück.
+CANVAS_CLEAR setzt die Voxel im Quader von `from` bis `to` zurück, ohne `from` und `to` alle Voxel. CANVAS_CROP setzt alle Voxel außerhalb des Quaders zurück.
 
 **Parameter und Ergebnisse**
 
@@ -732,7 +735,7 @@ CALL c0de_paint/cpaint/CANVAS_MERGE
 
 ### CANVAS_MATERIALS
 
-Die Blöcke, die eine Leinwand braucht, als HASH von Block-id zu Anzahl, ohne Luft. Blöcke mit verschiedenen Zuständen zählen zusammen.
+Die Blöcke einer Leinwand, als HASH von Block-id zu Anzahl, ohne Luft (CANVAS_COUNT zählt Luft mit). Blöcke mit verschiedenen Zuständen zählen zusammen. CANVAS_ITEMS zählt die Gegenstände, die RENDER_CANVAS nimmt.
 
 **Parameter und Ergebnisse**
 
@@ -743,6 +746,24 @@ Die Blöcke, die eine Leinwand braucht, als HASH von Block-id zu Anzahl, ohne Lu
 
 ```c0de
 CALL c0de_paint/cpaint/CANVAS_MATERIALS
+    PARAMETER canvas c ;
+    RESULT result shopping_list
+```
+
+### CANVAS_ITEMS
+
+Die Gegenstände, die RENDER_CANVAS zum Bauen der Leinwand nimmt, als HASH von Gegenstands-ID zu Anzahl: zwei Stufen für eine doppelte Stufe, drei Kerzen für einen Block mit drei Kerzen, ein Blumentopf und die Pflanze für eine eingetopfte Pflanze, ein Wassereimer für Wasser und für jeden geflutteten Block. Die oberen Hälften von Türen und Pflanzen, die Kopfteile von Betten und Kolbenköpfe brauchen nichts, weil der andere Teil sie setzt.
+
+**Parameter und Ergebnisse**
+
+- `canvas` TYPE c0de_paint/cpaint/CANVAS: die Leinwand
+- Ergebnis `result` HASH INTEGER: die Gegenstände
+- Ergebnis `without_item` HASH INTEGER: die Blöcke nach ID, die kein Gegenstand setzt, wie Feuer
+
+**Beispiel**
+
+```c0de
+CALL c0de_paint/cpaint/CANVAS_ITEMS
     PARAMETER canvas c ;
     RESULT result shopping_list
 ```
@@ -814,7 +835,11 @@ Rendern bringt Leinwände in die Welt, und CANVAS_FROM_WORLD bringt die Welt in 
 
 Baut die Leinwand in der Welt; ihr Voxel 0,0,0 landet bei `position`. Nicht gesetzte Voxel lassen die Welt, wie sie ist, Luft entfernt den Block dort, und Blöcke, die schon an ihrem Platz sind, werden übersprungen.
 
-Ohne `input` braucht das Programm allowBlockChanges oder einen Administrator als Besitzer, und Blöcke im Weg werden ersetzt. Mit `input` darf jeder Besitzer rendern: Die Blöcke kommen zuerst aus `output`, dann aus `input`; Blöcke im Weg werden mit den Werkzeugen aus `tools` abgebaut, die dabei abnutzen, und was sie fallen lassen, kommt nach `output`. Die Blätter, der Spawnschutz und Blöcke, die ein Spieler nicht abbauen kann, lösen PERMISSION_DENIED aus.
+Ohne `input` braucht das Programm allowBlockChanges (`config/c0de.properties` von c0de) oder einen Administrator als Besitzer, und Blöcke im Weg werden ersetzt. Mit `input` darf jeder Besitzer rendern: Die Gegenstände kommen zuerst aus `output`, dann aus `input`, so wie CANVAS_ITEMS sie zählt (Wassereimer kommen leer zurück); Blöcke im Weg werden mit den Werkzeugen aus `tools` abgebaut, die dabei abnutzen, und was sie fallen lassen, kommt nach `output`. Blöcke, die ohne Werkzeug abgehen, wie Erde und Glas, werden mit der Hand abgebaut; ohne `output` geht, was sie fallen lassen, verloren. Die Blätter, der Spawnschutz und Blöcke, die ein Spieler nicht abbauen kann, lösen PERMISSION_DENIED aus.
+
+**Blockdaten.** Die Daten der Blöcke (das Element `data`) werden mit ihnen gesetzt. Blöcke mit Inventar behalten ihren Inhalt: Ohne `input` kommen die Gegenstände mit den Daten; mit `input` werden sie wie die Blöcke aus den Inventaren genommen, und `contents` entscheidet, was passiert, wenn welche fehlen: "REQUIRED" (Standard) löst ITEM_MISSING vor dem ersten Block aus, "AVAILABLE" füllt ein, was da ist, "NONE" setzt die Inventare leer. Mit `input` bleibt weg, was aus dem Nichts Dinge erzeugen würde: Beutetabellen, die Bienen von Bienenstöcken, der Gegenstand in seltsamem Sand und Kies, das Buch eines Lesepults. Die Daten von Befehlsblöcken, Konstruktionsblöcken und Verbundblöcken brauchen einen Administrator (PERMISSION_DENIED).
+
+**Fehlende Blöcke.** Mit `blocks` "AVAILABLE" werden die Blöcke gesetzt, die die Inventare haben, und die Voxel der anderen übersprungen, statt ITEM_MISSING auszulösen. Das Ergebnis `missing` nennt nach Gegenstands-ID, was weggelassen wurde, Blöcke und Inhalte, damit das Programm es holen und noch einmal rendern kann: Blöcke, die schon an ihrem Platz sind, werden übersprungen und behalten ihren Inhalt.
 
 Vor dem ersten Block prüft RENDER_CANVAS die Rechte, die Chunks (CHUNK_NOT_LOADED), die Blöcke in den Inventaren (ITEM_MISSING) und ein Werkzeug für jeden Block, der eines braucht, damit ein Fehler kein halbes Gebäude hinterlässt. Ein volles `output` (INVENTORY_FULL) oder ein zerbrochenes Werkzeug halten es später an; die Meldung sagt, wie viele Blöcke gesetzt wurden. Der Prozess wartet während des Renderns: Es setzt `renderBlocksPerTick` Blöcke pro Tick, von unten nach oben, und Fackeln, Leitern und Ähnliches nach den anderen Blöcken ihrer Schicht. Das Abbauen dauert so lange wie bei einem Spieler, geteilt durch `renderMiningSpeed`.
 
@@ -825,6 +850,9 @@ Vor dem ersten Block prüft RENDER_CANVAS die Rechte, die Chunks (CHUNK_NOT_LOAD
 - `input` STRUCT c0de/minecraft/POSITION: das Inventar mit den Blöcken (optional)
 - `tools` STRUCT c0de/minecraft/POSITION: das Inventar mit den Werkzeugen (optional)
 - `output` STRUCT c0de/minecraft/POSITION: das Inventar für entfernte Blöcke, wird zuerst für Blöcke benutzt (optional)
+- `contents` STRING: "REQUIRED", "AVAILABLE" oder "NONE", für den Inhalt von Inventaren (optional, Standard "REQUIRED")
+- `blocks` STRING: "REQUIRED" oder "AVAILABLE", für fehlende Blöcke (optional, Standard "REQUIRED")
+- Ergebnis `missing` HASH INTEGER: was weggelassen wurde, nach Gegenstands-ID
 
 **Beispiel**
 
@@ -839,7 +867,7 @@ CALL c0de_paint/cpaint/RENDER_CANVAS
 
 ### CANVAS_FROM_WORLD
 
-Eine neue Leinwand mit den Blöcken der Welt zwischen zwei Positionen, mit ihren Zuständen; `from` wird zu 0,0,0. Luft wird zu nicht gesetzt, oder zu Luft, wenn `air` TRUE ist. Der Inhalt von Truhen und andere Blockdaten werden nicht kopiert. Ein Bereich, der größer als die Grenzen ist, löst CANVAS_LIMIT aus, nicht geladene Chunks CHUNK_NOT_LOADED.
+Eine neue Leinwand mit den Blöcken der Welt zwischen zwei Positionen, mit ihren Zuständen und ihren Daten (dem Inhalt von Truhen, dem Text von Schildern); `from` wird zu 0,0,0. Luft wird zu nicht gesetzt, oder zu Luft, wenn `air` TRUE ist. Jede Ecke muss von `from` aus gesehen in den Grenzen einer Leinwand liegen: mit den Standardeinstellungen bis zu 127 Blöcke in positiver und 128 in negativer Richtung jeder Achse; sonst CANVAS_LIMIT. Nicht geladene Chunks lösen CHUNK_NOT_LOADED aus.
 
 **Parameter und Ergebnisse**
 
@@ -856,9 +884,99 @@ CALL c0de_paint/cpaint/CANVAS_FROM_WORLD
     RESULT result copy
 ```
 
+## Schematics
+
+Die Bibliothek c0de_paint/schematics liest die Schematics, die Spieler mit Litematica (`.litematic`) und Create (`.nbt`, die Strukturdateien von Minecraft) speichern, in Leinwände. Ein Programm bindet sie mit INCLUDE c0de_paint/schematics ein, und c0de_paint/cpaint für die Leinwände.
+
+**Wo die Dateien liegen.** Beide Mods speichern Schematics im Ordner `schematics` des Spielordners des Spielers. Auf einem Server liegt dieser Ordner auf dem Computer des Spielers, deshalb liest der **Client des Spielers, der den Prozess ausführt,** die Datei und schickt sie zum Server; der Prozess wartet solange auf seiner CALL-Zeile. Der Spieler muss online sein und c0de paint installiert haben (CLIENT_UNAVAILABLE). Jeder Spieler entscheidet auf seinem Computer, ob sein Client Schematics liest: `allowSchematics` in `config/c0de_paint-client.properties` (Vorgabe true; mit false SCHEMATICS_DISABLED). Im Einzelspieler sind Server und Client derselbe Computer.
+
+**Namen.** Eine Datei wird relativ zum Ordner `schematics` benannt, mit `/` zwischen Ordnern, etwa "castles/keep.litematic". Namen, die den Ordner verlassen (`..`, absolute Pfade, Laufwerksbuchstaben) oder versteckte Zeichen enthalten, lösen INVALID_ARGUMENT aus.
+
+**Was aus einer Schematic wird.** Die Blöcke mit ihren Zuständen und den Daten ihrer Blockobjekte (der Text von Schildern, die Gegenstände von Truhen, die Einstellungen von Maschinen), die kleinste Ecke auf Voxel 0,0,0; die Regionen einer `.litematic` behalten ihre Lage zueinander. Luft bleibt ungesetzt. Objekte (Rahmen, Rüstungsständer) werden weggelassen und gezählt. Schematics älterer Minecraft-Versionen werden aktualisiert, wie Minecraft seine Welten aktualisiert, umbenannte Blöcke kommen also mit ihren neuen Namen heraus; Dateien von vor Minecraft 1.13 werden nicht gelesen. Eine Schematic, die größer als eine Leinwand ist (canvasMin, canvasMax), löst SCHEMATIC_TOO_LARGE aus, ebenso eine Datei, die größer als `maxSchematicSize` ist.
+
+**Blöcke ersetzen.** Jede Funktion nimmt den optionalen Parameter `replace`, einen HASH STRING von Block zu Block, der beim Lesen der Datei angewendet wird. Ein Schlüssel ist eine ID wie "create:andesite_casing" oder eine ID mit Zuständen wie "oak_stairs[half=top]"; der Schlüssel mit den meisten passenden Zuständen gewinnt. Der neue Block behält die Zustände des alten, die er auch hat, so behalten Treppen ihre Richtung, und die Daten, wenn der neue Block keine eigenen hat. Der Wert "" lässt die Voxel ungesetzt.
+
+### SCHEMATIC_LOAD
+
+Die Schematic als Leinwand.
+
+**Parameter und Ergebnisse**
+
+- `file` STRING: der Name der Schematic
+- `replace` HASH STRING: zu ersetzende Blöcke (optional)
+- `region` STRING: nur diese Region einer `.litematic` (optional, Vorgabe alle)
+- Ergebnis `result` TYPE c0de_paint/cpaint/CANVAS: die Leinwand
+- Ergebnis `entities` INTEGER: die Zahl der weggelassenen Objekte
+
+**Beispiel**
+
+```c0de
+VARIABLE swap HASH STRING
+ASSIGN swap["create:andesite_casing"] "stripped_spruce_log" ;
+CALL c0de_paint/schematics/SCHEMATIC_LOAD
+    PARAMETER file "castles/keep.litematic" ;
+    PARAMETER replace swap ;
+    RESULT result keep
+```
+
+### SCHEMATIC_MATERIALS
+
+Die Gegenstände, die RENDER_CANVAS zum Bauen der Schematic nimmt, als HASH von Gegenstands-ID zu Anzahl, gezählt wie bei CANVAS_ITEMS. Die Funktion braucht keine Leinwand, sie zählt also auch Schematics, die größer als eine Leinwand sind.
+
+**Parameter und Ergebnisse**
+
+- `file` STRING: der Name der Schematic
+- `replace` HASH STRING: zu ersetzende Blöcke (optional)
+- Ergebnis `result` HASH INTEGER: die Gegenstände
+- Ergebnis `without_item` HASH INTEGER: die Blöcke nach ID, die kein Gegenstand setzt, wie Feuer
+
+**Beispiel**
+
+```c0de
+CALL c0de_paint/schematics/SCHEMATIC_MATERIALS
+    PARAMETER file "castles/keep.litematic" ;
+    RESULT result shopping_list
+```
+
+### SCHEMATIC_MISSING
+
+Die Blöcke der Schematic, die dieser Server nicht hat, als HASH von Block-ID zu Anzahl; leer, wenn die Schematic hier gebaut werden kann. Blöcke von Mods, die nicht installiert sind, etwa die Blöcke von Create auf einem Server ohne Create, und Blöcke neuerer Minecraft-Versionen erscheinen hier. Ruf die Funktion mit dem `replace` auf, das du verwenden willst, um es zu prüfen.
+
+**Parameter und Ergebnisse**
+
+- `file` STRING: der Name der Schematic
+- `replace` HASH STRING: zu ersetzende Blöcke (optional)
+- Ergebnis `result` HASH INTEGER: die fehlenden Blöcke
+
+**Beispiel**
+
+```c0de
+CALL c0de_paint/schematics/SCHEMATIC_MISSING
+    PARAMETER file "factory.nbt" ;
+    PARAMETER replace swap ;
+    RESULT result missing
+```
+
+### SCHEMATIC_LIST
+
+Die Schematics in einem Ordner von `schematics` und seinen Unterordnern, sortiert, als Namen, die die anderen Funktionen nehmen.
+
+**Parameter und Ergebnisse**
+
+- `folder` STRING: der Ordner (optional, Vorgabe der Ordner `schematics` selbst)
+- Ergebnis `result` ARRAY STRING: die Namen
+
+**Beispiel**
+
+```c0de
+CALL c0de_paint/schematics/SCHEMATIC_LIST
+    PARAMETER folder "castles" ;
+    RESULT result names
+```
+
 ## Fehler
 
-Die Bibliothek löst die Fehler von c0de aus, wo sie passen, und drei eigene, die Konstanten der Bibliothek sind, etwa c0de_paint/cpaint/CANVAS_LIMIT.
+Die Bibliotheken lösen die Fehler von c0de aus, wo sie passen, und eigene, die Konstanten der Bibliotheken sind, etwa c0de_paint/cpaint/CANVAS_LIMIT und c0de_paint/schematics/SCHEMATIC_NOT_FOUND.
 
 ### CANVAS_LIMIT
 
@@ -871,6 +989,26 @@ Code 1101. Die Leinwand hat keine gesetzten Voxel und damit keine Grenzen: CANVA
 ### NOT_A_PLANE
 
 Code 1102. Die Punkte einer flachen Form liegen auf einer Geraden und legen daher keine Ebene fest.
+
+### SCHEMATIC_NOT_FOUND
+
+Code 1103, c0de_paint/schematics. Im Ordner `schematics` gibt es keine Schematic und keinen Ordner mit dem Namen.
+
+### SCHEMATIC_INVALID
+
+Code 1104, c0de_paint/schematics. Die Datei ist keine Schematic von Litematica oder Create, stammt von vor Minecraft 1.13 oder hat keine Region mit dem Namen.
+
+### SCHEMATIC_TOO_LARGE
+
+Code 1105, c0de_paint/schematics. Die Datei ist größer als `maxSchematicSize` oder die Schematic größer als eine Leinwand.
+
+### CLIENT_UNAVAILABLE
+
+Code 1106, c0de_paint/schematics. Der Spieler, der den Prozess ausführt, ist nicht online, hat c0de paint nicht auf dem Client oder antwortet nicht innerhalb von 60 Sekunden. Prozesse ohne einen solchen Spieler (ein Zeitgeberblock ohne Besitzer) können keine Schematics lesen.
+
+### SCHEMATICS_DISABLED
+
+Code 1107, c0de_paint/schematics. Der Client des Spielers liest keine Schematics (`allowSchematics` ist false).
 
 ### Fehler von c0de
 

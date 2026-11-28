@@ -1,6 +1,6 @@
 # c0de paint Handbook
 
-c0de paint adds the library c0de_paint/cpaint to c0de. Programs draw lines, flat shapes and bodies into canvases, combine and transform them, and build them in the world. This handbook describes the types, the styles, the drawing functions, the canvas operations, rendering, the errors and the settings, with examples.
+c0de paint adds the libraries c0de_paint/cpaint and c0de_paint/schematics to c0de. Programs draw lines, flat shapes and bodies into canvases, combine and transform them, read schematics of Litematica and Create, and build them in the world. Every program has the constant `C0DE_PAINT_VERSION` with the version of c0de paint as text, like "0.2.0". This handbook describes the types, the styles, the drawing functions, the canvas operations, rendering, the errors and the settings, with examples.
 
 ## Getting started
 
@@ -92,16 +92,14 @@ BEGIN
     ASSIGN a.x 3 ;
     ASSIGN a.y 1 ;
     ASSIGN a.z 0 ;
-    CALL c0de_paint/cpaint/DRAW_LINE
+    CALL c0de_paint/cpaint/DRAW_BLOCK
         PARAMETER canvas c ;
-        PARAMETER from a ;
-        PARAMETER to a ;
+        PARAMETER point a ;
         PARAMETER style lower ;
     ASSIGN a.y 2 ;
-    CALL c0de_paint/cpaint/DRAW_LINE
+    CALL c0de_paint/cpaint/DRAW_BLOCK
         PARAMETER canvas c ;
-        PARAMETER from a ;
-        PARAMETER to a ;
+        PARAMETER point a ;
         PARAMETER style upper ;
     NOOP
     CALL c0de_paint/cpaint/RENDER_CANVAS
@@ -128,6 +126,11 @@ The server has the file `config/c0de_paint.properties`.
 - `renderBlocksPerTick` (1 to 1024, default 64) is the number of blocks RENDER_CANVAS places per tick.
 - `renderMiningSpeed` (0 to 100, default 1) is how much faster than a player RENDER_CANVAS mines blocks with tools; 0 mines instantly.
 - `canvasVoxelsPerTick` (1024 to 1048576, default 65536) is the number of voxels a drawing function or a transformation processes per tick. Larger work is spread over several ticks while the process waits.
+- `maxSchematicSize` (1024 to 67108864, default 4194304) is the largest schematic file in bytes that c0de_paint/schematics reads.
+
+Every client has the file `config/c0de_paint-client.properties` with `allowSchematics` (default true): whether the client reads the schematics of its player for c0de_paint/schematics.
+
+allowBlockChanges, which RENDER_CANVAS without input needs, is a setting of c0de in `config/c0de.properties` on the server.
 
 ## Types
 
@@ -164,7 +167,7 @@ ASSIGN corner.y 4 ;
 
 ### BLOCK
 
-A block of a style or of a canvas: `id` STRING, `properties` HASH STRING with block states as in PLACE_BLOCK, and `weight` INTEGER. An id without a namespace gets `minecraft:`, so "stone" is "minecraft:stone". Weights are 1 or more; they matter for random blocks and gradients.
+A block of a style or of a canvas: `id` STRING, `properties` HASH STRING with block states as in PLACE_BLOCK, `weight` INTEGER and `data` STRING. An id without a namespace gets `minecraft:`, so "stone" is "minecraft:stone". Weights are 1 or more; they matter for random blocks and gradients, canvases ignore them. `data` is the data of the block entity as SNBT, the text that GET_BLOCK of c0de/minecraft returns and PLACE_BLOCK takes, like `{Items:[{Slot:0b,id:"minecraft:stone",count:3}]}` for a chest; "" for none. Canvases, styles and transformations keep it; see RENDER_CANVAS for when it is placed.
 
 ```c0de
 VARIABLE log STRUCT c0de_paint/cpaint/BLOCK
@@ -732,7 +735,7 @@ CALL c0de_paint/cpaint/CANVAS_MERGE
 
 ### CANVAS_MATERIALS
 
-The blocks a canvas needs, as a HASH from block id to number, without air. Blocks with different states count together.
+The blocks of a canvas, as a HASH from block id to number, without air (CANVAS_COUNT counts air). Blocks with different states count together. CANVAS_ITEMS counts the items that RENDER_CANVAS takes.
 
 **Parameters and results**
 
@@ -743,6 +746,24 @@ The blocks a canvas needs, as a HASH from block id to number, without air. Block
 
 ```c0de
 CALL c0de_paint/cpaint/CANVAS_MATERIALS
+    PARAMETER canvas c ;
+    RESULT result shopping_list
+```
+
+### CANVAS_ITEMS
+
+The items that RENDER_CANVAS takes to build the canvas, as a HASH from item id to number: two slabs for a double slab, three candles for a block of three candles, a flower pot and the plant for a potted plant, a water bucket for water and for every waterlogged block. The upper halves of doors and plants, the heads of beds and piston heads take nothing, because the other part places them.
+
+**Parameters and results**
+
+- `canvas` TYPE c0de_paint/cpaint/CANVAS: the canvas
+- result `result` HASH INTEGER: the items
+- result `without_item` HASH INTEGER: the blocks by id that no item places, like fire
+
+**Example**
+
+```c0de
+CALL c0de_paint/cpaint/CANVAS_ITEMS
     PARAMETER canvas c ;
     RESULT result shopping_list
 ```
@@ -814,7 +835,11 @@ Rendering brings canvases into the world, and CANVAS_FROM_WORLD brings the world
 
 Builds the canvas in the world; its voxel 0,0,0 lands at `position`. Voxels that are not set leave the world as it is, air removes the block there, and blocks that are already in place are skipped.
 
-Without `input`, the program needs allowBlockChanges or an administrator as owner, and blocks in the way are replaced. With `input`, every owner may render: the blocks come from `output` first, then from `input`; blocks in the way are mined with the tools of `tools`, which take damage, and the drops go to `output`. The sheets, the spawn protection and blocks a player can't break raise PERMISSION_DENIED.
+Without `input`, the program needs allowBlockChanges (`config/c0de.properties` of c0de) or an administrator as owner, and blocks in the way are replaced. With `input`, every owner may render: the items come from `output` first, then from `input`, as CANVAS_ITEMS counts them (buckets of water come back empty); blocks in the way are mined with the tools of `tools`, which take damage, and the drops go to `output`. Blocks that break without a tool, like dirt and glass, are mined by hand; without `output`, the drops are lost. The sheets, the spawn protection and blocks a player can't break raise PERMISSION_DENIED.
+
+**Block data.** The data of the blocks (the element `data`) is placed with them. Blocks with inventories keep their contents: without `input`, the items come with the data; with `input`, they are taken from the inventories like the blocks, and `contents` decides what happens when some are missing: "REQUIRED" (the default) raises ITEM_MISSING before the first block, "AVAILABLE" fills in what there is, "NONE" places the inventories empty. With `input`, data that would create things out of nothing is left out: loot tables, the bees of beehives, the item of suspicious sand and gravel, the book of a lectern. The data of command blocks, structure blocks and jigsaw blocks needs an administrator (PERMISSION_DENIED).
+
+**Missing blocks.** With `blocks` "AVAILABLE", the blocks that the inventories hold are placed and the voxels of the others are skipped instead of raising ITEM_MISSING. The result `missing` lists by item id what was left out, blocks and contents, so the program can fetch it and render again: blocks already in place are skipped, and they keep their contents.
 
 Before the first block, RENDER_CANVAS checks the rights, the chunks (CHUNK_NOT_LOADED), the blocks in the inventories (ITEM_MISSING) and a tool for every block that needs one, so an error doesn't leave half a building. A full output (INVENTORY_FULL) or a broken tool stop it later; the message says how many blocks were placed. The process waits while rendering: it places `renderBlocksPerTick` blocks per tick, from bottom to top, and torches, ladders and the like after the other blocks of their layer. Mining takes the time of a player divided by `renderMiningSpeed`.
 
@@ -825,6 +850,9 @@ Before the first block, RENDER_CANVAS checks the rights, the chunks (CHUNK_NOT_L
 - `input` STRUCT c0de/minecraft/POSITION: the inventory with the blocks (optional)
 - `tools` STRUCT c0de/minecraft/POSITION: the inventory with the tools (optional)
 - `output` STRUCT c0de/minecraft/POSITION: the inventory for removed blocks, used first for blocks (optional)
+- `contents` STRING: "REQUIRED", "AVAILABLE" or "NONE", for the contents of inventories (optional, default "REQUIRED")
+- `blocks` STRING: "REQUIRED" or "AVAILABLE", for missing blocks (optional, default "REQUIRED")
+- result `missing` HASH INTEGER: what was left out, by item id
 
 **Example**
 
@@ -839,7 +867,7 @@ CALL c0de_paint/cpaint/RENDER_CANVAS
 
 ### CANVAS_FROM_WORLD
 
-A new canvas with the blocks of the world between two positions, with their states; `from` becomes 0,0,0. Air becomes not set, or air if `air` is TRUE. The contents of chests and other block data are not copied. A region larger than the limits raises CANVAS_LIMIT, chunks that are not loaded CHUNK_NOT_LOADED.
+A new canvas with the blocks of the world between two positions, with their states and their data (the contents of chests, the text of signs); `from` becomes 0,0,0. Air becomes not set, or air if `air` is TRUE. Every corner must lie within the limits of a canvas seen from `from`: with the default settings, up to 127 blocks in the positive and 128 in the negative direction of every axis; otherwise CANVAS_LIMIT. Chunks that are not loaded raise CHUNK_NOT_LOADED.
 
 **Parameters and results**
 
@@ -856,9 +884,99 @@ CALL c0de_paint/cpaint/CANVAS_FROM_WORLD
     RESULT result copy
 ```
 
+## Schematics
+
+The library c0de_paint/schematics reads the schematics that players save with Litematica (`.litematic`) and Create (`.nbt`, the structure files of Minecraft) into canvases. A program includes it with INCLUDE c0de_paint/schematics, and c0de_paint/cpaint for the canvases.
+
+**Where the files are.** Both mods save schematics in the folder `schematics` of the game folder of the player. On a server, that folder is on the computer of the player, so the **client of the player who runs the process** reads the file and sends it to the server; the process waits on its CALL line meanwhile. The player must be online and have c0de paint installed (CLIENT_UNAVAILABLE). Every player decides on their own computer whether their client reads schematics: `allowSchematics` in `config/c0de_paint-client.properties` (default true; with false, SCHEMATICS_DISABLED). In single player, server and client are the same computer.
+
+**Names.** A file is named relative to the folder `schematics`, with `/` between folders, like "castles/keep.litematic". Names that leave the folder (`..`, absolute paths, drive letters) or contain hidden characters raise INVALID_ARGUMENT.
+
+**What a schematic becomes.** The blocks with their states and the data of their block entities (the text of signs, the items of chests, the settings of machines), the minimum corner at voxel 0,0,0; the regions of a `.litematic` keep their places to each other. Air stays not set. Entities (item frames, armor stands) are left out and counted. Schematics of older Minecraft versions are upgraded like Minecraft upgrades its worlds, so renamed blocks come out with their new names; files from before Minecraft 1.13 aren't read. A schematic larger than a canvas (canvasMin, canvasMax) raises SCHEMATIC_TOO_LARGE, a file larger than `maxSchematicSize` too.
+
+**Replacing blocks.** Every function takes the optional parameter `replace`, a HASH STRING from block to block, applied while the file is read. A key is an id like "create:andesite_casing" or an id with states like "oak_stairs[half=top]"; the key with the most matching states wins. The new block keeps the states of the old one that it also has, so stairs keep their direction, and the data unless the new block has data of its own. The value "" leaves the voxels not set.
+
+### SCHEMATIC_LOAD
+
+The schematic as a canvas.
+
+**Parameters and results**
+
+- `file` STRING: the name of the schematic
+- `replace` HASH STRING: blocks to replace (optional)
+- `region` STRING: only this region of a `.litematic` (optional, default all)
+- result `result` TYPE c0de_paint/cpaint/CANVAS: the canvas
+- result `entities` INTEGER: the number of entities that were left out
+
+**Example**
+
+```c0de
+VARIABLE swap HASH STRING
+ASSIGN swap["create:andesite_casing"] "stripped_spruce_log" ;
+CALL c0de_paint/schematics/SCHEMATIC_LOAD
+    PARAMETER file "castles/keep.litematic" ;
+    PARAMETER replace swap ;
+    RESULT result keep
+```
+
+### SCHEMATIC_MATERIALS
+
+The items that RENDER_CANVAS takes to build the schematic, as a HASH from item id to number, counted like CANVAS_ITEMS. It works without a canvas, so it also counts schematics that are larger than a canvas.
+
+**Parameters and results**
+
+- `file` STRING: the name of the schematic
+- `replace` HASH STRING: blocks to replace (optional)
+- result `result` HASH INTEGER: the items
+- result `without_item` HASH INTEGER: the blocks by id that no item places, like fire
+
+**Example**
+
+```c0de
+CALL c0de_paint/schematics/SCHEMATIC_MATERIALS
+    PARAMETER file "castles/keep.litematic" ;
+    RESULT result shopping_list
+```
+
+### SCHEMATIC_MISSING
+
+The blocks of the schematic that this server doesn't have, as a HASH from block id to number; empty if the schematic can be built here. Blocks of mods that aren't installed, like the blocks of Create on a server without Create, and blocks of newer Minecraft versions show up here. Run it with the `replace` you plan to use to check it.
+
+**Parameters and results**
+
+- `file` STRING: the name of the schematic
+- `replace` HASH STRING: blocks to replace (optional)
+- result `result` HASH INTEGER: the missing blocks
+
+**Example**
+
+```c0de
+CALL c0de_paint/schematics/SCHEMATIC_MISSING
+    PARAMETER file "factory.nbt" ;
+    PARAMETER replace swap ;
+    RESULT result missing
+```
+
+### SCHEMATIC_LIST
+
+The schematics in a folder of `schematics` and its subfolders, sorted, as names that the other functions take.
+
+**Parameters and results**
+
+- `folder` STRING: the folder (optional, default the folder `schematics` itself)
+- result `result` ARRAY STRING: the names
+
+**Example**
+
+```c0de
+CALL c0de_paint/schematics/SCHEMATIC_LIST
+    PARAMETER folder "castles" ;
+    RESULT result names
+```
+
 ## Errors
 
-The library raises the errors of c0de where they fit and three of its own, which are constants of the library, like c0de_paint/cpaint/CANVAS_LIMIT.
+The libraries raise the errors of c0de where they fit and errors of their own, which are constants of the libraries, like c0de_paint/cpaint/CANVAS_LIMIT and c0de_paint/schematics/SCHEMATIC_NOT_FOUND.
 
 ### CANVAS_LIMIT
 
@@ -871,6 +989,26 @@ Code 1101. The canvas has no set voxels, so it has no bounds: CANVAS_MIN, CANVAS
 ### NOT_A_PLANE
 
 Code 1102. The points of a flat shape lie on one line, so they don't define a plane.
+
+### SCHEMATIC_NOT_FOUND
+
+Code 1103, c0de_paint/schematics. There is no schematic or folder with the name in the folder `schematics`.
+
+### SCHEMATIC_INVALID
+
+Code 1104, c0de_paint/schematics. The file is not a schematic of Litematica or Create, is from before Minecraft 1.13, or has no region with the name.
+
+### SCHEMATIC_TOO_LARGE
+
+Code 1105, c0de_paint/schematics. The file is larger than `maxSchematicSize`, or the schematic larger than a canvas.
+
+### CLIENT_UNAVAILABLE
+
+Code 1106, c0de_paint/schematics. The player who runs the process is not online, has no c0de paint on the client or doesn't answer within 60 seconds. Processes without such a player (a timer block without owner) can't read schematics.
+
+### SCHEMATICS_DISABLED
+
+Code 1107, c0de_paint/schematics. The client of the player doesn't read schematics (`allowSchematics` is false).
 
 ### Errors of c0de
 

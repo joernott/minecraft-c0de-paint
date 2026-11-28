@@ -7,7 +7,7 @@
 }
 ```
 
-Eine neue Leinwand mit den Blöcken der Welt zwischen zwei Positionen, mit ihren Zuständen\; `from` wird zu 0,0,0. Luft wird zu nicht gesetzt, oder zu Luft, wenn `air` TRUE ist. Der Inhalt von Truhen und andere Blockdaten werden nicht kopiert. Ein Bereich, der größer als die Grenzen ist, löst CANVAS\_LIMIT aus, nicht geladene Chunks CHUNK\_NOT\_LOADED.
+Eine neue Leinwand mit den Blöcken der Welt zwischen zwei Positionen, mit ihren Zuständen und ihren Daten (dem Inhalt von Truhen, dem Text von Schildern)\; `from` wird zu 0,0,0. Luft wird zu nicht gesetzt, oder zu Luft, wenn `air` TRUE ist. Jede Ecke muss von `from` aus gesehen in den Grenzen einer Leinwand liegen: mit den Standardeinstellungen bis zu 127 Blöcke in positiver und 128 in negativer Richtung jeder Achse\; sonst CANVAS\_LIMIT. Nicht geladene Chunks lösen CHUNK\_NOT\_LOADED aus.
 
 **Parameter und Ergebnisse**
 

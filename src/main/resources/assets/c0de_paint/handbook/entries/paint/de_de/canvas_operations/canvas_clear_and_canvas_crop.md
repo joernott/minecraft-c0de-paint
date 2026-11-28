@@ -7,7 +7,7 @@
 }
 ```
 
-CANVAS\_CLEAR setzt die Voxel im Quader von `from` bis `to` zurück, ohne die beiden alle Voxel. CANVAS\_CROP setzt alle Voxel außerhalb des Quaders zurück.
+CANVAS\_CLEAR setzt die Voxel im Quader von `from` bis `to` zurück, ohne `from` und `to` alle Voxel. CANVAS\_CROP setzt alle Voxel außerhalb des Quaders zurück.
 
 **Parameter und Ergebnisse**
 

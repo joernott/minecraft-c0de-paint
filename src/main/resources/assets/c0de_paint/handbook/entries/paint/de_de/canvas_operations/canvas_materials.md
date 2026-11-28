@@ -7,7 +7,7 @@
 }
 ```
 
-Die Blöcke, die eine Leinwand braucht, als HASH von Block-id zu Anzahl, ohne Luft. Blöcke mit verschiedenen Zuständen zählen zusammen.
+Die Blöcke einer Leinwand, als HASH von Block-id zu Anzahl, ohne Luft (CANVAS\_COUNT zählt Luft mit). Blöcke mit verschiedenen Zuständen zählen zusammen. CANVAS\_ITEMS zählt die Gegenstände, die RENDER\_CANVAS nimmt.
 
 **Parameter und Ergebnisse**
 

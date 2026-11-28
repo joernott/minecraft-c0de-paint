@@ -3,7 +3,7 @@
   "title": "CANVAS_MIRROR",
   "icon": "c0de:call_block",
   "category": "canvas_operations",
-  "ordinal": 10
+  "ordinal": 11
 }
 ```
 

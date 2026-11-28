@@ -3,7 +3,7 @@
   "title": "CANVAS_ROTATE",
   "icon": "c0de:call_block",
   "category": "canvas_operations",
-  "ordinal": 9
+  "ordinal": 10
 }
 ```
 

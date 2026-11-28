@@ -7,7 +7,7 @@
 }
 ```
 
-The blocks a canvas needs, as a HASH from block id to number, without air. Blocks with different states count together.
+The blocks of a canvas, as a HASH from block id to number, without air (CANVAS\_COUNT counts air). Blocks with different states count together. CANVAS\_ITEMS counts the items that RENDER\_CANVAS takes.
 
 **Parameters and results**
 

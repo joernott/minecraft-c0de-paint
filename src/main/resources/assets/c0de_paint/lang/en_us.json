@@ -1,4 +1,4 @@
 {
   "book.c0de_paint.paint.name": "c0de paint Handbook",
-  "book.c0de_paint.paint.landing_text": "c0de paint adds the library c0de\\_paint/cpaint to c0de. Programs draw lines, flat shapes and bodies into canvases, combine and transform them, and build them in the world. This handbook describes the types, the styles, the drawing functions, the canvas operations, rendering, the errors and the settings, with examples."
+  "book.c0de_paint.paint.landing_text": "c0de paint adds the libraries c0de\\_paint/cpaint and c0de\\_paint/schematics to c0de. Programs draw lines, flat shapes and bodies into canvases, combine and transform them, read schematics of Litematica and Create, and build them in the world. Every program has the constant `C0DE_PAINT_VERSION` with the version of c0de paint as text, like \"0.2.0\". This handbook describes the types, the styles, the drawing functions, the canvas operations, rendering, the errors and the settings, with examples."
 }

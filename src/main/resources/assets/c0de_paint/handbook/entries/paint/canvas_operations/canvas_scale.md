@@ -3,7 +3,7 @@
   "title": "CANVAS_SCALE",
   "icon": "c0de:call_block",
   "category": "canvas_operations",
-  "ordinal": 8
+  "ordinal": 9
 }
 ```
 

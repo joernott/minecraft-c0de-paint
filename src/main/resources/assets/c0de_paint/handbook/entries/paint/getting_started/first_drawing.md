@@ -89,16 +89,14 @@ BEGIN
   ASSIGN a.x 3 ;
   ASSIGN a.y 1 ;
   ASSIGN a.z 0 ;
-  CALL c0de_paint/cpaint/DRAW_LINE
+  CALL c0de_paint/cpaint/DRAW_BLOCK
     PARAMETER canvas c ;
-    PARAMETER from a ;
-    PARAMETER to a ;
+    PARAMETER point a ;
     PARAMETER style lower ;
   ASSIGN a.y 2 ;
-  CALL c0de_paint/cpaint/DRAW_LINE
+  CALL c0de_paint/cpaint/DRAW_BLOCK
     PARAMETER canvas c ;
-    PARAMETER from a ;
-    PARAMETER to a ;
+    PARAMETER point a ;
     PARAMETER style upper ;
   NOOP
   CALL c0de_paint/cpaint/RENDER_CANVAS
