@@ -80,6 +80,20 @@ public final class MinecraftWorld implements PaintWorld {
         return block;
     }
 
+    /** The block with all its states, the defaults filled in (task 9.1.3). */
+    @Override
+    public Block complete(Block block) {
+        ResourceLocation id = ResourceLocation.tryParse(block.id());
+        if (id == null || !BuiltInRegistries.BLOCK.containsKey(id) || valid(block) == null) {
+            return block;
+        }
+        try {
+            return block(Renderer.state(block)).withData(block.data());
+        } catch (RuntimeException e) {
+            return block;
+        }
+    }
+
     /** The items of a block for CANVAS_ITEMS, from the same mapping as RENDER_CANVAS (task 9.3). */
     @Override
     public Map<String, Long> items(Block block) {

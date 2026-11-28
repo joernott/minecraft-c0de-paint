@@ -38,6 +38,15 @@ public interface PaintWorld {
     }
 
     /**
+     * The block with every state it has, the ones it leaves at their defaults filled in, so that transformations turn
+     * them too, like the hinge of a door (task 9.1.3). Without a world, or for blocks the world doesn't know, the block
+     * as it is.
+     */
+    default Block complete(Block block) {
+        return block;
+    }
+
+    /**
      * The items that RENDER_CANVAS takes for a block, by item id (CANVAS_ITEMS, task 9.3): empty for air and the parts
      * that another block places; a block that no item places counts with its own id under the key "" of the map
      * {@code without}. Without a world, every block is its own item.

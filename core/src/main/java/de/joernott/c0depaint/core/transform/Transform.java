@@ -125,6 +125,21 @@ public final class Transform implements Job {
      */
     public static Transform rotate(
             Canvas canvas, Point center, int axis, double degrees, Function<Block, Block> valid, Limits limits) {
+        return rotate(canvas, center, axis, degrees, valid, Function.identity(), limits);
+    }
+
+    /**
+     * CANVAS_ROTATE with the states that blocks leave at their defaults filled in first, so that a door without
+     * {@code hinge} turns like one with it ({@code PaintWorld#complete}, task 9.1.3).
+     */
+    public static Transform rotate(
+            Canvas canvas,
+            Point center,
+            int axis,
+            double degrees,
+            Function<Block, Block> valid,
+            Function<Block, Block> complete,
+            Limits limits) {
         double radians = Math.toRadians(degrees);
         // Exact values for multiples of 90°, so that such rotations map voxels exactly
         double quarter = degrees / 90;
@@ -143,7 +158,7 @@ public final class Transform implements Job {
         Mapping inverse = v -> turn(v.minus(c), axis, cos, -sin).plus(c);
         int quarters = (int) Math.floorMod(Math.round(degrees / 90), 4);
         Function<Block, Block> states = block -> {
-            Block rotated = BlockStates.rotate(block, axis, quarters);
+            Block rotated = BlockStates.rotate(complete.apply(block), axis, quarters);
             return rotated == null ? block : valid.apply(rotated) == null ? block : rotated;
         };
         Bounds bounds = canvas.bounds();
@@ -163,13 +178,24 @@ public final class Transform implements Job {
      * states of the blocks are mirrored, if the block can take them.
      */
     public static Transform mirror(Canvas canvas, int axis, long twice, Function<Block, Block> valid, Limits limits) {
+        return mirror(canvas, axis, twice, valid, Function.identity(), limits);
+    }
+
+    /** CANVAS_MIRROR with the states that blocks leave at their defaults filled in first (task 9.1.3). */
+    public static Transform mirror(
+            Canvas canvas,
+            int axis,
+            long twice,
+            Function<Block, Block> valid,
+            Function<Block, Block> complete,
+            Limits limits) {
         Mapping mapping = v -> {
             double[] p = {v.x(), v.y(), v.z()};
             p[axis] = twice - p[axis];
             return new Vec(p[0], p[1], p[2]);
         };
         Function<Block, Block> states = block -> {
-            Block mirrored = BlockStates.mirror(block, axis);
+            Block mirrored = BlockStates.mirror(complete.apply(block), axis);
             return mirrored == null ? block : valid.apply(mirrored) == null ? block : mirrored;
         };
         Bounds bounds = canvas.bounds();

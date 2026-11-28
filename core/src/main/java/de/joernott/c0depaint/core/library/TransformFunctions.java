@@ -64,6 +64,7 @@ final class TransformFunctions {
                                         axis(call),
                                         DrawFunctions.number(call, "degrees"),
                                         world::valid,
+                                        world::complete,
                                         limits.get())),
                         Args.canvasReference("canvas"),
                         Args.point("center"),
@@ -88,7 +89,7 @@ final class TransformFunctions {
                                         : (long) bounds.min().get(axis)
                                                 + bounds.max().get(axis);
                             }
-                            return Transform.mirror(canvas, axis, twice, world::valid, limits.get());
+                            return Transform.mirror(canvas, axis, twice, world::valid, world::complete, limits.get());
                         }),
                         Args.canvasReference("canvas"),
                         Args.text("axis"),
