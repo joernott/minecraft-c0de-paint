@@ -27,6 +27,11 @@ public class NeoForgeGameTests {
     }
 
     @GameTest(template = "empty", timeoutTicks = 200)
+    public static void inventoriesAreFilledFromTheInput(GameTestHelper helper) {
+        RenderTests.inventoriesAreFilledFromTheInput(helper);
+    }
+
+    @GameTest(template = "empty", timeoutTicks = 200)
     public static void schematicsAreReadUpgradedAndCounted(GameTestHelper helper) {
         SchematicTests.schematicsAreReadUpgradedAndCounted(helper);
     }

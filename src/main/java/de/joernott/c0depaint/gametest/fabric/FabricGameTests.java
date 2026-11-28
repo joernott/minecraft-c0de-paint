@@ -26,6 +26,11 @@ public class FabricGameTests {
     }
 
     @GameTest(template = SmokeTests.EMPTY_STRUCTURE, timeoutTicks = 200)
+    public void inventoriesAreFilledFromTheInput(GameTestHelper helper) {
+        RenderTests.inventoriesAreFilledFromTheInput(helper);
+    }
+
+    @GameTest(template = SmokeTests.EMPTY_STRUCTURE, timeoutTicks = 200)
     public void schematicsAreReadUpgradedAndCounted(GameTestHelper helper) {
         SchematicTests.schematicsAreReadUpgradedAndCounted(helper);
     }

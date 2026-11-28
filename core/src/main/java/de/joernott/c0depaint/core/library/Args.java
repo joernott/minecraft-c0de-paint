@@ -141,7 +141,7 @@ final class Args {
         Job job = call.state() instanceof Job running ? running : start.get();
         if (job.step(budget, call.process().random())) {
             call.setState(null);
-            return NativeResult.none();
+            return job.results().isEmpty() ? NativeResult.none() : NativeResult.of(job.results());
         }
         call.setState(job);
         return NativeResult.waitForValue();

@@ -86,9 +86,9 @@ public final class MinecraftWorld implements PaintWorld {
     }
 
     /**
-     * CANVAS_FROM_WORLD: the blocks with all their states, without the data of block entities. Raises CHUNK_NOT_LOADED
-     * before the first voxel if a chunk of the region isn't loaded, and CANVAS_LIMIT if the region is larger than a
-     * canvas may be.
+     * CANVAS_FROM_WORLD: the blocks with all their states and the data of their block entities (since 0.2.0).
+     * Raises CHUNK_NOT_LOADED before the first voxel if a chunk of the region isn't loaded, and CANVAS_LIMIT if the
+     * region is larger than a canvas may be.
      */
     @Override
     public Canvas fromWorld(NativeCall call, StructValue from, StructValue to, boolean air, Limits limits) {
@@ -128,6 +128,14 @@ public final class MinecraftWorld implements PaintWorld {
                 continue;
             }
             Block block = state.isAir() ? Block.AIR : blocks.computeIfAbsent(state, MinecraftWorld::block);
+            // The data of the block entity, as GET_BLOCK of c0de shows it (task 9.2)
+            net.minecraft.world.level.block.entity.BlockEntity blockEntity = level.getBlockEntity(pos);
+            if (blockEntity != null) {
+                net.minecraft.nbt.CompoundTag data = blockEntity.saveWithoutMetadata(level.registryAccess());
+                if (!de.joernott.c0de.compat.Nbt.keys(data).isEmpty()) {
+                    block = block.withData(data.toString());
+                }
+            }
             canvas.set(
                     pos.getX() - start.pos().getX(),
                     pos.getY() - start.pos().getY(),

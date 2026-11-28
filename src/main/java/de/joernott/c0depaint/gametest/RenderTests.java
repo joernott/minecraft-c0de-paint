@@ -130,6 +130,97 @@ public final class RenderTests {
         });
     }
 
+    private static final String CONTENTS_PROGRAM = """
+            PROGRAM barrel
+            NOOP
+            INCLUDE c0de/minecraft
+            INCLUDE c0de_paint/cpaint
+            NOOP
+            FUNCTION main
+                PARAMETER at STRUCT c0de/minecraft/POSITION
+                PARAMETER input STRUCT c0de/minecraft/POSITION
+                PARAMETER contents STRING
+                PARAMETER blocks STRING
+                RESULT code INTEGER
+                RESULT missing HASH INTEGER
+            BEGIN
+                VARIABLE c TYPE c0de_paint/cpaint/CANVAS
+                VARIABLE p STRUCT c0de_paint/cpaint/POINT
+                VARIABLE b STRUCT c0de_paint/cpaint/BLOCK
+                VARIABLE s TYPE c0de_paint/cpaint/STYLE
+                VARIABLE problem ERROR
+                ASSIGN b.id "barrel" ;
+                ASSIGN b.data "{Items:[{Slot:0b,id:'minecraft:stone',count:3}]}" ;
+                CALL c0de_paint/cpaint/STYLE_SOLID
+                    PARAMETER block b ;
+                    RESULT result s
+                CALL c0de_paint/cpaint/DRAW_BLOCK
+                    PARAMETER canvas c ;
+                    PARAMETER point p ;
+                    PARAMETER style s ;
+                ASSIGN b.id "gold_block" ;
+                ASSIGN b.data "" ;
+                CALL c0de_paint/cpaint/STYLE_SOLID
+                    PARAMETER block b ;
+                    RESULT result s
+                ASSIGN p.x 1 ;
+                CALL c0de_paint/cpaint/DRAW_BLOCK
+                    PARAMETER canvas c ;
+                    PARAMETER point p ;
+                    PARAMETER style s ;
+                CALL c0de_paint/cpaint/RENDER_CANVAS problem
+                    PARAMETER canvas c ;
+                    PARAMETER position at ;
+                    PARAMETER input input ;
+                    PARAMETER contents contents ;
+                    PARAMETER blocks blocks ;
+                    RESULT missing missing
+                ASSIGN code problem.code ;
+            END FUNCTION
+            """;
+
+    private static Map<String, Value> contentsInputs(GameTestHelper helper, String contents, String blocks) {
+        return Map.of(
+                "at", Processes.position(helper.absolutePos(new BlockPos(0, 3, 0))),
+                "input", Processes.position(helper.absolutePos(new BlockPos(0, 1, 0))),
+                "contents", new de.joernott.c0de.core.value.StringValue(contents),
+                "blocks", new de.joernott.c0de.core.value.StringValue(blocks));
+    }
+
+    /**
+     * A barrel keeps its contents, which come from the input (task 9.2): with "REQUIRED", too few items place nothing;
+     * with "AVAILABLE", the barrel gets what there is, a missing block is skipped and both are listed as missing.
+     */
+    public static void inventoriesAreFilledFromTheInput(GameTestHelper helper) {
+        clear(helper);
+        Container input = chest(
+                helper, new BlockPos(0, 1, 0), new ItemStack(Items.BARREL, 1), new ItemStack(Items.STONE, 2));
+        Cursor required = Processes.cursor(helper, CONTENTS_PROGRAM, contentsInputs(helper, "REQUIRED", "REQUIRED"));
+        Processes.finish(helper, required, () -> {
+            helper.assertTrue(code(required) == 313, "Expected ITEM_MISSING, got " + required.results());
+            helper.assertBlockPresent(Blocks.AIR, new BlockPos(0, 3, 0));
+            Cursor available =
+                    Processes.cursor(helper, CONTENTS_PROGRAM, contentsInputs(helper, "AVAILABLE", "AVAILABLE"));
+            Processes.finish(helper, available, () -> {
+                helper.assertTrue(code(available) == 0, "The rendering failed: " + available.results());
+                helper.assertBlockPresent(Blocks.BARREL, new BlockPos(0, 3, 0));
+                helper.assertBlockPresent(Blocks.AIR, new BlockPos(1, 3, 0));
+                Container barrel = (Container) TestCompat.blockEntity(helper, new BlockPos(0, 3, 0));
+                helper.assertTrue(
+                        barrel.getItem(0).is(Items.STONE) && barrel.getItem(0).getCount() == 2,
+                        "The barrel holds " + barrel.getItem(0));
+                helper.assertTrue(input.isEmpty(), "The input still has items");
+                Map<String, Value> missing =
+                        ((de.joernott.c0de.core.value.HashValue) available.results().get("missing")).elements();
+                helper.assertTrue(
+                        new IntegerValue(1).equals(missing.get("minecraft:stone"))
+                                && new IntegerValue(1).equals(missing.get("minecraft:gold_block")),
+                        "missing: " + missing);
+                helper.succeed();
+            });
+        });
+    }
+
     /**
      * Blocks in the way are mined with the tools: dirt by hand, stone only with a pickaxe, which takes damage. The drops
      * go to the output.

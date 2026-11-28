@@ -105,7 +105,7 @@ public final class CpaintLibrary implements Library {
                 functions,
                 Args.function(
                         "RENDER_CANVAS",
-                        java.util.List.of(),
+                        java.util.List.of("missing"),
                         call -> Args.inParts(
                                 call,
                                 Integer.MAX_VALUE,
@@ -118,7 +118,10 @@ public final class CpaintLibrary implements Library {
                         Args.position("position"),
                         Args.optionalPosition("input"),
                         Args.optionalPosition("tools"),
-                        Args.optionalPosition("output")));
+                        Args.optionalPosition("output"),
+                        // What happens when blocks or the contents of inventories are missing (task 9.2)
+                        Args.text("contents", "REQUIRED"),
+                        Args.text("blocks", "REQUIRED")));
         Args.add(
                 functions,
                 Args.function(

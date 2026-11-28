@@ -15,4 +15,9 @@ public interface Job {
      * @return true when the work is done
      */
     boolean step(int budget, RandomGenerator random);
+
+    /** The results of the function when the job is done, e.g. {@code missing} of RENDER_CANVAS (task 9.2). */
+    default java.util.Map<String, de.joernott.c0de.core.value.Value> results() {
+        return java.util.Map.of();
+    }
 }
