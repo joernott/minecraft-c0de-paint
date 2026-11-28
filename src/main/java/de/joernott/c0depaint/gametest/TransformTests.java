@@ -58,6 +58,13 @@ public final class TransformTests {
                 "west".equals(mirrored.get(4, 0, 0).properties().get("facing")), "stairs: " + mirrored.get(4, 0, 0));
         helper.assertTrue("right".equals(mirrored.get(0, 0, 0).properties().get("hinge")), "door: " + mirrored.get(0, 0, 0));
 
+        // A door that leaves its hinge at the default (left) gets the right hinge in the mirror (task 9.1.3)
+        Canvas plain = new Canvas();
+        plain.set(4, 0, 0, Block.of("minecraft:oak_door", Map.of("facing", "north", "half", "lower")));
+        run(Transform.mirror(plain, 0, 4, world::valid, world::complete, LIMITS));
+        helper.assertTrue(
+                "right".equals(plain.get(0, 0, 0).properties().get("hinge")), "plain door: " + plain.get(0, 0, 0));
+
         helper.assertTrue(world.valid(Block.of("minecraft:oak_stairs", Map.of("facing", "up"))) == null, "facing=up");
         helper.assertTrue(world.valid(Block.of("minecraft:stone", Map.of("color", "red"))) == null, "unknown state");
         helper.succeed();

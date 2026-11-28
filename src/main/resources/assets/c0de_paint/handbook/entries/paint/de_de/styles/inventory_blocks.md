@@ -9,6 +9,8 @@
 
 Die Blöcke eines Inventars, für STYLE\_RANDOM und STYLE\_GRADIENT: in der Reihenfolge der Slots, mit der Zahl der Gegenstände als Gewicht. Ein Block in mehreren Slots erscheint einmal, an seinem ersten Slot, mit der Summe der Gegenstände. Gegenstände, die sich nicht als Block setzen lassen, werden übergangen.
 
+Die Gewichte sind Wahrscheinlichkeiten, kein Vorrat: Ein zufälliger Stil kann mehr von einem Block wählen, als das Inventar hat. Rendern mit demselben Inventar als `input` löst dann ITEM\_MISSING aus\; mit `blocks` "AVAILABLE" setzt RENDER\_CANVAS, was das Inventar hat, und nennt den Rest in `missing`.
+
 **Parameter und Ergebnisse**
 
 - `position` STRUCT c0de/minecraft/POSITION: der Block mit dem Inventar, etwa eine Truhe
