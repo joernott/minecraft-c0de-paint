@@ -220,6 +220,42 @@ RENDER_CANVAS checks everything it can before placing the first block, so that a
   - Because a whole canvas is placed by one statement, rendering is faster than PLACE_BLOCK and MINE_BLOCK in a loop even at the speed of a player.
 - **Unloaded chunks:** if a chunk is unloaded during rendering, the process waits until it is loaded again.
 
+## Schematics (0.2.0)
+
+Requested by the user on 2026-11-28: a second library, `INCLUDE c0de_paint/schematics`, reads the schematics that players save with [Litematica](https://github.com/sakura-ryoko/litematica) and [Create](https://github.com/Creators-of-Create/Create) into canvases. The review of BLOCK that it needed is in [block_review.md](block_review.md). The open decisions are marked *(decision)*.
+
+### Files
+
+- **Where:** both mods save schematics in the folder `schematics` of the game folder of the player (Litematica: `<game>/schematics`, configurable; Create: `<game>/schematics`). On a server, that folder is on the computer of the player, not on the server. So the files are read by the **client of the player who runs the process**, like the requests of c0de net: the server sends the name to that client, the client reads the file and sends it to the server in parts of at most 32 KiB, and the server reads it. The process waits on its CALL line meanwhile.
+- **Names:** a file is named relative to the folder `schematics`, with `/` between folders, e.g. "castles/keep.litematic". Names that leave the folder (`..`, absolute paths, drive letters) or have characters that hide what they are are refused, as c0de refuses the names of programs on disks.
+- **Formats:**
+  - `.litematic`, versions 1 to 7. Gzipped NBT with the regions of the schematic; each region has a palette and a packed array of block states (`max(2, bits of palette size − 1)` bits per voxel, spanning two longs where needed; index y·sizeX·sizeZ + z·sizeX + x from the minimum corner of the region). Sizes can be negative; the minimum corner is the smaller of `Position` and `Position + Size ∓ 1` on every axis. Files from before Minecraft 1.13 (version < 5 or data version < 1631) are refused.
+  - `.nbt`, the structure files of Minecraft, which Create writes: `size`, `palette` (or the first of `palettes`), `blocks` with `pos`, `state` and `nbt`, `entities`, `DataVersion`.
+  - Sponge `.schem` (WorldEdit) isn't asked for; the reader could be added later.
+- **Older Minecraft versions:** the palette entries and the block entity data are upgraded with the data fixer of Minecraft (`BLOCK_STATE`, `BLOCK_ENTITY`) from the data version of the file, as Litematica does, so renamed blocks come out with their new names. Files of newer versions are read as they are; blocks the server doesn't know show up in SCHEMATIC_MISSING.
+- **Limits:** the server setting `maxSchematicSize` (bytes of the file, 1 KiB to 64 MiB, default 4 MiB) and the bounds of a canvas (`canvasMin`, `canvasMax`); a larger schematic raises SCHEMATIC_TOO_LARGE before anything is drawn.
+- **The client decides:** the client setting `allowSchematics` (default true) in `c0de_paint-client.properties`. With false, the functions raise SCHEMATICS_DISABLED.
+- **Uploads of Create on the server** (`schematics/uploaded/<player>/` on the server) could be a second source with a parameter `source` *(decision; not planned for 0.2.0)*.
+
+### Functions
+
+All functions take the name of the file and the optional parameter `replace`, a HASH STRING that replaces blocks while the file is read, by the rule of CANVAS_REPLACE (block_review.md, point 4): the key is an id ("create:andesite_casing") or an id with states ("oak_stairs[half=top]"), the value the new block with optional states; the new block keeps the states of the old one that it has. The value "" leaves the voxels not set.
+
+| Function | Parameters | Result |
+|---|---|---|
+| SCHEMATIC_LOAD | `file` STRING, `replace` HASH STRING (optional), `region` STRING (optional: only this region of a `.litematic`) | `result` CANVAS: the schematic with its block states and block entity data, its minimum corner at voxel 0, 0, 0; the regions of a `.litematic` keep their places to each other. Entities are left out; the optional result `entities` INTEGER counts them. |
+| SCHEMATIC_MATERIALS | `file`, `replace` | `result` HASH INTEGER: the items that RENDER_CANVAS takes to build the schematic, by item id (block_review.md, point 5); the optional result `without_item` HASH INTEGER lists the blocks by id that no item places (and that RENDER_CANVAS can't build in survival). |
+| SCHEMATIC_MISSING | `file`, `replace` | `result` HASH INTEGER: the blocks by id that the server doesn't have (no such block, or one of a feature that the world hasn't switched on), with their numbers. Empty if the schematic can be built here. Run with the planned `replace` to check it. |
+| SCHEMATIC_LIST *(my addition)* | `folder` STRING (optional) | `result` ARRAY STRING: the schematics in the folder and its subfolders, so a program can offer a choice. |
+
+SCHEMATIC_MATERIALS and SCHEMATIC_MISSING work without a canvas, so they also check schematics that are larger than the bounds of a canvas. For a canvas that a program has drawn or changed, `c0de_paint/cpaint` gets CANVAS_ITEMS with the same counting as SCHEMATIC_MATERIALS; CANVAS_MATERIALS keeps counting block ids.
+
+**Errors** (from 1103 on): SCHEMATIC_NOT_FOUND (1103), SCHEMATIC_INVALID (1104: not a schematic, a format or version that isn't supported, an unknown region), SCHEMATIC_TOO_LARGE (1105), CLIENT_UNAVAILABLE (1106: the player who runs the process isn't online or has no c0de paint on the client), SCHEMATICS_DISABLED (1107). Raised by the functions; INVALID_ARGUMENT for a name that isn't allowed and for `replace` values that aren't blocks.
+
+### Runner library
+
+The runner library reads the files from a folder on disk (system property `c0depaint.schematics`, default `schematics`) instead of from a client, and has no registry: SCHEMATIC_MISSING returns the blocks whose namespace isn't `minecraft`, and the data fixer isn't used.
+
 ## Configuration
 
 The file `config/c0de_paint.properties` on the server contains:
@@ -231,6 +267,7 @@ The file `config/c0de_paint.properties` on the server contains:
 | renderBlocksPerTick | 64 | 1 to 1024 | Blocks that RENDER_CANVAS places per tick. |
 | renderMiningSpeed | 1 | 0 to 100 | How much faster than a player RENDER_CANVAS mines blocks with tools; 0 means instantly, as in creative mode. |
 | canvasVoxelsPerTick | 65536 | 1024 to 1048576 | Voxels that a drawing function, CANVAS_SCALE, CANVAS_ROTATE or CANVAS_MIRROR processes per tick. Larger operations are spread over several ticks, while the process waits. The shape is computed in the first tick. The other canvas operations work in one tick. |
+| maxSchematicSize | 4194304 | 1024 to 67108864 | The largest schematic file (bytes) that the functions of `c0de_paint/schematics` read (0.2.0). |
 
 ## Changes to c0de
 

@@ -48,6 +48,7 @@ A task is done when
 | 6 | Transformations | Scaling, rotating and mirroring, with block states, spread over several ticks |✅ |
 | 7 | Rendering | RENDER_CANVAS puts canvases into the world; canvases are copied from the world |✅ |
 | 8 | Documentation and release 0.1.0 | Handbook in English and German, runner library, release, c0de.at |  |
+| 9 | Schematics and release 0.2.0 | The issues found for c0de.at are fixed; BLOCK carries block entity data; the library `c0de_paint/schematics` reads Litematica and Create schematics, lists their items and the blocks the server lacks |  |
 
 ## Sprint 0: Concept and plan
 
@@ -153,7 +154,30 @@ A task is done when
 | 8.3.4 | Finding of the test: the first program of the handbook promised windows but drew only a box. Now a hut with two glass windows and an oak door; a GameTest runs the program of the handbook of the mod with an input inventory.   Done on 2026-11-22. | ✅ |
 | 8.3.5 | The findings in c0de of the test are fixed in c0de 0.7.1 (its sprint 20). c0de paint is built and tested against 0.7.1 (`deps.c0de`); it still requires 0.7.0 or newer (`deps.c0de_min`). The test server on the VM and the development client run 0.7.1.   Done on 2026-11-22. | ✅ |
 | 8.3.6 | **DRAW_SPIRAL** (requested by the user while testing): a spiral on the ellipse of DRAW_ELLIPSE that rises in a direction by `elevation` layers per voxel (FLOAT, default 1) up to the height `h`; the fill style draws the ramp to the axis. Unit tests `spiralsRiseByTheElevation` and `spirals`; the handbook in English and German.   Done on 2026-11-22. | ✅ |
-| 8.4 | **c0de.at (in www-c0de, as its own sprint there):**<ul><li>The documentation of c0de 0.7.0 with the library types.</li><li>The new library `c0de_paint/cpaint` with its handbook in English and German.</li><li>Recipes for c0de paint, tested with the runner library.</li><li>Screenshots.</li></ul> |  |
+| 8.4 | **c0de.at (in www-c0de, as its own sprint there):**<ul><li>The documentation of c0de 0.7.0 with the library types.</li><li>The new library `c0de_paint/cpaint` with its handbook in English and German.</li><li>Recipes for c0de paint, tested with the runner library.</li><li>Screenshots.</li></ul>    Done on 2026-11-24: www-c0de sprint 15, released as c0de.at 0.10.0. | ✅ |
+
+## Sprint 9: Schematics and release 0.2.0
+
+**Goal:** the issues found while writing the recipes of c0de.at are fixed, the BLOCK object is reworked after its review ([block_review.md](block_review.md)), and the new library `c0de_paint/schematics` reads schematics of Litematica and Create ([concept](concept.md#schematics-020)). Requested by the user on 2026-11-28; afterwards c0de.at shows the new version (www-c0de).
+
+| Task | Description | Done |
+|---|---|:---:|
+| 9.1 | **Issues found for c0de.at (www-c0de sprint 15):** |  |
+| 9.1.1 | INVENTORY_BLOCKS with STYLE_RANDOM or a fuzzy gradient, used with the same chest as `input` of RENDER_CANVAS, can raise ITEM_MISSING (the blocks are counted before the random choice); the check counts what the style may take, or the handbook explains it. |  |
+| 9.1.2 | CANVAS_REPLACE drops the states of the blocks it replaces; the new rule of block_review.md, point 4. |  |
+| 9.1.3 | Mirroring and rotating doors and stairs: the `hinge` of doors and the shape of stairs follow the transformation. |  |
+| 9.1.4 | Ellipses and circles are mirror-symmetric for every radius (r = 3 and 5 aren't). |  |
+| 9.1.5 | Bodies: the edges of small bodies stick out of their faces (dodecahedron r = 3); the sides of cylinders include both end discs; the fill of spirals is thin near the axis; the tetrahedron floats 0.42·r above its base. |  |
+| 9.1.6 | Documentation: what RENDER_CANVAS does with soft blocks without tools and with drops without output; CANVAS_COUNT counts air, CANVAS_MATERIALS doesn't; the name of the configuration file for `allowBlockChanges`; the limit of CANVAS_FROM_WORLD (128 per axis); the first example of the handbook uses DRAW_BLOCK for single voxels; the German sentence on CANVAS_CLEAR. |  |
+| 9.1.7 | The errors of the library show their `name` in the report of the program runner; the constant C0DE_PAINT_VERSION like C0DE_NET_VERSION. |  |
+| 9.2 | **BLOCK after the review:** the element `data` (block entity data as SNBT) in BLOCK and in the voxels of canvases; carried by styles, CANVAS_GET/SET, the transformations and CANVAS_FROM_WORLD; RENDER_CANVAS places it as decided by the user. Programs of 0.1.0 keep working. |  |
+| 9.3 | **Items of blocks:** one mapping in the mod layer for RENDER_CANVAS and the lists (slabs, candles, sea pickles, turtle eggs, snow layers, flower pots, buckets, parts of multi-block structures, blocks without an item); RENDER_CANVAS takes buckets and gives back the empty ones; CANVAS_ITEMS. |  |
+| 9.4 | **Reading schematics in `core`:** an NBT reader (gzip, all tag types, limits against huge or deeply nested data); readers of `.litematic` (versions 5 to 7, several regions, negative sizes, packed block states) and `.nbt` (palette and palettes, block data); the `replace` rule; unit tests with small files written by Litematica and Create. |  |
+| 9.5 | **Files from the client:** the payloads of c0de paint on both loaders and all nodes (the first networking of the mod, after c0de net); the client reads only inside `schematics`, refuses bad names, sends the file in parts; `maxSchematicSize`, `allowSchematics`; timeouts; the errors CLIENT_UNAVAILABLE and SCHEMATICS_DISABLED. |  |
+| 9.6 | **The library `c0de_paint/schematics`:** SCHEMATIC_LOAD, SCHEMATIC_MATERIALS, SCHEMATIC_MISSING and SCHEMATIC_LIST; the data fixer for older files; GameTests with schematics in the folder of the test client or a test hook. |  |
+| 9.7 | **Runner library:** the schematics from a folder on disk (`c0depaint.schematics`). |  |
+| 9.8 | **Handbook** in English and German: the BLOCK element `data`, CANVAS_ITEMS, the new chapter on schematics with examples; CHANGELOG. |  |
+| 9.9 | Tests on all nodes; the test of the user in the game with real schematics of Litematica and Create; release 0.2.0 with the consent of the user, who pushes the tag. Then c0de.at (www-c0de). |  |
 
 ## Risks
 
