@@ -693,7 +693,7 @@ CALL c0de_paint/cpaint/CANVAS_MOVE
 
 ### CANVAS_REPLACE
 
-Draws every voxel with the block `id` again with `style`, whatever the states of the block are.
+Draws every voxel with the block `id` again with `style`, whatever the states of the block are. The new block keeps the states of the old one that it also has, so stairs keep their direction; the states of the style win. The data of the old block stays unless the new block has data of its own.
 
 **Parameters and results**
 

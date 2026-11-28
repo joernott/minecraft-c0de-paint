@@ -12,12 +12,15 @@ import de.joernott.c0de.core.value.Type;
 import de.joernott.c0de.core.value.Value;
 import de.joernott.c0depaint.core.PaintError;
 import de.joernott.c0depaint.core.PaintException;
+import de.joernott.c0depaint.core.canvas.Block;
 import de.joernott.c0depaint.core.canvas.Bounds;
 import de.joernott.c0depaint.core.canvas.Canvas;
 import de.joernott.c0depaint.core.canvas.Limits;
 import de.joernott.c0depaint.core.canvas.Point;
+import de.joernott.c0depaint.core.canvas.Replacements;
 import de.joernott.c0depaint.core.draw.Painter;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
@@ -34,7 +37,7 @@ final class CanvasFunctions {
 
     private CanvasFunctions() {}
 
-    static Map<String, NativeFunction> functions(Supplier<Limits> limits) {
+    static Map<String, NativeFunction> functions(Supplier<Limits> limits, PaintWorld world) {
         Map<String, NativeFunction> functions = new LinkedHashMap<>();
         add(
                 functions,
@@ -147,9 +150,12 @@ final class CanvasFunctions {
                             Canvas canvas = Args.canvasReference(call, "canvas");
                             String id = id(((StringValue) call.argument("id")).value());
                             List<Point> voxels = new ArrayList<>();
+                            Map<Point, Block> old = new HashMap<>();
                             canvas.forEach((x, y, z, block) -> {
                                 if (block.id().equals(id)) {
-                                    voxels.add(new Point(x, y, z));
+                                    Point point = new Point(x, y, z);
+                                    voxels.add(point);
+                                    old.put(point, block);
                                 }
                             });
                             Painter.draw(
@@ -157,6 +163,17 @@ final class CanvasFunctions {
                                     limits.get(),
                                     call.process().random(),
                                     List.of(new Painter.Part(voxels, Args.style(call, "style"))));
+                            // The new blocks keep the states of the old ones that they have (task 9.1.2)
+                            old.forEach((point, before) -> {
+                                Block drawn = canvas.get(point.x(), point.y(), point.z());
+                                if (drawn != null && !drawn.isAir() && !drawn.equals(before)) {
+                                    canvas.set(
+                                            point.x(),
+                                            point.y(),
+                                            point.z(),
+                                            Replacements.replace(before, drawn, world::valid));
+                                }
+                            });
                             return NativeResult.none();
                         },
                         Args.canvasReference("canvas"),

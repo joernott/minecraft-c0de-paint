@@ -164,7 +164,7 @@ A task is done when
 |---|---|:---:|
 | 9.1 | **Issues found for c0de.at (www-c0de sprint 15):** |  |
 | 9.1.1 | INVENTORY_BLOCKS with STYLE_RANDOM or a fuzzy gradient, used with the same chest as `input` of RENDER_CANVAS, can raise ITEM_MISSING (the blocks are counted before the random choice); the check counts what the style may take, or the handbook explains it. |  |
-| 9.1.2 | CANVAS_REPLACE drops the states of the blocks it replaces; the new rule of block_review.md, point 4. |  |
+| 9.1.2 | CANVAS_REPLACE drops the states of the blocks it replaces; the new rule of block_review.md, point 4.   Done on 2026-11-28: `Replacements` in `core` (match by id or id and states, the most specific key wins, the new block keeps the states it has, data kept unless the replacement has its own, "" leaves the voxel not set), used by CANVAS_REPLACE; unit tests `ReplacementsTest` and `replacedBlocksKeepTheirStatesAndData`; the handbook in English and German. | ✅ |
 | 9.1.3 | Mirroring and rotating doors and stairs: the `hinge` of doors and the shape of stairs follow the transformation. |  |
 | 9.1.4 | Ellipses and circles are mirror-symmetric for every radius (r = 3 and 5 aren't). |  |
 | 9.1.5 | Bodies: the edges of small bodies stick out of their faces (dodecahedron r = 3); the sides of cylinders include both end discs; the fill of spirals is thin near the axis; the tetrahedron floats 0.42·r above its base. |  |

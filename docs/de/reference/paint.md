@@ -693,7 +693,7 @@ CALL c0de_paint/cpaint/CANVAS_MOVE
 
 ### CANVAS_REPLACE
 
-Zeichnet jedes Voxel mit dem Block `id` neu mit `style`, egal welche Zustände der Block hat.
+Zeichnet jedes Voxel mit dem Block `id` neu mit `style`, egal welche Zustände der Block hat. Der neue Block behält die Zustände des alten, die er auch hat, so behalten Treppen ihre Richtung; die Zustände des Stils haben Vorrang. Die Daten des alten Blocks bleiben, wenn der neue Block keine eigenen hat.
 
 **Parameter und Ergebnisse**
 

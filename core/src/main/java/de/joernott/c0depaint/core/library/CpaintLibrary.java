@@ -86,7 +86,7 @@ public final class CpaintLibrary implements Library {
     public Map<String, NativeFunction> functions() {
         Map<String, NativeFunction> functions = new LinkedHashMap<>();
         functions.putAll(StyleFunctions.functions());
-        functions.putAll(CanvasFunctions.functions(this::limits));
+        functions.putAll(CanvasFunctions.functions(this::limits, world));
         functions.putAll(DrawFunctions.functions(this::limits, this::budget));
         functions.putAll(TransformFunctions.functions(this::limits, this::budget, world));
         functions.put(

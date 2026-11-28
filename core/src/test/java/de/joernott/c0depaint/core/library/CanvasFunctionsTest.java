@@ -197,6 +197,51 @@ class CanvasFunctionsTest {
     }
 
     @Test
+    void replacedBlocksKeepTheirStatesAndData() {
+        String body = """
+                VARIABLE stairs STRUCT c0de_paint/cpaint/BLOCK
+                ASSIGN stairs.id "oak_stairs" ;
+                ASSIGN stairs.properties["facing"] "east" ;
+                ASSIGN stairs.properties["half"] "top" ;
+                ASSIGN stairs.data "{CustomName:'x'}" ;
+                ASSIGN stairs.weight 1 ;
+                VARIABLE oak TYPE c0de_paint/cpaint/STYLE
+                CALL c0de_paint/cpaint/STYLE_SOLID
+                    PARAMETER block stairs ;
+                    RESULT result oak
+                """ + draw(0, 0, 0, "oak") + """
+                VARIABLE spruce STRUCT c0de_paint/cpaint/BLOCK
+                ASSIGN spruce.id "spruce_stairs" ;
+                ASSIGN spruce.properties["half"] "bottom" ;
+                ASSIGN spruce.weight 1 ;
+                VARIABLE new TYPE c0de_paint/cpaint/STYLE
+                CALL c0de_paint/cpaint/STYLE_SOLID
+                    PARAMETER block spruce ;
+                    RESULT result new
+                CALL c0de_paint/cpaint/CANVAS_REPLACE
+                    PARAMETER canvas c ;
+                    PARAMETER id "oak_stairs" ;
+                    PARAMETER style new ;
+                VARIABLE b STRUCT c0de_paint/cpaint/BLOCK
+                CALL c0de_paint/cpaint/CANVAS_GET
+                    PARAMETER canvas c ;
+                    PARAMETER point p ;
+                    RESULT result b
+                ASSIGN id b.id ;
+                ASSIGN facing b.properties["facing"] ;
+                ASSIGN half b.properties["half"] ;
+                ASSIGN data b.data ;
+                """;
+        Map<String, Value> results = run(
+                "    RESULT id STRING\n    RESULT facing STRING\n    RESULT half STRING\n    RESULT data STRING\n",
+                body);
+        assertEquals(new StringValue("minecraft:spruce_stairs"), results.get("id"));
+        assertEquals(new StringValue("east"), results.get("facing"));
+        assertEquals(new StringValue("bottom"), results.get("half"));
+        assertEquals(new StringValue("{CustomName:'x'}"), results.get("data"));
+    }
+
+    @Test
     void mergeOverwritesOrKeeps() {
         String body = draw(0, 0, 0, "solid") + draw(1, 0, 0, "solid") + """
                 VARIABLE other TYPE c0de_paint/cpaint/CANVAS
