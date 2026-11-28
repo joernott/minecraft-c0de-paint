@@ -80,13 +80,17 @@ public final class PaintTypes {
                     element("y", Type.Simple.INTEGER),
                     element("z", Type.Simple.INTEGER)));
 
-    /** A block of a style or of a canvas, with block states as in PLACE_BLOCK. */
+    /**
+     * A block of a style or of a canvas, with block states as in PLACE_BLOCK and the data of its block entity as SNBT
+     * (task 9.2; added at the end, so the programs of 0.1.0 keep working).
+     */
     public static final StructDefinition BLOCK = new StructDefinition(
             LIBRARY + "/BLOCK",
             List.of(
                     element("id", Type.Str.UNLIMITED),
                     element("properties", new Type.Hash(Type.Str.UNLIMITED)),
-                    element("weight", Type.Simple.INTEGER)));
+                    element("weight", Type.Simple.INTEGER),
+                    element("data", Type.Str.UNLIMITED)));
 
     private static StructDefinition.Element element(String name, Type type) {
         return new StructDefinition.Element(name, type, Map.of());

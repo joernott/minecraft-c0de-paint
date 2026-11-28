@@ -218,7 +218,11 @@ final class Args {
         }
         Map<String, String> properties = new TreeMap<>();
         ((HashValue) struct.get("properties")).elements().forEach((key, state) -> properties.put(key, state.text()));
-        return Block.of(id.contains(":") ? id : "minecraft:" + id, properties);
+        Value data = struct.get("data");
+        return Block.of(
+                id.contains(":") ? id : "minecraft:" + id,
+                properties,
+                data instanceof StringValue text ? text.value() : "");
     }
 
     static Block block(NativeCall call, String name) {
@@ -250,6 +254,7 @@ final class Args {
         if (block != null) {
             value.set("id", new StringValue(block.id()));
             block.properties().forEach((key, state) -> properties.elements().put(key, new StringValue(state)));
+            value.set("data", new StringValue(block.data()));
         }
         value.set("properties", properties);
         value.set("weight", new IntegerValue(weight));

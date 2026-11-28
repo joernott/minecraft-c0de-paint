@@ -215,6 +215,8 @@ Decided by the user on 2026-11-28 (see [block_review.md](block_review.md)):
   - "AVAILABLE": the blocks that are there are placed, the voxels of the missing ones are skipped.
 - **The optional result `missing`** HASH INTEGER lists by item id what was left out (blocks and contents), so a program can fetch it and render again: the blocks that are already in place are skipped.
 - Both parameters only matter with `input`; without it, everything is placed.
+- **What counts as contents:** the items of block entities that are inventories (chests, barrels, shulker boxes with their items, furnaces, hoppers, dispensers, droppers, brewing stands, crafters, chiseled bookshelves, jukeboxes, decorated pots) and the book of a lectern. With `input`, data that would create things out of nothing is left out: the bees of beehives and nests, the item of suspicious sand and gravel, the loot tables of containers (an unopened loot chest would fill itself). The rest of the data (sign text, banner patterns, names, settings of machines) is placed as it is.
+- **Data that only administrators may set** (command blocks, structure blocks, jigsaw blocks): as in PLACE_BLOCK of c0de, only processes of administrators place it; for others, RENDER_CANVAS raises PERMISSION_DENIED in the check before the first block.
 
 **Errors during rendering.** A full output inventory (INVENTORY_FULL) or a tool that breaks can only appear during rendering. Then RENDER_CANVAS stops, and the error message says how many blocks were placed.
 

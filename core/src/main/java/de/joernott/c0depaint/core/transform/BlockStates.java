@@ -84,7 +84,7 @@ public final class BlockStates {
             // Upside down: top and bottom swap
             flipVertical(states);
         }
-        return Block.of(block.id(), states);
+        return block.withProperties(states);
     }
 
     /** The states of a block mirrored at a plane perpendicular to an axis; null if nothing changes. */
@@ -130,7 +130,7 @@ public final class BlockStates {
                 }
             }
         }
-        return Block.of(block.id(), states);
+        return block.withProperties(states);
     }
 
     private static String turned(String value, int axis, int quarters) {

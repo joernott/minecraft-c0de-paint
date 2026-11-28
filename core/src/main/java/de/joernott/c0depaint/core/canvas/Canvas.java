@@ -6,6 +6,7 @@ import java.io.DataInputStream;
 import java.io.DataOutputStream;
 import java.io.IOException;
 import java.io.UncheckedIOException;
+import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.Base64;
 import java.util.HashMap;
@@ -26,7 +27,11 @@ import java.util.zip.InflaterInputStream;
 public final class Canvas {
     private static final int SIZE = 16;
     private static final int VOXELS = SIZE * SIZE * SIZE;
-    private static final int FORMAT = 1;
+    /** The format of {@link #save()}: 2 since 0.2.0, with the data of block entities (task 9.2). */
+    private static final int FORMAT = 2;
+
+    /** The most bytes of block entity data that a saved block may have. */
+    private static final int MAX_DATA = 16 * 1024 * 1024;
 
     private final HashMap<Long, Section> sections;
     private int count;
@@ -243,7 +248,11 @@ public final class Canvas {
                 Section section = entry.getValue();
                 out.writeShort(section.palette.size());
                 for (Block block : section.palette) {
-                    out.writeUTF(block.text());
+                    out.writeUTF(block.state());
+                    // The data can be longer than the 64 KiB of writeUTF
+                    byte[] data = block.data().getBytes(StandardCharsets.UTF_8);
+                    out.writeInt(data.length);
+                    out.write(data);
                 }
                 int i = 0;
                 while (i < VOXELS) {
@@ -272,7 +281,8 @@ public final class Canvas {
         Canvas canvas = new Canvas();
         try (DataInputStream in = new DataInputStream(new InflaterInputStream(
                 new ByteArrayInputStream(Base64.getDecoder().decode(data))))) {
-            if (in.readByte() != FORMAT) {
+            int format = in.readByte();
+            if (format != 1 && format != FORMAT) {
                 throw new IllegalArgumentException("Unknown format of a canvas");
             }
             int sectionCount = in.readInt();
@@ -282,6 +292,13 @@ public final class Canvas {
                 int paletteSize = in.readShort();
                 for (int p = 0; p < paletteSize; p++) {
                     Block block = Block.parse(in.readUTF());
+                    if (format >= 2) {
+                        int length = in.readInt();
+                        if (length < 0 || length > MAX_DATA) {
+                            throw new IllegalArgumentException("A block of the canvas has " + length + " bytes of data");
+                        }
+                        block = block.withData(new String(in.readNBytes(length), StandardCharsets.UTF_8));
+                    }
                     section.index.put(block, (short) (section.palette.size() + 1));
                     section.palette.add(block);
                 }
