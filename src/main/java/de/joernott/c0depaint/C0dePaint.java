@@ -22,8 +22,8 @@ public final class C0dePaint {
     private C0dePaint() {}
 
     /**
-     * Loads the settings of the server and registers the library c0de_paint/cpaint with c0de, which is a required
-     * dependency and always loaded first.
+     * Loads the settings of the server and registers the libraries c0de_paint/cpaint and c0de_paint/schematics
+     * with c0de, which is a required dependency and always loaded first.
      */
     public static void init() {
         try {
@@ -33,6 +33,14 @@ public final class C0dePaint {
             LOGGER.error("Can't read {}, using the defaults", PaintConfig.SERVER_FILE, e);
         }
         ModLibraries.register(new CpaintLibrary(C0dePaint::config, new MinecraftWorld()));
+        // c0de_paint/schematics reads the schematics on the clients of the players (task 9.5)
+        de.joernott.c0depaint.network.SchematicChannel.register();
+        de.joernott.c0depaint.network.PendingFiles.channel(new de.joernott.c0depaint.network.SchematicChannel());
+        Platform.INSTANCE.onServerTickEnd(de.joernott.c0depaint.network.PendingFiles::tick);
+        ModLibraries.register(new de.joernott.c0depaint.core.library.SchematicsLibrary(
+                C0dePaint::config,
+                new de.joernott.c0depaint.network.PendingFiles(),
+                new de.joernott.c0depaint.world.MinecraftSchematics()));
     }
 
     /** The settings of the server. */

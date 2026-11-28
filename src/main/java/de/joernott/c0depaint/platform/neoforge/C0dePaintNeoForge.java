@@ -11,6 +11,9 @@ import net.neoforged.fml.common.Mod;
 public class C0dePaintNeoForge {
     public C0dePaintNeoForge(IEventBus modEventBus, ModContainer modContainer) {
         C0dePaint.init();
+        if (de.joernott.c0de.platform.Platform.INSTANCE.isClient()) {
+            de.joernott.c0depaint.client.ClientSchematics.init();
+        }
         //? if >=1.21.11 {
         /^de.joernott.c0depaint.gametest.neoforge.GameTestRegistration.register(modEventBus);
         ^///?}

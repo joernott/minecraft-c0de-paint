@@ -4,6 +4,7 @@ package de.joernott.c0depaint.gametest.neoforge;
 /*import de.joernott.c0depaint.C0dePaint;
 import de.joernott.c0depaint.gametest.InventoryTests;
 import de.joernott.c0depaint.gametest.RenderTests;
+import de.joernott.c0depaint.gametest.SchematicTests;
 import de.joernott.c0depaint.gametest.SmokeTests;
 import de.joernott.c0depaint.gametest.TransformTests;
 import net.minecraft.gametest.framework.GameTest;
@@ -23,6 +24,16 @@ public class NeoForgeGameTests {
     @GameTest(template = "empty")
     public static void programsIncludeTheLibrary(GameTestHelper helper) {
         SmokeTests.programsIncludeTheLibrary(helper);
+    }
+
+    @GameTest(template = "empty", timeoutTicks = 200)
+    public static void schematicsAreReadUpgradedAndCounted(GameTestHelper helper) {
+        SchematicTests.schematicsAreReadUpgradedAndCounted(helper);
+    }
+
+    @GameTest(template = "empty")
+    public static void schematicsNeedThePlayerOnline(GameTestHelper helper) {
+        SchematicTests.schematicsNeedThePlayerOnline(helper);
     }
 
     @GameTest(template = "empty")

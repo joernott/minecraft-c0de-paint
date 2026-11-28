@@ -31,8 +31,16 @@ public final class Schematic {
     public interface Upgrader {
         Upgrader NONE = (block, version) -> block;
 
-        /** The block (with its data) as the current version of Minecraft knows it. */
+        /** The block (an entry of a palette, without data) as the current version of Minecraft knows it. */
         Block upgrade(Block block, int dataVersion);
+
+        /**
+         * The block with the data of its block entity: the compound of the file with its {@code id} (the type of the
+         * block entity, which the data fixer needs); the data of the block is it without position and type.
+         */
+        default Block blockEntity(Block block, Map<String, Object> blockEntity, int dataVersion) {
+            return block.withData(dataText(blockEntity));
+        }
     }
 
     /** Visits a voxel of the schematic. */
@@ -54,7 +62,7 @@ public final class Schematic {
             long[] packed,
             int bits,
             int[] listed,
-            Map<Long, String> data) {}
+            Map<Long, Map<String, Object>> data) {}
 
     private final String format;
     private final int dataVersion;
@@ -145,7 +153,7 @@ public final class Schematic {
             if (!(tag.get("BlockStates") instanceof long[] packed) || packed.length < (volume * bits + 63) / 64) {
                 throw new IllegalArgumentException(name + ": the block states of " + entry.getKey() + " are missing");
             }
-            Map<Long, String> data = new HashMap<>();
+            Map<Long, Map<String, Object>> data = new HashMap<>();
             for (Object element : list(tag, "TileEntities")) {
                 Map<String, Object> blockEntity = asCompound(element, name);
                 int x = integer(blockEntity, "x", -1);
@@ -154,7 +162,7 @@ public final class Schematic {
                 if (x < 0 || y < 0 || z < 0 || x >= abs[0] || y >= abs[1] || z >= abs[2]) {
                     continue;
                 }
-                data.put(key(x, y, z), dataText(blockEntity));
+                data.put(key(x, y, z), blockEntity);
             }
             entities += list(tag, "Entities").size();
             regions.add(new Region(
@@ -183,7 +191,7 @@ public final class Schematic {
         List<Block> palette = palette(paletteTag, name, dataVersion, upgrader);
         List<Object> blocks = list(root, "blocks");
         int[] listed = new int[blocks.size() * 4];
-        Map<Long, String> data = new HashMap<>();
+        Map<Long, Map<String, Object>> data = new HashMap<>();
         for (int i = 0; i < blocks.size(); i++) {
             Map<String, Object> block = asCompound(blocks.get(i), name);
             int[] pos = xyz(list(block, "pos"), name);
@@ -201,7 +209,7 @@ public final class Schematic {
             listed[i * 4 + 2] = pos[2];
             listed[i * 4 + 3] = state;
             if (block.get("nbt") instanceof Map<?, ?> nbt) {
-                data.put(key(pos[0], pos[1], pos[2]), dataText(cast(nbt)));
+                data.put(key(pos[0], pos[1], pos[2]), cast(nbt));
             }
         }
         Region region = new Region("", 0, 0, 0, size[0], size[1], size[2], palette, null, 0, listed, data);
@@ -257,7 +265,7 @@ public final class Schematic {
     }
 
     /** The data of a block entity as SNBT, without its position and type. */
-    private static String dataText(Map<String, Object> blockEntity) {
+    public static String dataText(Map<String, Object> blockEntity) {
         Map<String, Object> data = new LinkedHashMap<>(blockEntity);
         POSITION_KEYS.forEach(data::remove);
         return data.isEmpty() ? "" : Nbt.snbt(data);
@@ -304,9 +312,9 @@ public final class Schematic {
         if (block == null) {
             return;
         }
-        String data = r.data.get(key(x, y, z));
-        if (data != null && !data.isEmpty()) {
-            block = upgrader.upgrade(block.withData(data), dataVersion);
+        Map<String, Object> blockEntity = r.data.get(key(x, y, z));
+        if (blockEntity != null) {
+            block = upgrader.blockEntity(block, blockEntity, dataVersion);
         }
         visitor.visit(r.minX + x, r.minY + y, r.minZ + z, block);
     }

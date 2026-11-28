@@ -40,6 +40,11 @@ final class Processes {
 
     /** A cursor of the program for the function main, with the inputs. */
     static Cursor cursor(GameTestHelper helper, String text, Map<String, Value> inputs) {
+        return cursor(helper, text, inputs, null);
+    }
+
+    /** A cursor of the program for the function main, started by a player (the activator of the process). */
+    static Cursor cursor(GameTestHelper helper, String text, Map<String, Value> inputs, java.util.UUID activator) {
         Validation validation = Validator.validate(Notation.parse(text), ModLibraries.registry());
         helper.assertTrue(validation.problems().isEmpty(), "The program is invalid: " + validation.problems());
         Program program = ProgramParser.parse(Notation.parse(text));
@@ -51,7 +56,7 @@ final class Processes {
                 "paint-test",
                 "main",
                 0,
-                null);
+                activator);
         CursorSettings settings = new CursorSettings(
                 CursorSettings.DEFAULT_STACK_SIZE, ModLibraries.registry(), Clock.systemUTC(), ZoneId.of("UTC"), host, 42);
         return new Cursor(program, "main", inputs, settings);

@@ -18,6 +18,9 @@
     "main": [
       "de.joernott.c0depaint.platform.fabric.C0dePaintFabric"
     ],
+    "client": [
+      "de.joernott.c0depaint.platform.fabric.C0dePaintFabricClient"
+    ],
     "fabric-gametest": [
       "de.joernott.c0depaint.gametest.fabric.FabricGameTests"
     ]
