@@ -58,7 +58,7 @@ public final class SchematicsLibrary implements Library {
             return Schematic.Upgrader.NONE;
         }
 
-        /** True if the server has the block and the world has switched on its feature. */
+        /** True if the server has the block (in its registry). */
         default boolean available(String id) {
             return id.startsWith("minecraft:");
         }
