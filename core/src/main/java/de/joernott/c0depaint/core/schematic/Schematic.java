@@ -260,11 +260,14 @@ public final class Schematic {
         List<Block> palette = new ArrayList<>();
         for (Object element : tag) {
             Map<String, Object> entry = asCompound(element, name);
-            if (!(entry.get("Name") instanceof String id) || id.isEmpty()) {
+            // Block states are {Name, Properties}, since Minecraft 26.3 also {id, properties}
+            Object named = entry.containsKey("Name") ? entry.get("Name") : entry.get("id");
+            if (!(named instanceof String id) || id.isEmpty()) {
                 throw new IllegalArgumentException(name + ": an entry of the palette has no name");
             }
             Map<String, String> properties = new LinkedHashMap<>();
-            if (entry.get("Properties") instanceof Map<?, ?> states) {
+            Object statesTag = entry.containsKey("Properties") ? entry.get("Properties") : entry.get("properties");
+            if (statesTag instanceof Map<?, ?> states) {
                 states.forEach((key, value) -> properties.put((String) key, String.valueOf(value)));
             }
             Block block = Block.of(id.contains(":") ? id : "minecraft:" + id, properties);

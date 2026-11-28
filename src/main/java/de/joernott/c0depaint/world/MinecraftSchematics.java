@@ -44,17 +44,24 @@ public final class MinecraftSchematics implements SchematicsLibrary.Server {
                 state.put("Properties", properties);
             }
             Tag fixed = fix(References.BLOCK_STATE, state, dataVersion);
-            if (!(fixed instanceof CompoundTag result) || Nbt.string(result, "Name").isEmpty()) {
+            if (!(fixed instanceof CompoundTag result)) {
+                return block;
+            }
+            // Since 26.3, block states are {id, properties} instead of {Name, Properties}
+            String name = Nbt.string(result, "Name").isEmpty() ? Nbt.string(result, "id") : Nbt.string(result, "Name");
+            if (name.isEmpty()) {
                 de.joernott.c0depaint.C0dePaint.LOGGER.warn(
                         "The data fixer returned {} for {} of data version {}", fixed, state, dataVersion);
                 return block;
             }
             Map<String, String> properties = new TreeMap<>();
-            CompoundTag fixedProperties = Nbt.compound(result, "Properties");
+            CompoundTag fixedProperties = Nbt.keys(Nbt.compound(result, "Properties")).isEmpty()
+                    ? Nbt.compound(result, "properties")
+                    : Nbt.compound(result, "Properties");
             for (String key : Nbt.keys(fixedProperties)) {
                 properties.put(key, Nbt.string(fixedProperties, key));
             }
-            return Block.of(Nbt.string(result, "Name"), properties, block.data());
+            return Block.of(name, properties, block.data());
         }
 
         @Override

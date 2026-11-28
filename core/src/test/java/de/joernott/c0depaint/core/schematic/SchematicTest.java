@@ -241,6 +241,18 @@ class SchematicTest {
     }
 
     @Test
+    void palettesOfMinecraft263AreRead() {
+        // Since 26.3, block states are {id, properties}
+        Map<String, Object> root = compound(
+                "DataVersion", 4700,
+                "size", List.of(1, 1, 1),
+                "palette", List.of(compound("id", "minecraft:oak_log", "properties", compound("axis", "x"))),
+                "blocks", List.of(compound("pos", List.of(0, 0, 0), "state", 0)));
+        Schematic schematic = Schematic.read("new.nbt", Nbt.write(root), MAX, null, Schematic.Upgrader.NONE);
+        assertEquals(Map.of(List.of(0, 0, 0), Block.of("minecraft:oak_log", Map.of("axis", "x"))), voxels(schematic));
+    }
+
+    @Test
     void theUpgraderSeesEveryBlockOfTheVersionOfTheFile() {
         List<Object> palette = List.of(state("minecraft:grass"));
         byte[] file = litematic(
