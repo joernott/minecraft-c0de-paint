@@ -439,7 +439,7 @@ CALL c0de_paint/cpaint/DRAW_ARC
 
 ### DRAW_SPIRAL
 
-Draws a spiral on the ellipse of DRAW_ELLIPSE that rises in `direction`. It starts at `a` and turns towards `b`. Every voxel of the spiral lies `elevation` layers higher than the one before, rounded down: 1 climbs one layer per voxel, 0.5 every second voxel, 2 leaves a gap of one layer. The spiral ends below the layer `h`, like a cylinder of the height `h`. The line is the spiral; the fill style draws the ramp between the axis through `center` and the spiral, like the steps of a spiral staircase, with the axis in every layer.
+Draws a spiral on the ellipse of DRAW_ELLIPSE that rises in `direction`. It starts at `a` and turns towards `b`. Every voxel of the spiral lies `elevation` layers higher than the one before, rounded down: 1 climbs one layer per voxel, 0.5 every second voxel, 2 leaves a gap of one layer. The spiral ends below the layer `h`, like a cylinder of the height `h`. The line is the spiral; the fill style draws the ramp between the axis through `center` and the spiral, like the steps of a spiral staircase, with the axis in every layer. Near the axis, the steps of a ramp are only one voxel wide, as on a real spiral staircase; a thicker core is a cylinder drawn into the canvas.
 
 **Parameters and results**
 
@@ -511,7 +511,7 @@ CALL c0de_paint/cpaint/DRAW_ELLIPSOID
 
 ### DRAW_CYLINDER
 
-Draws a cylinder. The base circle has its center at `center` and the radius `r`; the cylinder grows by `h` voxels in `direction`. The lines are the rims of both ends.
+Draws a cylinder. The base circle has its center at `center` and the radius `r`; the cylinder grows by `h` voxels in `direction`. The lines are the rims of both ends; the faces are the whole surface, the mantle and both end discs. For an open tube, draw the end discs again with STYLE_EMPTY.
 
 **Parameters and results**
 
@@ -583,7 +583,7 @@ CALL c0de_paint/cpaint/DRAW_PYRAMID
 
 ### Platonic solids
 
-DRAW_TETRAHEDRON, DRAW_OCTAHEDRON, DRAW_DODECAHEDRON and DRAW_ICOSAHEDRON draw the Platonic solid around `center`, with all corners at the distance `r` from it. The lines are their edges. Each has a fixed orientation: the tetrahedron has its corners in alternate corners of a cube, the octahedron on the axes, the icosahedron and the dodecahedron are aligned with the axes by the golden ratio. Other orientations come from CANVAS_ROTATE. The cube is DRAW_BOX.
+DRAW_TETRAHEDRON, DRAW_OCTAHEDRON, DRAW_DODECAHEDRON and DRAW_ICOSAHEDRON draw the Platonic solid around `center`, with all corners at the distance `r` from it. The lines are their edges. Each has a fixed orientation: the tetrahedron has its corners in alternate corners of a cube, the octahedron on the axes, the icosahedron and the dodecahedron are aligned with the axes by the golden ratio. Other orientations come from CANVAS_ROTATE. The cube is DRAW_BOX. Because all corners lie at the distance `r`, the solids don't stand on `center`: the lowest corner of the tetrahedron lies r/√3 (0.58 r) below the center, the others r below it; move the canvas with CANVAS_MOVE or use CANVAS_MIN to put a solid on the ground. The edges of small solids keep to their surface.
 
 **Parameters and results**
 

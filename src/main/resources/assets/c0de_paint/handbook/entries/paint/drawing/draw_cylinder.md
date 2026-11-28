@@ -7,7 +7,7 @@
 }
 ```
 
-Draws a cylinder. The base circle has its center at `center` and the radius `r`\; the cylinder grows by `h` voxels in `direction`. The lines are the rims of both ends.
+Draws a cylinder. The base circle has its center at `center` and the radius `r`\; the cylinder grows by `h` voxels in `direction`. The lines are the rims of both ends\; the faces are the whole surface, the mantle and both end discs. For an open tube, draw the end discs again with STYLE\_EMPTY.
 
 **Parameters and results**
 

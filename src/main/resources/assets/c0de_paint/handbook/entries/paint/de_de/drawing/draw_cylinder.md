@@ -7,7 +7,7 @@
 }
 ```
 
-Zeichnet einen Zylinder. Der Grundkreis hat seinen Mittelpunkt bei `center` und den Radius `r`\; der Zylinder wächst um `h` Voxel in Richtung `direction`. Die Linien sind die Ränder beider Enden.
+Zeichnet einen Zylinder. Der Grundkreis hat seinen Mittelpunkt bei `center` und den Radius `r`\; der Zylinder wächst um `h` Voxel in Richtung `direction`. Die Linien sind die Ränder beider Enden\; die Flächen sind die ganze Oberfläche, der Mantel und beide Enden. Für ein offenes Rohr zeichnest du die Enden noch einmal mit STYLE\_EMPTY.
 
 **Parameter und Ergebnisse**
 

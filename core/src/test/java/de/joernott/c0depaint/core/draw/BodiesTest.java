@@ -85,12 +85,30 @@ class BodiesTest {
     }
 
     @Test
+    void theEdgesOfSmallSolidsStayOnTheirSurface() {
+        // Found for c0de.at: the edges of a dodecahedron of r = 3 stuck out of its faces (task 9.1.5)
+        for (Bodies.Solid solid : Bodies.Solid.values()) {
+            for (int r = 1; r <= 8; r++) {
+                Shapes.Voxels voxels = Bodies.solid(solid, p(0, 0, 0), r);
+                for (Point edge : voxels.lines()) {
+                    assertTrue(voxels.inside().contains(edge), solid + " r " + r + ": the edge voxel " + edge
+                            + " lies outside of the body");
+                }
+                assertTrue(!voxels.lines().isEmpty(), solid + " r " + r + " has no edges");
+            }
+        }
+    }
+
+    @Test
     void platonicSolidsHaveTheirCornersAtTheRadius() {
         for (Bodies.Solid solid : Bodies.Solid.values()) {
             Shapes.Voxels voxels = Bodies.solid(solid, p(0, 0, 0), 10);
             for (Vec corner : solid.corners(p(0, 0, 0), 10)) {
                 assertEquals(10, corner.length(), 1e-9, solid.name());
-                assertTrue(voxels.lines().contains(corner.round()), solid + " lacks the corner " + corner);
+                // A corner that rounds to a voxel outside of the body has an edge voxel next to it
+                assertTrue(
+                        voxels.lines().stream().anyMatch(v -> Vec.of(v).minus(corner).length() <= Math.sqrt(3) + 1e-9),
+                        solid + " lacks the corner " + corner);
             }
             assertTrue(voxels.inside().contains(p(0, 0, 0)), solid.name());
             assertTrue(voxels.inside().containsAll(voxels.faces()), solid.name());

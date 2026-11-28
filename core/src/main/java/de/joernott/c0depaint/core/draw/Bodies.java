@@ -298,16 +298,47 @@ public final class Bodies {
                         Math.min(shortest, corners.get(i).minus(corners.get(j)).length());
             }
         }
+        Set<Point> surface = Raster.surface(body);
         Set<Point> edges = new LinkedHashSet<>();
         for (int i = 0; i < corners.size(); i++) {
             for (int j = i + 1; j < corners.size(); j++) {
                 if (corners.get(i).minus(corners.get(j)).length() < shortest * (1 + 1e-6)) {
-                    edges.addAll(
-                            Raster.line(corners.get(i).round(), corners.get(j).round()));
+                    // The line between the rounded corners can leave the body of a small solid; such voxels move
+                    // onto the nearest voxel of its surface (task 9.1.5)
+                    for (Point voxel : Raster.line(corners.get(i).round(), corners.get(j).round())) {
+                        Point onBody = body.contains(voxel) ? voxel : nearest(surface, voxel);
+                        if (onBody != null) {
+                            edges.add(onBody);
+                        }
+                    }
                 }
             }
         }
-        return new Shapes.Voxels(edges, Raster.surface(body), body);
+        return new Shapes.Voxels(edges, surface, body);
+    }
+
+    /** The voxel of the surface nearest to a voxel outside of it, searched in growing cubes; null if there is none. */
+    private static Point nearest(Set<Point> surface, Point voxel) {
+        for (int d = 1; d <= 3; d++) {
+            Point best = null;
+            int bestDistance = Integer.MAX_VALUE;
+            for (int x = -d; x <= d; x++) {
+                for (int y = -d; y <= d; y++) {
+                    for (int z = -d; z <= d; z++) {
+                        Point candidate = new Point(voxel.x() + x, voxel.y() + y, voxel.z() + z);
+                        int distance = x * x + y * y + z * z;
+                        if (distance < bestDistance && surface.contains(candidate)) {
+                            best = candidate;
+                            bestDistance = distance;
+                        }
+                    }
+                }
+            }
+            if (best != null) {
+                return best;
+            }
+        }
+        return null;
     }
 
     /** True if all corners lie on the inner side of the plane. */

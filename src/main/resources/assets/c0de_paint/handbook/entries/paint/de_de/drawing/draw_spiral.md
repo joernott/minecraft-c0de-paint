@@ -7,7 +7,7 @@
 }
 ```
 
-Zeichnet eine Spirale auf der Ellipse von DRAW\_ELLIPSE, die in Richtung `direction` steigt. Sie beginnt bei `a` und dreht sich in Richtung `b`. Jedes Voxel der Spirale liegt `elevation` Schichten höher als das vorige, abgerundet: 1 steigt eine Schicht pro Voxel, 0.5 bei jedem zweiten Voxel, 2 lässt eine Schicht Lücke. Die Spirale endet unter der Schicht `h`, wie ein Zylinder der Höhe `h`. Die Linie ist die Spirale\; der Füllstil zeichnet die Rampe zwischen der Achse durch `center` und der Spirale, wie die Stufen einer Wendeltreppe, mit der Achse in jeder Schicht.
+Zeichnet eine Spirale auf der Ellipse von DRAW\_ELLIPSE, die in Richtung `direction` steigt. Sie beginnt bei `a` und dreht sich in Richtung `b`. Jedes Voxel der Spirale liegt `elevation` Schichten höher als das vorige, abgerundet: 1 steigt eine Schicht pro Voxel, 0.5 bei jedem zweiten Voxel, 2 lässt eine Schicht Lücke. Die Spirale endet unter der Schicht `h`, wie ein Zylinder der Höhe `h`. Die Linie ist die Spirale\; der Füllstil zeichnet die Rampe zwischen der Achse durch `center` und der Spirale, wie die Stufen einer Wendeltreppe, mit der Achse in jeder Schicht. Nahe der Achse sind die Stufen einer Rampe nur ein Voxel breit, wie bei einer echten Wendeltreppe\; einen dickeren Kern zeichnest du als Zylinder in die Leinwand.
 
 **Parameter und Ergebnisse**
 

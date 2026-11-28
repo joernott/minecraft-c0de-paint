@@ -439,7 +439,7 @@ CALL c0de_paint/cpaint/DRAW_ARC
 
 ### DRAW_SPIRAL
 
-Zeichnet eine Spirale auf der Ellipse von DRAW_ELLIPSE, die in Richtung `direction` steigt. Sie beginnt bei `a` und dreht sich in Richtung `b`. Jedes Voxel der Spirale liegt `elevation` Schichten höher als das vorige, abgerundet: 1 steigt eine Schicht pro Voxel, 0.5 bei jedem zweiten Voxel, 2 lässt eine Schicht Lücke. Die Spirale endet unter der Schicht `h`, wie ein Zylinder der Höhe `h`. Die Linie ist die Spirale; der Füllstil zeichnet die Rampe zwischen der Achse durch `center` und der Spirale, wie die Stufen einer Wendeltreppe, mit der Achse in jeder Schicht.
+Zeichnet eine Spirale auf der Ellipse von DRAW_ELLIPSE, die in Richtung `direction` steigt. Sie beginnt bei `a` und dreht sich in Richtung `b`. Jedes Voxel der Spirale liegt `elevation` Schichten höher als das vorige, abgerundet: 1 steigt eine Schicht pro Voxel, 0.5 bei jedem zweiten Voxel, 2 lässt eine Schicht Lücke. Die Spirale endet unter der Schicht `h`, wie ein Zylinder der Höhe `h`. Die Linie ist die Spirale; der Füllstil zeichnet die Rampe zwischen der Achse durch `center` und der Spirale, wie die Stufen einer Wendeltreppe, mit der Achse in jeder Schicht. Nahe der Achse sind die Stufen einer Rampe nur ein Voxel breit, wie bei einer echten Wendeltreppe; einen dickeren Kern zeichnest du als Zylinder in die Leinwand.
 
 **Parameter und Ergebnisse**
 
@@ -511,7 +511,7 @@ CALL c0de_paint/cpaint/DRAW_ELLIPSOID
 
 ### DRAW_CYLINDER
 
-Zeichnet einen Zylinder. Der Grundkreis hat seinen Mittelpunkt bei `center` und den Radius `r`; der Zylinder wächst um `h` Voxel in Richtung `direction`. Die Linien sind die Ränder beider Enden.
+Zeichnet einen Zylinder. Der Grundkreis hat seinen Mittelpunkt bei `center` und den Radius `r`; der Zylinder wächst um `h` Voxel in Richtung `direction`. Die Linien sind die Ränder beider Enden; die Flächen sind die ganze Oberfläche, der Mantel und beide Enden. Für ein offenes Rohr zeichnest du die Enden noch einmal mit STYLE_EMPTY.
 
 **Parameter und Ergebnisse**
 
@@ -583,7 +583,7 @@ CALL c0de_paint/cpaint/DRAW_PYRAMID
 
 ### Platonische Körper
 
-DRAW_TETRAHEDRON, DRAW_OCTAHEDRON, DRAW_DODECAHEDRON und DRAW_ICOSAHEDRON zeichnen den platonischen Körper um `center`, alle Ecken im Abstand `r` davon. Die Linien sind ihre Kanten. Jeder hat eine feste Ausrichtung: Das Tetraeder hat seine Ecken in jeder zweiten Ecke eines Würfels, das Oktaeder auf den Achsen, Ikosaeder und Dodekaeder sind über den goldenen Schnitt an den Achsen ausgerichtet. Andere Ausrichtungen entstehen mit CANVAS_ROTATE. Der Würfel ist DRAW_BOX.
+DRAW_TETRAHEDRON, DRAW_OCTAHEDRON, DRAW_DODECAHEDRON und DRAW_ICOSAHEDRON zeichnen den platonischen Körper um `center`, alle Ecken im Abstand `r` davon. Die Linien sind ihre Kanten. Jeder hat eine feste Ausrichtung: Das Tetraeder hat seine Ecken in jeder zweiten Ecke eines Würfels, das Oktaeder auf den Achsen, Ikosaeder und Dodekaeder sind über den goldenen Schnitt an den Achsen ausgerichtet. Andere Ausrichtungen entstehen mit CANVAS_ROTATE. Der Würfel ist DRAW_BOX. Weil alle Ecken im Abstand `r` liegen, stehen die Körper nicht auf `center`: Die unterste Ecke des Tetraeders liegt r/√3 (0,58 r) unter dem Mittelpunkt, die der anderen r darunter; verschieb die Leinwand mit CANVAS_MOVE oder nimm CANVAS_MIN, um einen Körper auf den Boden zu stellen. Die Kanten kleiner Körper bleiben auf ihrer Oberfläche.
 
 **Parameter und Ergebnisse**
 

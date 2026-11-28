@@ -7,7 +7,7 @@
 }
 ```
 
-Draws a spiral on the ellipse of DRAW\_ELLIPSE that rises in `direction`. It starts at `a` and turns towards `b`. Every voxel of the spiral lies `elevation` layers higher than the one before, rounded down: 1 climbs one layer per voxel, 0.5 every second voxel, 2 leaves a gap of one layer. The spiral ends below the layer `h`, like a cylinder of the height `h`. The line is the spiral\; the fill style draws the ramp between the axis through `center` and the spiral, like the steps of a spiral staircase, with the axis in every layer.
+Draws a spiral on the ellipse of DRAW\_ELLIPSE that rises in `direction`. It starts at `a` and turns towards `b`. Every voxel of the spiral lies `elevation` layers higher than the one before, rounded down: 1 climbs one layer per voxel, 0.5 every second voxel, 2 leaves a gap of one layer. The spiral ends below the layer `h`, like a cylinder of the height `h`. The line is the spiral\; the fill style draws the ramp between the axis through `center` and the spiral, like the steps of a spiral staircase, with the axis in every layer. Near the axis, the steps of a ramp are only one voxel wide, as on a real spiral staircase\; a thicker core is a cylinder drawn into the canvas.
 
 **Parameters and results**
 
