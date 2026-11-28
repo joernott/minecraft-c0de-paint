@@ -64,7 +64,7 @@ public final class CpaintLibrary implements Library {
     public Map<String, Value> constants() {
         Map<String, Value> constants = new LinkedHashMap<>();
         for (PaintError error : PaintError.values()) {
-            if (error.own()) {
+            if (error.own() && error.library().equals("cpaint")) {
                 constants.put(error.name(), new IntegerValue(error.code()));
             }
         }

@@ -53,8 +53,34 @@ public final class PaintConfig {
             "several ticks, while the process waits.");
 
     /** The settings of the server file. */
-    public static final List<Setting<?>> SERVER =
-            List.of(CANVAS_MIN, CANVAS_MAX, RENDER_BLOCKS_PER_TICK, RENDER_MINING_SPEED, CANVAS_VOXELS_PER_TICK);
+    /** The largest schematic file that c0de_paint/schematics reads (0.2.0). */
+    public static final IntSetting MAX_SCHEMATIC_SIZE = new IntSetting(
+            "maxSchematicSize",
+            4 * 1024 * 1024,
+            1024,
+            64 * 1024 * 1024,
+            "The largest schematic file in bytes (1024 to 67108864) that the functions of c0de_paint/schematics read",
+            "from the client of a player.");
+
+    public static final List<Setting<?>> SERVER = List.of(
+            CANVAS_MIN,
+            CANVAS_MAX,
+            RENDER_BLOCKS_PER_TICK,
+            RENDER_MINING_SPEED,
+            CANVAS_VOXELS_PER_TICK,
+            MAX_SCHEMATIC_SIZE);
+
+    /** The settings of the client, in {@code config/c0de_paint-client.properties} (0.2.0). */
+    public static final String CLIENT_FILE = "c0de_paint-client.properties";
+
+    /** Whether the client reads schematics for the processes of its player. */
+    public static final BooleanSetting ALLOW_SCHEMATICS = new BooleanSetting(
+            "allowSchematics",
+            true,
+            "Read the schematics in the folder schematics of this computer for the c0de processes you run. With",
+            "false, the functions of c0de_paint/schematics raise SCHEMATICS_DISABLED.");
+
+    public static final List<Setting<?>> CLIENT = List.of(ALLOW_SCHEMATICS);
 
     private final Map<Setting<?>, Object> values;
     private final List<String> problems;
@@ -149,7 +175,7 @@ public final class PaintConfig {
     }
 
     /** A setting: its key, default value and description. */
-    public sealed interface Setting<T> permits IntSetting {
+    public sealed interface Setting<T> permits IntSetting, BooleanSetting {
         String key();
 
         T defaultValue();
@@ -175,6 +201,19 @@ public final class PaintConfig {
             } catch (NumberFormatException e) {
                 return null;
             }
+        }
+    }
+
+    /** A BOOLEAN setting: true or false. */
+    public record BooleanSetting(String key, Boolean defaultValue, List<String> description)
+            implements Setting<Boolean> {
+        public BooleanSetting(String key, boolean defaultValue, String... description) {
+            this(key, defaultValue, List.of(description));
+        }
+
+        @Override
+        public Boolean parse(String text) {
+            return text.equalsIgnoreCase("true") ? Boolean.TRUE : text.equalsIgnoreCase("false") ? Boolean.FALSE : null;
         }
     }
 }
