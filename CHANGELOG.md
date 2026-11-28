@@ -8,6 +8,7 @@ Schematics, block data and fixes from the recipes of c0de.at. It requires c0de 0
 - **Block data**: BLOCK has the element `data`, the data of the block entity (sign text, chest contents, machine settings). Canvases, styles and transformations keep it, CANVAS_FROM_WORLD reads it, RENDER_CANVAS places it. Inventories are filled from the input; the new parameters `contents` and `blocks` of RENDER_CANVAS decide what happens when items are missing, and the result `missing` lists them.
 - **Items**: RENDER_CANVAS takes what a player needs: two slabs for a double slab, the candles of a candle block, buckets for water (which come back empty). The new CANVAS_ITEMS lists them.
 - **CANVAS_REPLACE** keeps the states of the blocks it replaces that the new block has, so stairs keep their direction.
+- **Larger canvases by default**: `canvasMax` is 255 instead of 127, so schematics up to 256 blocks on every axis fit. Servers that already have `config/c0de_paint.properties` keep the value written there; change it to 255 by hand.
 - The constant `C0DE_PAINT_VERSION`.
 - The handbook explains rendering soft blocks without tools and drops without output, where allowBlockChanges is set and the limit of CANVAS_FROM_WORLD.
 

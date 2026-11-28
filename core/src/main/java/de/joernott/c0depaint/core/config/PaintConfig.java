@@ -28,7 +28,7 @@ public final class PaintConfig {
 
     /** The largest coordinate of a canvas on every axis. */
     public static final IntSetting CANVAS_MAX =
-            new IntSetting("canvasMax", 127, 0, 1023, "Largest coordinate of a canvas on every axis (0 to 1023).");
+            new IntSetting("canvasMax", 255, 0, 1023, "Largest coordinate of a canvas on every axis (0 to 1023).");
 
     /** The blocks RENDER_CANVAS places per tick. */
     public static final IntSetting RENDER_BLOCKS_PER_TICK = new IntSetting(

@@ -36,7 +36,7 @@ Coordinates in the world are always `c0de/minecraft/POSITION`. Coordinates in a 
 - A canvas has no fixed size. It grows with its content.
 - Every voxel is either **not set** (nothing is drawn there) or holds a block. Air is a block, so a voxel can be set to air on purpose.
 - The **bounds** of a canvas are the smallest box that contains all set voxels. An empty canvas has no bounds.
-- Coordinates may be negative. Every coordinate must lie within the limits from the configuration (default −128 to 127 on each axis). If a drawing function would set a voxel outside the limits, it raises the error CANVAS_LIMIT and draws nothing.
+- Coordinates may be negative. Every coordinate must lie within the limits from the configuration (default −128 to 255 on each axis; until 0.1.0 up to 127). If a drawing function would set a voxel outside the limits, it raises the error CANVAS_LIMIT and draws nothing.
 - Two canvases may use different ranges of coordinates. For example, one holds a house at x 0 to 20 and another a tower at x 30 to 40; merging them keeps both in place.
 
 ## Styles
@@ -280,7 +280,7 @@ The file `config/c0de_paint.properties` on the server contains:
 | Setting | Default | Range | Meaning |
 |---|---|---|---|
 | canvasMin | −128 | −1024 to 0 | Smallest coordinate of a canvas on every axis. |
-| canvasMax | 127 | 0 to 1023 | Largest coordinate of a canvas on every axis. |
+| canvasMax | 255 | 0 to 1023 | Largest coordinate of a canvas on every axis. |
 | renderBlocksPerTick | 64 | 1 to 1024 | Blocks that RENDER_CANVAS places per tick. |
 | renderMiningSpeed | 1 | 0 to 100 | How much faster than a player RENDER_CANVAS mines blocks with tools; 0 means instantly, as in creative mode. |
 | canvasVoxelsPerTick | 65536 | 1024 to 1048576 | Voxels that a drawing function, CANVAS_SCALE, CANVAS_ROTATE or CANVAS_MIRROR processes per tick. Larger operations are spread over several ticks, while the process waits. The shape is computed in the first tick. The other canvas operations work in one tick. |

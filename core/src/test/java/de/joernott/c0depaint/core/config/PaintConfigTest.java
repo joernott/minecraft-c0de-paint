@@ -17,7 +17,7 @@ class PaintConfigTest {
     void defaultsMatchTheConcept() {
         PaintConfig config = PaintConfig.defaults(PaintConfig.SERVER);
         assertEquals(-128, config.get(PaintConfig.CANVAS_MIN));
-        assertEquals(127, config.get(PaintConfig.CANVAS_MAX));
+        assertEquals(255, config.get(PaintConfig.CANVAS_MAX));
         assertEquals(64, config.get(PaintConfig.RENDER_BLOCKS_PER_TICK));
         assertEquals(1, config.get(PaintConfig.RENDER_MINING_SPEED));
         assertEquals(65536, config.get(PaintConfig.CANVAS_VOXELS_PER_TICK));
@@ -39,7 +39,7 @@ class PaintConfigTest {
         properties.setProperty("renderMiningSpeed", "0");
         properties.setProperty("brush", "big");
         PaintConfig config = PaintConfig.of(properties, PaintConfig.SERVER, "c0de_paint.properties");
-        assertEquals(127, config.get(PaintConfig.CANVAS_MAX));
+        assertEquals(255, config.get(PaintConfig.CANVAS_MAX));
         assertEquals(0, config.get(PaintConfig.RENDER_MINING_SPEED));
         assertEquals(2, config.problems().size(), config.problems().toString());
     }

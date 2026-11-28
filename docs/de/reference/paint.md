@@ -122,7 +122,7 @@ Umgib einen INCLUDE-Block mit acht Farbstoffen in den Farben des Regenbogens: ro
 
 Der Server hat die Datei `config/c0de_paint.properties`.
 
-- `canvasMin` und `canvasMax` (Standard −128 und 127) begrenzen die Koordinaten einer Leinwand auf jeder Achse.
+- `canvasMin` und `canvasMax` (Standard −128 und 255) begrenzen die Koordinaten einer Leinwand auf jeder Achse.
 - `renderBlocksPerTick` (1 bis 1024, Standard 64) ist die Zahl der Blöcke, die RENDER_CANVAS pro Tick setzt.
 - `renderMiningSpeed` (0 bis 100, Standard 1) gibt an, wie viel schneller als ein Spieler RENDER_CANVAS Blöcke mit Werkzeugen abbaut; 0 baut sofort ab.
 - `canvasVoxelsPerTick` (1024 bis 1048576, Standard 65536) ist die Zahl der Voxel, die eine Zeichenfunktion oder eine Transformation pro Tick bearbeitet. Größere Arbeit verteilt sich auf mehrere Ticks, während der Prozess wartet.
@@ -869,7 +869,7 @@ CALL c0de_paint/cpaint/RENDER_CANVAS
 
 ### CANVAS_FROM_WORLD
 
-Eine neue Leinwand mit den Blöcken der Welt zwischen zwei Positionen, mit ihren Zuständen und ihren Daten (dem Inhalt von Truhen, dem Text von Schildern); `from` wird zu 0,0,0. Luft wird zu nicht gesetzt, oder zu Luft, wenn `air` TRUE ist. Jede Ecke muss von `from` aus gesehen in den Grenzen einer Leinwand liegen: mit den Standardeinstellungen bis zu 127 Blöcke in positiver und 128 in negativer Richtung jeder Achse; sonst CANVAS_LIMIT. Nicht geladene Chunks lösen CHUNK_NOT_LOADED aus.
+Eine neue Leinwand mit den Blöcken der Welt zwischen zwei Positionen, mit ihren Zuständen und ihren Daten (dem Inhalt von Truhen, dem Text von Schildern); `from` wird zu 0,0,0. Luft wird zu nicht gesetzt, oder zu Luft, wenn `air` TRUE ist. Jede Ecke muss von `from` aus gesehen in den Grenzen einer Leinwand liegen: mit den Standardeinstellungen bis zu 255 Blöcke in positiver und 128 in negativer Richtung jeder Achse; sonst CANVAS_LIMIT. Nicht geladene Chunks lösen CHUNK_NOT_LOADED aus.
 
 **Parameter und Ergebnisse**
 
@@ -894,7 +894,7 @@ Die Bibliothek c0de_paint/schematics liest die Schematics, die Spieler mit Litem
 
 **Namen.** Eine Datei wird relativ zum Ordner `schematics` benannt, mit `/` zwischen Ordnern, etwa "castles/keep.litematic". Namen, die den Ordner verlassen (`..`, absolute Pfade, Laufwerksbuchstaben) oder versteckte Zeichen enthalten, lösen INVALID_ARGUMENT aus.
 
-**Was aus einer Schematic wird.** Die Blöcke mit ihren Zuständen und den Daten ihrer Blockobjekte (der Text von Schildern, die Gegenstände von Truhen, die Einstellungen von Maschinen), die kleinste Ecke auf Voxel 0,0,0; die Regionen einer `.litematic` behalten ihre Lage zueinander. Luft bleibt ungesetzt. Objekte (Rahmen, Rüstungsständer) werden weggelassen und gezählt. Schematics älterer Minecraft-Versionen werden aktualisiert, wie Minecraft seine Welten aktualisiert, umbenannte Blöcke kommen also mit ihren neuen Namen heraus; Dateien von vor Minecraft 1.13 werden nicht gelesen. Eine Schematic, die größer als eine Leinwand ist (canvasMin, canvasMax), löst SCHEMATIC_TOO_LARGE aus, ebenso eine Datei, die größer als `maxSchematicSize` ist.
+**Was aus einer Schematic wird.** Die Blöcke mit ihren Zuständen und den Daten ihrer Blockobjekte (der Text von Schildern, die Gegenstände von Truhen, die Einstellungen von Maschinen), die kleinste Ecke auf Voxel 0,0,0; die Regionen einer `.litematic` behalten ihre Lage zueinander. Luft bleibt ungesetzt. Objekte (Rahmen, Rüstungsständer) werden weggelassen und gezählt. Schematics älterer Minecraft-Versionen werden aktualisiert, wie Minecraft seine Welten aktualisiert, umbenannte Blöcke kommen also mit ihren neuen Namen heraus; Dateien von vor Minecraft 1.13 werden nicht gelesen. Eine Schematic, die größer als eine Leinwand ist (canvasMin, canvasMax; mit den Standardwerten 256 Blöcke auf jeder Achse, von 0 bis 255), löst SCHEMATIC_TOO_LARGE aus, ebenso eine Datei, die größer als `maxSchematicSize` ist.
 
 **Blöcke ersetzen.** Jede Funktion nimmt den optionalen Parameter `replace`, einen HASH STRING von Block zu Block, der beim Lesen der Datei angewendet wird. Ein Schlüssel ist eine ID wie "create:andesite_casing" oder eine ID mit Zuständen wie "oak_stairs[half=top]"; der Schlüssel mit den meisten passenden Zuständen gewinnt. Der neue Block behält die Zustände des alten, die er auch hat, so behalten Treppen ihre Richtung, und die Daten, wenn der neue Block keine eigenen hat. Der Wert "" lässt die Voxel ungesetzt.
 

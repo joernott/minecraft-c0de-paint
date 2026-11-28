@@ -122,7 +122,7 @@ Surround an INCLUDE block with eight dyes in the colours of the rainbow: red, or
 
 The server has the file `config/c0de_paint.properties`.
 
-- `canvasMin` and `canvasMax` (default −128 and 127) limit the coordinates of a canvas on every axis.
+- `canvasMin` and `canvasMax` (default −128 and 255) limit the coordinates of a canvas on every axis.
 - `renderBlocksPerTick` (1 to 1024, default 64) is the number of blocks RENDER_CANVAS places per tick.
 - `renderMiningSpeed` (0 to 100, default 1) is how much faster than a player RENDER_CANVAS mines blocks with tools; 0 mines instantly.
 - `canvasVoxelsPerTick` (1024 to 1048576, default 65536) is the number of voxels a drawing function or a transformation processes per tick. Larger work is spread over several ticks while the process waits.
@@ -869,7 +869,7 @@ CALL c0de_paint/cpaint/RENDER_CANVAS
 
 ### CANVAS_FROM_WORLD
 
-A new canvas with the blocks of the world between two positions, with their states and their data (the contents of chests, the text of signs); `from` becomes 0,0,0. Air becomes not set, or air if `air` is TRUE. Every corner must lie within the limits of a canvas seen from `from`: with the default settings, up to 127 blocks in the positive and 128 in the negative direction of every axis; otherwise CANVAS_LIMIT. Chunks that are not loaded raise CHUNK_NOT_LOADED.
+A new canvas with the blocks of the world between two positions, with their states and their data (the contents of chests, the text of signs); `from` becomes 0,0,0. Air becomes not set, or air if `air` is TRUE. Every corner must lie within the limits of a canvas seen from `from`: with the default settings, up to 255 blocks in the positive and 128 in the negative direction of every axis; otherwise CANVAS_LIMIT. Chunks that are not loaded raise CHUNK_NOT_LOADED.
 
 **Parameters and results**
 
@@ -894,7 +894,7 @@ The library c0de_paint/schematics reads the schematics that players save with Li
 
 **Names.** A file is named relative to the folder `schematics`, with `/` between folders, like "castles/keep.litematic". Names that leave the folder (`..`, absolute paths, drive letters) or contain hidden characters raise INVALID_ARGUMENT.
 
-**What a schematic becomes.** The blocks with their states and the data of their block entities (the text of signs, the items of chests, the settings of machines), the minimum corner at voxel 0,0,0; the regions of a `.litematic` keep their places to each other. Air stays not set. Entities (item frames, armor stands) are left out and counted. Schematics of older Minecraft versions are upgraded like Minecraft upgrades its worlds, so renamed blocks come out with their new names; files from before Minecraft 1.13 aren't read. A schematic larger than a canvas (canvasMin, canvasMax) raises SCHEMATIC_TOO_LARGE, a file larger than `maxSchematicSize` too.
+**What a schematic becomes.** The blocks with their states and the data of their block entities (the text of signs, the items of chests, the settings of machines), the minimum corner at voxel 0,0,0; the regions of a `.litematic` keep their places to each other. Air stays not set. Entities (item frames, armor stands) are left out and counted. Schematics of older Minecraft versions are upgraded like Minecraft upgrades its worlds, so renamed blocks come out with their new names; files from before Minecraft 1.13 aren't read. A schematic larger than a canvas (canvasMin, canvasMax; with the defaults 256 blocks on every axis, from 0 to 255) raises SCHEMATIC_TOO_LARGE, a file larger than `maxSchematicSize` too.
 
 **Replacing blocks.** Every function takes the optional parameter `replace`, a HASH STRING from block to block, applied while the file is read. A key is an id like "create:andesite_casing" or an id with states like "oak_stairs[half=top]"; the key with the most matching states wins. The new block keeps the states of the old one that it also has, so stairs keep their direction, and the data unless the new block has data of its own. The value "" leaves the voxels not set.
 

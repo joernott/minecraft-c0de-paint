@@ -105,7 +105,7 @@ class CanvasFunctionsTest {
 
     @Test
     void voxelsOutsideTheLimitsDrawNothing() {
-        Programs.crashes(1100, SETUP + draw(128, 0, 0, "solid"));
+        Programs.crashes(1100, SETUP + draw(256, 0, 0, "solid"));
         Map<String, Value> results = run("    RESULT count INTEGER\n    RESULT code INTEGER\n", """
                 VARIABLE problem ERROR
                 ASSIGN p.y -129 ;
