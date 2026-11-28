@@ -295,7 +295,8 @@ public final class Canvas {
                     if (format >= 2) {
                         int length = in.readInt();
                         if (length < 0 || length > MAX_DATA) {
-                            throw new IllegalArgumentException("A block of the canvas has " + length + " bytes of data");
+                            throw new IllegalArgumentException(
+                                    "A block of the canvas has " + length + " bytes of data");
                         }
                         block = block.withData(new String(in.readNBytes(length), StandardCharsets.UTF_8));
                     }

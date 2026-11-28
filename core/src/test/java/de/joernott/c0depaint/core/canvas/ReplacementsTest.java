@@ -21,8 +21,8 @@ class ReplacementsTest {
         return states.containsAll(block.properties().keySet()) ? block : null;
     };
 
-    private static final Block STAIRS = Block.of(
-            "minecraft:oak_stairs", Map.of("facing", "east", "half", "top", "shape", "straight"));
+    private static final Block STAIRS =
+            Block.of("minecraft:oak_stairs", Map.of("facing", "east", "half", "top", "shape", "straight"));
 
     @Test
     void theNewBlockKeepsTheStatesItHas() {
@@ -40,8 +40,11 @@ class ReplacementsTest {
     @Test
     void statesOfTheReplacementWin() {
         Replacements replace = Replacements.of(Map.of("oak_stairs", "spruce_stairs[half=bottom]"));
-        assertEquals("bottom", replace.apply(STAIRS, WORLD).orElseThrow().properties().get("half"));
-        assertEquals("east", replace.apply(STAIRS, WORLD).orElseThrow().properties().get("facing"));
+        assertEquals(
+                "bottom",
+                replace.apply(STAIRS, WORLD).orElseThrow().properties().get("half"));
+        assertEquals(
+                "east", replace.apply(STAIRS, WORLD).orElseThrow().properties().get("facing"));
     }
 
     @Test
@@ -50,9 +53,14 @@ class ReplacementsTest {
         map.put("oak_stairs", "spruce_stairs");
         map.put("oak_stairs[half=top]", "birch_stairs");
         Replacements replace = Replacements.of(map);
-        assertEquals("minecraft:birch_stairs", replace.apply(STAIRS, WORLD).orElseThrow().id());
         assertEquals(
-                "minecraft:spruce_stairs", replace.apply(STAIRS.with("half", "bottom"), WORLD).orElseThrow().id());
+                "minecraft:birch_stairs",
+                replace.apply(STAIRS, WORLD).orElseThrow().id());
+        assertEquals(
+                "minecraft:spruce_stairs",
+                replace.apply(STAIRS.with("half", "bottom"), WORLD)
+                        .orElseThrow()
+                        .id());
     }
 
     @Test
@@ -64,7 +72,12 @@ class ReplacementsTest {
     @Test
     void dataIsKeptUnlessTheReplacementHasItsOwn() {
         Block chest = new Block("minecraft:chest").withData("{Items:[]}");
-        assertEquals("{Items:[]}", Replacements.of(Map.of("chest", "barrel")).apply(chest, WORLD).orElseThrow().data());
+        assertEquals(
+                "{Items:[]}",
+                Replacements.of(Map.of("chest", "barrel"))
+                        .apply(chest, WORLD)
+                        .orElseThrow()
+                        .data());
         assertEquals(
                 "{CustomName:'\"Box\"'}",
                 Replacements.of(Map.of("chest", "barrel{CustomName:'\"Box\"'}"))

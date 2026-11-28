@@ -52,8 +52,9 @@ public final class Replacements {
         });
         // The most specific key first; the same number of states: sorted by text, so the result doesn't depend on
         // the order of the HASH
-        rules.sort(Comparator.comparingInt((Rule rule) -> -rule.match.properties().size())
-                .thenComparing(rule -> rule.match.text()));
+        rules.sort(
+                Comparator.comparingInt((Rule rule) -> -rule.match.properties().size())
+                        .thenComparing(rule -> rule.match.text()));
         return new Replacements(rules);
     }
 

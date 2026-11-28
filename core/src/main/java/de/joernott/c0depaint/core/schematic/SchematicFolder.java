@@ -98,5 +98,4 @@ public final class SchematicFolder {
             return path.toAbsolutePath().normalize();
         }
     }
-
 }

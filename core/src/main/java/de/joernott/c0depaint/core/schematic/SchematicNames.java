@@ -61,9 +61,13 @@ public final class SchematicNames {
         }
         String trimmed = name.endsWith("/") && emptyAllowed ? name.substring(0, name.length() - 1) : name;
         for (String part : trimmed.split("/", -1)) {
-            if (part.isEmpty() || part.equals(".") || part.equals("..") || !part.strip().equals(part)
+            if (part.isEmpty()
+                    || part.equals(".")
+                    || part.equals("..")
+                    || !part.strip().equals(part)
                     || part.endsWith(".")) {
-                throw new IllegalArgumentException("The name " + name + " has a part that isn't allowed: '" + part + "'");
+                throw new IllegalArgumentException(
+                        "The name " + name + " has a part that isn't allowed: '" + part + "'");
             }
         }
         return trimmed;
@@ -71,11 +75,11 @@ public final class SchematicNames {
 
     /** Invisible characters and those that change the direction of text, which can hide a name. */
     private static boolean hidden(char c) {
-        return (c >= '​' && c <= '‏')
-                || (c >= '‪' && c <= '‮')
-                || (c >= '⁠' && c <= '⁩')
-                || c == '﻿'
-                || c == '­'
+        return (c >= '\u200B' && c <= '\u200F')
+                || (c >= '\u202A' && c <= '\u202E')
+                || (c >= '\u2060' && c <= '\u2069')
+                || c == '\uFEFF'
+                || c == '\u00AD'
                 || Character.getType(c) == Character.FORMAT;
     }
 }

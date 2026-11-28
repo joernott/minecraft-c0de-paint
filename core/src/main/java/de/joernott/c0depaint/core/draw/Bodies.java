@@ -305,7 +305,8 @@ public final class Bodies {
                 if (corners.get(i).minus(corners.get(j)).length() < shortest * (1 + 1e-6)) {
                     // The line between the rounded corners can leave the body of a small solid; such voxels move
                     // onto the nearest voxel of its surface (task 9.1.5)
-                    for (Point voxel : Raster.line(corners.get(i).round(), corners.get(j).round())) {
+                    for (Point voxel :
+                            Raster.line(corners.get(i).round(), corners.get(j).round())) {
                         Point onBody = body.contains(voxel) ? voxel : nearest(surface, voxel);
                         if (onBody != null) {
                             edges.add(onBody);

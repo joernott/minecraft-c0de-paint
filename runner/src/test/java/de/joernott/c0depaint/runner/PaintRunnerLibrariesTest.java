@@ -64,7 +64,8 @@ class PaintRunnerLibrariesTest {
         ServiceLoader.load(de.joernott.c0de.core.library.LibraryProvider.class)
                 .forEach(provider -> provider.register(registry));
         assertTrue(registry.find(CpaintLibrary.NAME).isPresent());
-        assertTrue(registry.find(de.joernott.c0depaint.core.library.SchematicsLibrary.NAME).isPresent());
+        assertTrue(registry.find(de.joernott.c0depaint.core.library.SchematicsLibrary.NAME)
+                .isPresent());
     }
 
     /** The runner reads schematics from a folder, with the rules of the client for names (task 9.7). */
@@ -80,8 +81,11 @@ class PaintRunnerLibrariesTest {
         RunnerSchematics files = new RunnerSchematics(dir);
         assertEquals(
                 java.util.List.of("castles/keep.nbt"),
-                files.list(null, "", names -> de.joernott.c0de.core.library.NativeResult.of(
-                                new StringValue(String.join(",", names))))
+                files.list(
+                                null,
+                                "",
+                                names -> de.joernott.c0de.core.library.NativeResult.of(
+                                        new StringValue(String.join(",", names))))
                         .results()
                         .get("result")
                         .text()
@@ -89,11 +93,15 @@ class PaintRunnerLibrariesTest {
                         .toList());
         assertEquals(
                 structure.length,
-                files.read(null, "castles/keep.nbt", 1000, bytes -> de.joernott.c0de.core.library.NativeResult.of(
-                                new IntegerValue(bytes.length)))
-                        .results()
-                        .get("result")
-                        .equals(new IntegerValue(structure.length))
+                files.read(
+                                        null,
+                                        "castles/keep.nbt",
+                                        1000,
+                                        bytes -> de.joernott.c0de.core.library.NativeResult.of(
+                                                new IntegerValue(bytes.length)))
+                                .results()
+                                .get("result")
+                                .equals(new IntegerValue(structure.length))
                         ? structure.length
                         : -1);
         org.junit.jupiter.api.Assertions.assertThrows(

@@ -91,8 +91,9 @@ class BodiesTest {
             for (int r = 1; r <= 8; r++) {
                 Shapes.Voxels voxels = Bodies.solid(solid, p(0, 0, 0), r);
                 for (Point edge : voxels.lines()) {
-                    assertTrue(voxels.inside().contains(edge), solid + " r " + r + ": the edge voxel " + edge
-                            + " lies outside of the body");
+                    assertTrue(
+                            voxels.inside().contains(edge),
+                            solid + " r " + r + ": the edge voxel " + edge + " lies outside of the body");
                 }
                 assertTrue(!voxels.lines().isEmpty(), solid + " r " + r + " has no edges");
             }
@@ -107,7 +108,8 @@ class BodiesTest {
                 assertEquals(10, corner.length(), 1e-9, solid.name());
                 // A corner that rounds to a voxel outside of the body has an edge voxel next to it
                 assertTrue(
-                        voxels.lines().stream().anyMatch(v -> Vec.of(v).minus(corner).length() <= Math.sqrt(3) + 1e-9),
+                        voxels.lines().stream()
+                                .anyMatch(v -> Vec.of(v).minus(corner).length() <= Math.sqrt(3) + 1e-9),
                         solid + " lacks the corner " + corner);
             }
             assertTrue(voxels.inside().contains(p(0, 0, 0)), solid.name());

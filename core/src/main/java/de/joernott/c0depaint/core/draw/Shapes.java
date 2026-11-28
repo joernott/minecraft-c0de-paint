@@ -142,9 +142,7 @@ public final class Shapes {
         // The outline of the filled ellipse is as symmetric as the ellipse (task 9.1.4); a tiny one keeps the path
         Set<Point> outline = ellipse.plane().outline(inside);
         return new Voxels(
-                outline.isEmpty() ? Raster.path(ellipse.curve(0, 2 * Math.PI), true) : outline,
-                Set.of(),
-                inside);
+                outline.isEmpty() ? Raster.path(ellipse.curve(0, 2 * Math.PI), true) : outline, Set.of(), inside);
     }
 
     /**

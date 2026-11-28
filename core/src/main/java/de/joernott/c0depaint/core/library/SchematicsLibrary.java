@@ -137,17 +137,19 @@ public final class SchematicsLibrary implements Library {
                             Map<String, Long> items = new TreeMap<>();
                             Map<String, Long> without = new TreeMap<>();
                             schematic.forEach(
-                                    (x, y, z, block) -> replace.apply(block, server::valid).ifPresent(placed -> {
-                                        if (server.part(placed)) {
-                                            return;
-                                        }
-                                        Map<String, Long> needed = server.items(placed);
-                                        if (needed.isEmpty()) {
-                                            without.merge(placed.id(), 1L, Long::sum);
-                                        } else {
-                                            needed.forEach((item, count) -> items.merge(item, count, Long::sum));
-                                        }
-                                    }),
+                                    (x, y, z, block) -> replace.apply(block, server::valid)
+                                            .ifPresent(placed -> {
+                                                if (server.part(placed)) {
+                                                    return;
+                                                }
+                                                Map<String, Long> needed = server.items(placed);
+                                                if (needed.isEmpty()) {
+                                                    without.merge(placed.id(), 1L, Long::sum);
+                                                } else {
+                                                    needed.forEach(
+                                                            (item, count) -> items.merge(item, count, Long::sum));
+                                                }
+                                            }),
                                     server.upgrader());
                             Map<String, Value> results = new LinkedHashMap<>();
                             results.put("result", counts(items));
@@ -165,11 +167,12 @@ public final class SchematicsLibrary implements Library {
                             Replacements replace = replacements(call);
                             Map<String, Long> missing = new TreeMap<>();
                             schematic.forEach(
-                                    (x, y, z, block) -> replace.apply(block, server::valid).ifPresent(placed -> {
-                                        if (!server.available(placed.id())) {
-                                            missing.merge(placed.id(), 1L, Long::sum);
-                                        }
-                                    }),
+                                    (x, y, z, block) -> replace.apply(block, server::valid)
+                                            .ifPresent(placed -> {
+                                                if (!server.available(placed.id())) {
+                                                    missing.merge(placed.id(), 1L, Long::sum);
+                                                }
+                                            }),
                                     server.upgrader());
                             return NativeResult.of(counts(missing));
                         }),
@@ -183,8 +186,10 @@ public final class SchematicsLibrary implements Library {
                         call -> {
                             String folder = SchematicNames.folder(((StringValue) call.argument("folder")).value());
                             return files.list(call, folder, names -> {
-                                List<StringValue> values =
-                                        names.stream().sorted().map(StringValue::new).toList();
+                                List<StringValue> values = names.stream()
+                                        .sorted()
+                                        .map(StringValue::new)
+                                        .toList();
                                 return NativeResult.of(new ArrayValue(Type.Str.UNLIMITED, values));
                             });
                         },
@@ -236,10 +241,7 @@ public final class SchematicsLibrary implements Library {
 
     private static NativeFunction.Parameter replaceParameter() {
         return NativeFunction.Parameter.withDefault(
-                "replace",
-                "HASH STRING",
-                value -> value instanceof HashValue,
-                new HashValue(Type.Str.UNLIMITED));
+                "replace", "HASH STRING", value -> value instanceof HashValue, new HashValue(Type.Str.UNLIMITED));
     }
 
     private static Replacements replacements(NativeCall call) {

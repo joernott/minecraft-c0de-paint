@@ -63,7 +63,8 @@ public final class Nbt {
      * @throws NbtException if the data isn't NBT with a compound as root or is larger than allowed
      */
     public static Map<String, Object> read(byte[] data, long maxBytes) {
-        try (InputStream raw = open(data); DataInputStream in = new DataInputStream(new Limited(raw, maxBytes))) {
+        try (InputStream raw = open(data);
+                DataInputStream in = new DataInputStream(new Limited(raw, maxBytes))) {
             int type = in.readUnsignedByte();
             if (type != COMPOUND) {
                 throw new NbtException("The root of the file is not a compound");
@@ -210,7 +211,9 @@ public final class Nbt {
                     out.writeLong(l);
                 }
             }
-            default -> throw new IllegalArgumentException("Not a tag: " + value.getClass().getSimpleName());
+            default ->
+                throw new IllegalArgumentException(
+                        "Not a tag: " + value.getClass().getSimpleName());
         }
     }
 
@@ -228,7 +231,9 @@ public final class Nbt {
             case Map<?, ?> map -> COMPOUND;
             case int[] array -> INT_ARRAY;
             case long[] array -> LONG_ARRAY;
-            default -> throw new IllegalArgumentException("Not a tag: " + value.getClass().getSimpleName());
+            default ->
+                throw new IllegalArgumentException(
+                        "Not a tag: " + value.getClass().getSimpleName());
         };
     }
 
@@ -298,7 +303,9 @@ public final class Nbt {
                 }
                 text.append('}');
             }
-            default -> throw new IllegalArgumentException("Not a tag: " + value.getClass().getSimpleName());
+            default ->
+                throw new IllegalArgumentException(
+                        "Not a tag: " + value.getClass().getSimpleName());
         }
     }
 

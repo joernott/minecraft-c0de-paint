@@ -166,8 +166,7 @@ public final class Schematic {
             }
             entities += list(tag, "Entities").size();
             regions.add(new Region(
-                    entry.getKey(), min[0], min[1], min[2], abs[0], abs[1], abs[2], palette, packed, bits, null,
-                    data));
+                    entry.getKey(), min[0], min[1], min[2], abs[0], abs[1], abs[2], palette, packed, bits, null, data));
         }
         if (regions.isEmpty()) {
             throw new IllegalArgumentException(name + " has no regions");
@@ -237,8 +236,18 @@ public final class Schematic {
         List<Region> moved = new ArrayList<>();
         for (Region r : regions) {
             moved.add(new Region(
-                    r.name, r.minX - minX, r.minY - minY, r.minZ - minZ, r.sizeX, r.sizeY, r.sizeZ, r.palette,
-                    r.packed, r.bits, r.listed, r.data));
+                    r.name,
+                    r.minX - minX,
+                    r.minY - minY,
+                    r.minZ - minZ,
+                    r.sizeX,
+                    r.sizeY,
+                    r.sizeZ,
+                    r.palette,
+                    r.packed,
+                    r.bits,
+                    r.listed,
+                    r.data));
         }
         return new Schematic(
                 format, dataVersion, (int) (maxX - minX), (int) (maxY - minY), (int) (maxZ - minZ), entities, moved);
@@ -391,7 +400,9 @@ public final class Schematic {
     }
 
     private static int[] xyz(List<Object> list, String name) {
-        if (list.size() != 3 || !(list.get(0) instanceof Number x) || !(list.get(1) instanceof Number y)
+        if (list.size() != 3
+                || !(list.get(0) instanceof Number x)
+                || !(list.get(1) instanceof Number y)
                 || !(list.get(2) instanceof Number z)) {
             throw new IllegalArgumentException(name + " has a position or size that isn't three numbers");
         }

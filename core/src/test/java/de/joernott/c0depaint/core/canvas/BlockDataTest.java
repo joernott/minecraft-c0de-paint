@@ -31,7 +31,9 @@ class BlockDataTest {
         assertEquals(SIGN_DATA, sign.with("rotation", "8").data());
         assertEquals(SIGN_DATA, sign.withProperties(Map.of()).data());
         assertFalse(new Block("minecraft:stone").hasData());
-        assertTrue(new Block("minecraft:stone", new java.util.TreeMap<>(), null).data().isEmpty());
+        assertTrue(new Block("minecraft:stone", new java.util.TreeMap<>(), null)
+                .data()
+                .isEmpty());
     }
 
     @Test
@@ -70,6 +72,7 @@ class BlockDataTest {
         }
         Canvas canvas = Canvas.load(Base64.getEncoder().encodeToString(bytes.toByteArray()));
         assertEquals(16 * 16 * 16, canvas.count());
-        assertEquals(Block.of("minecraft:oak_stairs", Map.of("facing", "north", "half", "bottom")), canvas.get(15, 15, 15));
+        assertEquals(
+                Block.of("minecraft:oak_stairs", Map.of("facing", "north", "half", "bottom")), canvas.get(15, 15, 15));
     }
 }

@@ -253,7 +253,8 @@ final class CanvasFunctions {
                             HashValue result = new HashValue(Type.Simple.INTEGER);
                             items.forEach((id, count) -> result.elements().put(id, new IntegerValue(count)));
                             HashValue withoutItem = new HashValue(Type.Simple.INTEGER);
-                            without.forEach((id, count) -> withoutItem.elements().put(id, new IntegerValue(count)));
+                            without.forEach(
+                                    (id, count) -> withoutItem.elements().put(id, new IntegerValue(count)));
                             Map<String, Value> results = new LinkedHashMap<>();
                             results.put("result", result);
                             results.put("without_item", withoutItem);

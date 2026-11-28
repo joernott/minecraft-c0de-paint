@@ -80,9 +80,30 @@ class SchematicTest {
     @Test
     void nbtComesBackAsItWasWritten() {
         Map<String, Object> root = compound(
-                "b", (byte) 1, "s", (short) 2, "i", 3, "l", 4L, "f", 1.5f, "d", 2.5d, "text", "hi \"you\"",
-                "bytes", new byte[] {1, 2}, "ints", new int[] {3, 4}, "longs", new long[] {5L},
-                "list", List.of(compound("a", 1), compound("a", 2)), "empty", List.of());
+                "b",
+                (byte) 1,
+                "s",
+                (short) 2,
+                "i",
+                3,
+                "l",
+                4L,
+                "f",
+                1.5f,
+                "d",
+                2.5d,
+                "text",
+                "hi \"you\"",
+                "bytes",
+                new byte[] {1, 2},
+                "ints",
+                new int[] {3, 4},
+                "longs",
+                new long[] {5L},
+                "list",
+                List.of(compound("a", 1), compound("a", 2)),
+                "empty",
+                List.of());
         Map<String, Object> read = Nbt.read(Nbt.write(root), MAX);
         assertEquals(root.keySet(), read.keySet());
         assertEquals(
@@ -111,18 +132,29 @@ class SchematicTest {
     void litematicRegionsArePackedAcrossLongs() {
         // Five states need 3 bits, so entries span two longs at bit 63
         List<Object> palette = List.of(
-                state("minecraft:air"), state("minecraft:stone"),
+                state("minecraft:air"),
+                state("minecraft:stone"),
                 state("minecraft:oak_stairs", "facing", "east", "half", "bottom"),
-                state("minecraft:chest", "facing", "north"), state("create:shaft", "axis", "y"));
+                state("minecraft:chest", "facing", "north"),
+                state("create:shaft", "axis", "y"));
         int[] size = {5, 3, 4};
         int[] states = new int[60];
         for (int i = 0; i < states.length; i++) {
             states[i] = i % 5;
         }
         List<Object> tileEntities = List.of(compound(
-                "x", 3, "y", 0, "z", 0, "id", "minecraft:chest",
-                "Items", List.of(compound("Slot", (byte) 0, "id", "minecraft:stone", "count", 3))));
-        byte[] file = litematic(6, 3700, compound("main", region(new int[] {0, 0, 0}, size, palette, states, tileEntities)));
+                "x",
+                3,
+                "y",
+                0,
+                "z",
+                0,
+                "id",
+                "minecraft:chest",
+                "Items",
+                List.of(compound("Slot", (byte) 0, "id", "minecraft:stone", "count", 3))));
+        byte[] file =
+                litematic(6, 3700, compound("main", region(new int[] {0, 0, 0}, size, palette, states, tileEntities)));
         Schematic schematic = Schematic.read("castle.litematic", file, MAX, null, Schematic.Upgrader.NONE);
         assertEquals(5, schematic.sizeX());
         assertEquals(3, schematic.sizeY());
@@ -150,22 +182,25 @@ class SchematicTest {
         Map<String, Object> regions = compound(
                 "a", region(new int[] {0, 0, 0}, new int[] {1, 1, 1}, palette, new int[] {1}, List.of()),
                 "b", region(new int[] {4, 2, 0}, new int[] {-2, 1, 1}, palette, new int[] {1, 1}, List.of()));
-        Schematic schematic = Schematic.read("two.litematic", litematic(7, 3953, regions), MAX, null,
-                Schematic.Upgrader.NONE);
+        Schematic schematic =
+                Schematic.read("two.litematic", litematic(7, 3953, regions), MAX, null, Schematic.Upgrader.NONE);
         assertEquals(5, schematic.sizeX());
         assertEquals(3, schematic.sizeY());
         assertEquals(List.of("a", "b"), schematic.regions());
-        assertEquals(Map.of(
+        assertEquals(
+                Map.of(
                         List.of(0, 0, 0), new Block("minecraft:stone"),
                         List.of(3, 2, 0), new Block("minecraft:stone"),
                         List.of(4, 2, 0), new Block("minecraft:stone")),
                 voxels(schematic));
         // Only region b: its minimum corner becomes 0, 0, 0
         Schematic b = Schematic.read("two.litematic", litematic(7, 3953, regions), MAX, "b", Schematic.Upgrader.NONE);
-        assertEquals(Map.of(List.of(0, 0, 0), new Block("minecraft:stone"), List.of(1, 0, 0), new Block("minecraft:stone")),
+        assertEquals(
+                Map.of(List.of(0, 0, 0), new Block("minecraft:stone"), List.of(1, 0, 0), new Block("minecraft:stone")),
                 voxels(b));
-        assertThrows(IllegalArgumentException.class, () -> Schematic.read(
-                "two.litematic", litematic(7, 3953, regions), MAX, "c", Schematic.Upgrader.NONE));
+        assertThrows(
+                IllegalArgumentException.class,
+                () -> Schematic.read("two.litematic", litematic(7, 3953, regions), MAX, "c", Schematic.Upgrader.NONE));
     }
 
     @Test
@@ -173,13 +208,26 @@ class SchematicTest {
         Map<String, Object> root = compound(
                 "DataVersion", 3955,
                 "size", List.of(2, 2, 1),
-                "palette", List.of(state("minecraft:air"), state("minecraft:oak_sign", "rotation", "4"),
-                        state("create:andesite_casing")),
-                "blocks", List.of(
-                        compound("pos", List.of(0, 0, 0), "state", 2),
-                        compound("pos", List.of(1, 0, 0), "state", 0),
-                        compound("pos", List.of(0, 1, 0), "state", 1, "nbt", compound(
-                                "id", "minecraft:sign", "front_text", compound("messages", List.of("\"Hi\""))))),
+                "palette",
+                        List.of(
+                                state("minecraft:air"),
+                                state("minecraft:oak_sign", "rotation", "4"),
+                                state("create:andesite_casing")),
+                "blocks",
+                        List.of(
+                                compound("pos", List.of(0, 0, 0), "state", 2),
+                                compound("pos", List.of(1, 0, 0), "state", 0),
+                                compound(
+                                        "pos",
+                                        List.of(0, 1, 0),
+                                        "state",
+                                        1,
+                                        "nbt",
+                                        compound(
+                                                "id",
+                                                "minecraft:sign",
+                                                "front_text",
+                                                compound("messages", List.of("\"Hi\""))))),
                 "entities", List.of(compound("pos", List.of(0.5, 0.5, 0.5))));
         Schematic schematic = Schematic.read("Gate.NBT", Nbt.write(root), MAX, null, Schematic.Upgrader.NONE);
         assertEquals("nbt", schematic.format());
@@ -187,14 +235,18 @@ class SchematicTest {
         Map<List<Integer>, Block> voxels = voxels(schematic);
         assertEquals(2, voxels.size());
         assertEquals(new Block("create:andesite_casing"), voxels.get(List.of(0, 0, 0)));
-        assertEquals("{front_text:{messages:[\"\\\"Hi\\\"\"]}}", voxels.get(List.of(0, 1, 0)).data());
+        assertEquals(
+                "{front_text:{messages:[\"\\\"Hi\\\"\"]}}",
+                voxels.get(List.of(0, 1, 0)).data());
     }
 
     @Test
     void theUpgraderSeesEveryBlockOfTheVersionOfTheFile() {
         List<Object> palette = List.of(state("minecraft:grass"));
-        byte[] file = litematic(5, 2586, compound("r", region(new int[] {0, 0, 0}, new int[] {1, 1, 1}, palette,
-                new int[] {0}, List.of())));
+        byte[] file = litematic(
+                5,
+                2586,
+                compound("r", region(new int[] {0, 0, 0}, new int[] {1, 1, 1}, palette, new int[] {0}, List.of())));
         List<Integer> versions = new ArrayList<>();
         Schematic schematic = Schematic.read("old.litematic", file, MAX, null, (block, version) -> {
             versions.add(version);
@@ -206,22 +258,39 @@ class SchematicTest {
 
     @Test
     void unsupportedFilesAreRefused() {
-        Map<String, Object> regions = compound("r", region(new int[] {0, 0, 0}, new int[] {1, 1, 1},
-                List.of(state("minecraft:stone")), new int[] {0}, List.of()));
-        assertThrows(IllegalArgumentException.class, () -> Schematic.read(
-                "old.litematic", litematic(4, 1343, regions), MAX, null, Schematic.Upgrader.NONE));
-        assertThrows(IllegalArgumentException.class, () -> Schematic.read(
-                "new.litematic", litematic(8, 5000, regions), MAX, null, Schematic.Upgrader.NONE));
-        assertThrows(IllegalArgumentException.class, () -> Schematic.read(
-                "house.schem", litematic(7, 3953, regions), MAX, null, Schematic.Upgrader.NONE));
-        assertThrows(IllegalArgumentException.class, () -> Schematic.read(
-                "broken.nbt", new byte[] {31, -117, 0}, MAX, null, Schematic.Upgrader.NONE));
+        Map<String, Object> regions = compound(
+                "r",
+                region(
+                        new int[] {0, 0, 0},
+                        new int[] {1, 1, 1},
+                        List.of(state("minecraft:stone")),
+                        new int[] {0},
+                        List.of()));
+        assertThrows(
+                IllegalArgumentException.class,
+                () -> Schematic.read("old.litematic", litematic(4, 1343, regions), MAX, null, Schematic.Upgrader.NONE));
+        assertThrows(
+                IllegalArgumentException.class,
+                () -> Schematic.read("new.litematic", litematic(8, 5000, regions), MAX, null, Schematic.Upgrader.NONE));
+        assertThrows(
+                IllegalArgumentException.class,
+                () -> Schematic.read("house.schem", litematic(7, 3953, regions), MAX, null, Schematic.Upgrader.NONE));
+        assertThrows(
+                IllegalArgumentException.class,
+                () -> Schematic.read("broken.nbt", new byte[] {31, -117, 0}, MAX, null, Schematic.Upgrader.NONE));
         // A block outside of the size
-        Map<String, Object> outside = compound("DataVersion", 3955, "size", List.of(1, 1, 1),
-                "palette", List.of(state("minecraft:stone")),
-                "blocks", List.of(compound("pos", List.of(1, 0, 0), "state", 0)));
-        assertThrows(IllegalArgumentException.class, () -> Schematic.read(
-                "out.nbt", Nbt.write(outside), MAX, null, Schematic.Upgrader.NONE));
+        Map<String, Object> outside = compound(
+                "DataVersion",
+                3955,
+                "size",
+                List.of(1, 1, 1),
+                "palette",
+                List.of(state("minecraft:stone")),
+                "blocks",
+                List.of(compound("pos", List.of(1, 0, 0), "state", 0)));
+        assertThrows(
+                IllegalArgumentException.class,
+                () -> Schematic.read("out.nbt", Nbt.write(outside), MAX, null, Schematic.Upgrader.NONE));
     }
 
     @Test

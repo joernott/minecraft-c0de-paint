@@ -43,20 +43,35 @@ class SchematicsLibraryTest {
         return Nbt.write(compound(
                 "DataVersion", 3955,
                 "size", List.of(3, 2, 1),
-                "palette", List.of(
-                        compound("Name", "create:andesite_casing"),
-                        compound("Name", "create:shaft", "Properties", compound("axis", "x")),
-                        compound("Name", "minecraft:oak_door", "Properties", compound("half", "lower", "facing", "south")),
-                        compound("Name", "minecraft:oak_door", "Properties", compound("half", "upper", "facing", "south")),
-                        compound("Name", "minecraft:oak_sign", "Properties", compound("rotation", "0"))),
-                "blocks", List.of(
-                        compound("pos", List.of(0, 0, 0), "state", 0),
-                        compound("pos", List.of(2, 0, 0), "state", 0),
-                        compound("pos", List.of(0, 1, 0), "state", 1),
-                        compound("pos", List.of(1, 0, 0), "state", 2),
-                        compound("pos", List.of(1, 1, 0), "state", 3),
-                        compound("pos", List.of(2, 1, 0), "state", 4, "nbt", compound(
-                                "id", "minecraft:sign", "is_waxed", (byte) 1))),
+                "palette",
+                        List.of(
+                                compound("Name", "create:andesite_casing"),
+                                compound("Name", "create:shaft", "Properties", compound("axis", "x")),
+                                compound(
+                                        "Name",
+                                        "minecraft:oak_door",
+                                        "Properties",
+                                        compound("half", "lower", "facing", "south")),
+                                compound(
+                                        "Name",
+                                        "minecraft:oak_door",
+                                        "Properties",
+                                        compound("half", "upper", "facing", "south")),
+                                compound("Name", "minecraft:oak_sign", "Properties", compound("rotation", "0"))),
+                "blocks",
+                        List.of(
+                                compound("pos", List.of(0, 0, 0), "state", 0),
+                                compound("pos", List.of(2, 0, 0), "state", 0),
+                                compound("pos", List.of(0, 1, 0), "state", 1),
+                                compound("pos", List.of(1, 0, 0), "state", 2),
+                                compound("pos", List.of(1, 1, 0), "state", 3),
+                                compound(
+                                        "pos",
+                                        List.of(2, 1, 0),
+                                        "state",
+                                        4,
+                                        "nbt",
+                                        compound("id", "minecraft:sign", "is_waxed", (byte) 1))),
                 "entities", List.of(compound("pos", List.of(0.5, 0.5, 0.5)))));
     }
 
@@ -140,9 +155,8 @@ class SchematicsLibraryTest {
 
     @Test
     void theFolderIsListed() {
-        Map<String, Value> results = Programs.results(
-                "    RESULT all ARRAY STRING\n    RESULT castles ARRAY STRING\n",
-                """
+        Map<String, Value> results =
+                Programs.results("    RESULT all ARRAY STRING\n    RESULT castles ARRAY STRING\n", """
                 CALL c0de_paint/schematics/SCHEMATIC_LIST
                     RESULT result all
                 CALL c0de_paint/schematics/SCHEMATIC_LIST
@@ -185,11 +199,13 @@ class SchematicsLibraryTest {
 
     @Test
     void schematicsLargerThanACanvasAreRefused() {
-        Programs.SCHEMATICS.put("huge.nbt", Nbt.write(compound(
-                "DataVersion", 3955,
-                "size", List.of(300, 1, 1),
-                "palette", List.of(compound("Name", "minecraft:stone")),
-                "blocks", List.of(compound("pos", List.of(299, 0, 0), "state", 0)))));
+        Programs.SCHEMATICS.put(
+                "huge.nbt",
+                Nbt.write(compound(
+                        "DataVersion", 3955,
+                        "size", List.of(300, 1, 1),
+                        "palette", List.of(compound("Name", "minecraft:stone")),
+                        "blocks", List.of(compound("pos", List.of(299, 0, 0), "state", 0)))));
         Programs.crashes(PaintError.SCHEMATIC_TOO_LARGE.code(), """
                 VARIABLE c TYPE c0de_paint/cpaint/CANVAS
                 CALL c0de_paint/schematics/SCHEMATIC_LOAD
@@ -197,9 +213,7 @@ class SchematicsLibraryTest {
                     RESULT result c
                 """);
         // The lists work for schematics of any size
-        Map<String, Value> results = Programs.results(
-                "    RESULT missing HASH INTEGER\n",
-                """
+        Map<String, Value> results = Programs.results("    RESULT missing HASH INTEGER\n", """
                 CALL c0de_paint/schematics/SCHEMATIC_MISSING
                     PARAMETER file "huge.nbt" ;
                     RESULT result missing

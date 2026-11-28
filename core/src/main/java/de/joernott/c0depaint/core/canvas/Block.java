@@ -131,7 +131,9 @@ public record Block(String id, SortedMap<String, String> properties, String data
                 if (equals < 0) {
                     throw new IllegalArgumentException("The state " + entry + " of " + text + " has no =");
                 }
-                properties.put(entry.substring(0, equals).strip(), entry.substring(equals + 1).strip());
+                properties.put(
+                        entry.substring(0, equals).strip(),
+                        entry.substring(equals + 1).strip());
             }
         }
         return new Block(state.substring(0, open), properties, data);

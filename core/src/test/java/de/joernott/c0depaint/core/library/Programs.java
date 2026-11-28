@@ -65,8 +65,8 @@ public final class Programs {
 
     /** A program with the header and INCLUDE of the library, and the function main with its body and results. */
     public static String program(String results, String body) {
-        return "PROGRAM painting\nNOOP\nINCLUDE c0de_paint/cpaint\nINCLUDE c0de_paint/schematics\nNOOP\nFUNCTION main\n" + results + "BEGIN\n"
-                + body.stripIndent().indent(4) + "END FUNCTION\n";
+        return "PROGRAM painting\nNOOP\nINCLUDE c0de_paint/cpaint\nINCLUDE c0de_paint/schematics\nNOOP\nFUNCTION main\n"
+                + results + "BEGIN\n" + body.stripIndent().indent(4) + "END FUNCTION\n";
     }
 
     /** Asserts that the program is valid and runs it until it ends. */

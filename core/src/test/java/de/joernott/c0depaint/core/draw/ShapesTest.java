@@ -158,7 +158,8 @@ class ShapesTest {
         Point center = p(0, 0, 0);
         Shapes.Voxels circle = Shapes.ellipse(center, p(5, 0, 0), p(0, 0, 5));
         // The voxels of one turn: the path along the curve of the ellipse, which the spiral follows
-        int perTurn = Raster.path(Shapes.Ellipse.of(center, p(5, 0, 0), p(0, 0, 5)).curve(0, 2 * Math.PI), true)
+        int perTurn = Raster.path(
+                        Shapes.Ellipse.of(center, p(5, 0, 0), p(0, 0, 5)).curve(0, 2 * Math.PI), true)
                 .size();
         Shapes.Voxels steep = Shapes.spiral(center, p(5, 0, 0), p(0, 0, 5), up, 1, 10);
         List<Point> line = List.copyOf(steep.lines());
