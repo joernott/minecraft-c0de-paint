@@ -139,7 +139,12 @@ public final class Shapes {
     public static Voxels ellipse(Point center, Point a, Point b) {
         Ellipse ellipse = Ellipse.of(center, a, b);
         Set<Point> inside = ellipse.plane().fill(ellipse.corners(), ellipse::inside);
-        return new Voxels(Raster.path(ellipse.curve(0, 2 * Math.PI), true), Set.of(), inside);
+        // The outline of the filled ellipse is as symmetric as the ellipse (task 9.1.4); a tiny one keeps the path
+        Set<Point> outline = ellipse.plane().outline(inside);
+        return new Voxels(
+                outline.isEmpty() ? Raster.path(ellipse.curve(0, 2 * Math.PI), true) : outline,
+                Set.of(),
+                inside);
     }
 
     /**

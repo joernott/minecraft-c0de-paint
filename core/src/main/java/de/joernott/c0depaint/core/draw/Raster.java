@@ -142,6 +142,46 @@ public final class Raster {
             }
             return voxels;
         }
+
+        /**
+         * The outline of a filled shape of this plane: its voxels with a neighbour along the two axes of the columns of
+         * {@link #fill} that isn't part of it. Symmetric shapes get symmetric outlines (task 9.1.4).
+         */
+        public Set<Point> outline(Set<Point> filled) {
+            Vec normal = normal();
+            int axis = 0;
+            for (int a = 1; a < 3; a++) {
+                if (Math.abs(normal.get(a)) > Math.abs(normal.get(axis))) {
+                    axis = a;
+                }
+            }
+            int first = axis == 0 ? 1 : 0;
+            int second = axis == 2 ? 1 : 2;
+            Set<Long> columns = new java.util.HashSet<>();
+            for (Point voxel : filled) {
+                columns.add(column(get(voxel, first), get(voxel, second)));
+            }
+            Set<Point> outline = new LinkedHashSet<>();
+            for (Point voxel : filled) {
+                int i = get(voxel, first);
+                int j = get(voxel, second);
+                if (!columns.contains(column(i + 1, j))
+                        || !columns.contains(column(i - 1, j))
+                        || !columns.contains(column(i, j + 1))
+                        || !columns.contains(column(i, j - 1))) {
+                    outline.add(voxel);
+                }
+            }
+            return outline;
+        }
+
+        private static int get(Point point, int axis) {
+            return axis == 0 ? point.x() : axis == 1 ? point.y() : point.z();
+        }
+
+        private static long column(int i, int j) {
+            return ((long) i << 32) ^ (j & 0xFFFFFFFFL);
+        }
     }
 
     /** The voxels of a body: the voxels whose centers are inside, within the box from min to max. */

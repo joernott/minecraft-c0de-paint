@@ -87,8 +87,32 @@ class ShapesTest {
         assertEquals(expected, circle.inside().size());
         assertTrue(circle.lines().stream().allMatch(v -> {
             double r = Math.hypot(v.x(), v.z());
-            return v.y() == 0 && r > 4.2 && r < 5.8;
+            return v.y() == 0 && r > 4.0 && r < 5.8;
         }));
+    }
+
+    @Test
+    void circlesAndEllipsesAreMirrorSymmetric() {
+        // Found for c0de.at: the outlines of r = 3 and 5 weren't symmetric (task 9.1.4)
+        for (int rx = 1; rx <= 12; rx++) {
+            for (int rz : new int[] {rx, rx + 2}) {
+                Shapes.Voxels ellipse = Shapes.ellipse(p(0, 0, 0), p(rx, 0, 0), p(0, 0, rz));
+                Set<Point> lines = ellipse.lines();
+                for (Point v : lines) {
+                    String shape = "rx " + rx + ", rz " + rz + ": " + v;
+                    assertTrue(lines.contains(p(-v.x(), v.y(), v.z())), shape + " has no mirror in x");
+                    assertTrue(lines.contains(p(v.x(), v.y(), -v.z())), shape + " has no mirror in z");
+                }
+                // The outline closes: every voxel touches two others (also over an edge of the grid); a shape one
+                // voxel wide is a line with two ends
+                for (Point v : rx < 2 ? Set.<Point>of() : lines) {
+                    long neighbours = lines.stream()
+                            .filter(w -> !w.equals(v) && Math.abs(w.x() - v.x()) <= 1 && Math.abs(w.z() - v.z()) <= 1)
+                            .count();
+                    assertTrue(neighbours >= 2, "rx " + rx + ", rz " + rz + ": " + v + " is an open end");
+                }
+            }
+        }
     }
 
     @Test
@@ -133,7 +157,9 @@ class ShapesTest {
         Bodies.Direction up = Bodies.Direction.of("+y");
         Point center = p(0, 0, 0);
         Shapes.Voxels circle = Shapes.ellipse(center, p(5, 0, 0), p(0, 0, 5));
-        int perTurn = circle.lines().size();
+        // The voxels of one turn: the path along the curve of the ellipse, which the spiral follows
+        int perTurn = Raster.path(Shapes.Ellipse.of(center, p(5, 0, 0), p(0, 0, 5)).curve(0, 2 * Math.PI), true)
+                .size();
         Shapes.Voxels steep = Shapes.spiral(center, p(5, 0, 0), p(0, 0, 5), up, 1, 10);
         List<Point> line = List.copyOf(steep.lines());
         assertEquals(10, line.size());
