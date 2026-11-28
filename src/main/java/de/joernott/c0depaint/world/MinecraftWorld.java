@@ -117,8 +117,8 @@ public final class MinecraftWorld implements PaintWorld {
      */
     @Override
     public Canvas fromWorld(NativeCall call, StructValue from, StructValue to, boolean air, Limits limits) {
-        Place start = place(call, from);
-        Place end = place(call, to);
+        Place start = area(call, from);
+        Place end = area(call, to);
         if (start.level() != end.level()) {
             throw C0deException.of(ErrorCode.INVALID_ARGUMENT, "from and to lie in different dimensions");
         }
@@ -205,6 +205,19 @@ public final class MinecraftWorld implements PaintWorld {
      * Raises CHUNK_NOT_LOADED if its chunk is not loaded, because functions never load chunks.
      */
     public static Place place(NativeCall call, StructValue position) {
+        Place place = area(call, position);
+        if (!place.level().isLoaded(place.pos())) {
+            throw C0deException.of(
+                    ErrorCode.CHUNK_NOT_LOADED, "The chunk of " + place.pos().toShortString() + " is not loaded");
+        }
+        return place;
+    }
+
+    /**
+     * The level and position of a POSITION in an area that RENDER_CANVAS builds or CANVAS_FROM_WORLD copies, whose
+     * chunks are loaded for them ({@link Chunks}, task 9.9).
+     */
+    static Place area(NativeCall call, StructValue position) {
         ProcessHost host = host(call);
         String dimension = ((StringValue) position.get("dimension")).value();
         ServerLevel level;
@@ -221,9 +234,6 @@ public final class MinecraftWorld implements PaintWorld {
                 (int) ((IntegerValue) position.get("x")).value(),
                 (int) ((IntegerValue) position.get("y")).value(),
                 (int) ((IntegerValue) position.get("z")).value());
-        if (!level.isLoaded(pos)) {
-            throw C0deException.of(ErrorCode.CHUNK_NOT_LOADED, "The chunk of " + pos.toShortString() + " is not loaded");
-        }
         return new Place(level, pos);
     }
 }

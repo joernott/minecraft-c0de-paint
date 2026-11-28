@@ -94,7 +94,7 @@ final class Renderer implements Job {
     /** Checks the rendering and creates its job. */
     static Renderer start(NativeCall call, Canvas canvas, StructValue position, PaintConfig settings) {
         ProcessHost host = MinecraftWorld.host(call);
-        MinecraftWorld.Place origin = MinecraftWorld.place(call, position);
+        MinecraftWorld.Place origin = MinecraftWorld.area(call, position);
         ServerLevel level = origin.level();
         Container input = inventory(call, "input");
         Container tools = inventory(call, "tools");
