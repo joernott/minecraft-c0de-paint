@@ -112,7 +112,8 @@ final class Renderer implements Job {
         Map<Item, Integer> needed = new LinkedHashMap<>();
         for (RenderPlan.Step step : plan.steps()) {
             BlockPos pos = origin.pos().offset(step.voxel().x(), step.voxel().y(), step.voxel().z());
-            if (!level.isLoaded(pos)) {
+            // The chunks of the area are loaded for the rendering, like the parts of long programs (task 9.9)
+            if (!Chunks.ensureLoaded(level, pos)) {
                 throw C0deException.of(ErrorCode.CHUNK_NOT_LOADED, "The chunk of " + pos.toShortString() + " is not loaded");
             }
             BlockState target = states.computeIfAbsent(step.block(), Renderer::state);
@@ -185,8 +186,8 @@ final class Renderer implements Job {
         int done = 0;
         while (next < work.size() && done < perTick && wait == 0) {
             Work item = work.get(next);
-            if (!level.isLoaded(item.pos())) {
-                // Waits until the chunk is loaded again
+            if (!Chunks.ensureLoaded(level, item.pos())) {
+                // Only off the server thread: waits until the chunk is loaded
                 return false;
             }
             render(item);

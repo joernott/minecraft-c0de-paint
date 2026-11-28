@@ -27,6 +27,11 @@ public class NeoForgeGameTests {
     }
 
     @GameTest(template = "empty", timeoutTicks = 200)
+    public static void farAreasAreLoadedForRendering(GameTestHelper helper) {
+        RenderTests.farAreasAreLoadedForRendering(helper);
+    }
+
+    @GameTest(template = "empty", timeoutTicks = 200)
     public static void inventoriesAreFilledFromTheInput(GameTestHelper helper) {
         RenderTests.inventoriesAreFilledFromTheInput(helper);
     }

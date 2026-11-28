@@ -112,7 +112,7 @@ public final class MinecraftWorld implements PaintWorld {
 
     /**
      * CANVAS_FROM_WORLD: the blocks with all their states and the data of their block entities (since 0.2.0).
-     * Raises CHUNK_NOT_LOADED before the first voxel if a chunk of the region isn't loaded, and CANVAS_LIMIT if the
+     * Loads the chunks of the region that aren't loaded (task 9.9); raises CANVAS_LIMIT if the
      * region is larger than a canvas may be.
      */
     @Override
@@ -139,7 +139,7 @@ public final class MinecraftWorld implements PaintWorld {
         for (int cx = min.getX() >> 4; cx <= max.getX() >> 4; cx++) {
             for (int cz = min.getZ() >> 4; cz <= max.getZ() >> 4; cz++) {
                 BlockPos corner = new BlockPos(cx << 4, min.getY(), cz << 4);
-                if (!level.isLoaded(corner)) {
+                if (!Chunks.ensureLoaded(level, corner)) {
                     throw C0deException.of(
                             ErrorCode.CHUNK_NOT_LOADED, "The chunk of " + corner.toShortString() + " is not loaded");
                 }

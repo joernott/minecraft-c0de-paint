@@ -163,7 +163,7 @@ All operations take the canvas as a reference parameter and change it, unless th
 | CANVAS_MIRROR(canvas, axis, position) | Mirrors at the plane perpendicular to the axis "x", "y" or "z", at the coordinate `position` (INTEGER or FLOAT; 4.5 is the plane between the voxels 4 and 5). Without `position`, it mirrors at the middle of the bounds, so the bounds stay the same. |
 | CANVAS_MERGE(target, source, mode, offset) | Draws the canvas `source`, or each canvas of an array of canvases in order, into `target`, moved by `offset` (default 0,0,0). With mode "OVERWRITE", set voxels of the source replace those of the target. With "KEEP", they only fill voxels of the target that are not set. Voxels that are not set in the source never change the target; air does. |
 | CANVAS_MATERIALS(canvas) | The blocks the canvas needs, as HASH INTEGER from block ID to number, without air; blocks with different states count together. |
-| CANVAS_FROM_WORLD(from, to, air) | A new canvas with the blocks of the world between the POSITIONs `from` and `to`; `from` becomes 0,0,0. Air becomes not set, or air if `air` is TRUE. Chunks that are not loaded raise CHUNK_NOT_LOADED. The contents of chests and other block data are not copied. |
+| CANVAS_FROM_WORLD(from, to, air) | A new canvas with the blocks of the world between the POSITIONs `from` and `to`; `from` becomes 0,0,0. Air becomes not set, or air if `air` is TRUE. The chunks of the region are loaded for it (since 0.2.0, like the parts of long programs in c0de 0.7.2); block data is copied since 0.2.0. |
 
 ### Block states in transformations
 
@@ -197,7 +197,7 @@ The rights are the same as for PLACE_BLOCK and MINE_BLOCK:
 RENDER_CANVAS checks everything it can before placing the first block, so that an error doesn't leave half a building:
 - rights;
 - protected places;
-- that all chunks are loaded (CHUNK_NOT_LOADED);
+- the chunks of the area: since 0.2.0 they are loaded and kept for a while with a temporary ticket, like the parts of long programs in c0de 0.7.2 (requested by the user on 2026-11-28); the inventories must be in loaded chunks (CHUNK_NOT_LOADED);
 - that the blocks in `input` and `output` are enough (ITEM_MISSING, naming the first block that is missing);
 - that there is a fitting tool for every block that has to be removed.
 
@@ -235,7 +235,7 @@ Decided by the user on 2026-11-28 (see [block_review.md](block_review.md)):
 
     The tools take the usual damage at every speed. Blocks that are replaced without tools (administrators, allowBlockChanges) don't wait.
   - Because a whole canvas is placed by one statement, rendering is faster than PLACE_BLOCK and MINE_BLOCK in a loop even at the speed of a player.
-- **Unloaded chunks:** if a chunk is unloaded during rendering, the process waits until it is loaded again.
+- **Unloaded chunks:** a chunk that is unloaded during rendering is loaded again for its blocks (since 0.2.0).
 
 ## Schematics (0.2.0)
 

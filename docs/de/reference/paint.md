@@ -843,7 +843,7 @@ Ohne `input` braucht das Programm allowBlockChanges (`config/c0de.properties` vo
 
 **Fehlende Blöcke.** Mit `blocks` "AVAILABLE" werden die Blöcke gesetzt, die die Inventare haben, und die Voxel der anderen übersprungen, statt ITEM_MISSING auszulösen. Das Ergebnis `missing` nennt nach Gegenstands-ID, was weggelassen wurde, Blöcke und Inhalte, damit das Programm es holen und noch einmal rendern kann: Blöcke, die schon an ihrem Platz sind, werden übersprungen und behalten ihren Inhalt.
 
-Vor dem ersten Block prüft RENDER_CANVAS die Rechte, die Chunks (CHUNK_NOT_LOADED), die Blöcke in den Inventaren (ITEM_MISSING) und ein Werkzeug für jeden Block, der eines braucht, damit ein Fehler kein halbes Gebäude hinterlässt. Ein volles `output` (INVENTORY_FULL) oder ein zerbrochenes Werkzeug halten es später an; die Meldung sagt, wie viele Blöcke gesetzt wurden. Der Prozess wartet während des Renderns: Es setzt `renderBlocksPerTick` Blöcke pro Tick, von unten nach oben, und Fackeln, Leitern und Ähnliches nach den anderen Blöcken ihrer Schicht. Das Abbauen dauert so lange wie bei einem Spieler, geteilt durch `renderMiningSpeed`.
+Die Chunks des Bereichs werden für das Rendern geladen, auch weit weg von allen Spielern, und bleiben eine Weile geladen; die Inventare müssen in geladenen Chunks liegen (CHUNK_NOT_LOADED). Vor dem ersten Block prüft RENDER_CANVAS die Rechte, die Blöcke in den Inventaren (ITEM_MISSING) und ein Werkzeug für jeden Block, der eines braucht, damit ein Fehler kein halbes Gebäude hinterlässt. Ein volles `output` (INVENTORY_FULL) oder ein zerbrochenes Werkzeug halten es später an; die Meldung sagt, wie viele Blöcke gesetzt wurden. Der Prozess wartet während des Renderns: Es setzt `renderBlocksPerTick` Blöcke pro Tick, von unten nach oben, und Fackeln, Leitern und Ähnliches nach den anderen Blöcken ihrer Schicht. Das Abbauen dauert so lange wie bei einem Spieler, geteilt durch `renderMiningSpeed`.
 
 **Parameter und Ergebnisse**
 
@@ -869,7 +869,7 @@ CALL c0de_paint/cpaint/RENDER_CANVAS
 
 ### CANVAS_FROM_WORLD
 
-Eine neue Leinwand mit den Blöcken der Welt zwischen zwei Positionen, mit ihren Zuständen und ihren Daten (dem Inhalt von Truhen, dem Text von Schildern); `from` wird zu 0,0,0. Luft wird zu nicht gesetzt, oder zu Luft, wenn `air` TRUE ist. Jede Ecke muss von `from` aus gesehen in den Grenzen einer Leinwand liegen: mit den Standardeinstellungen bis zu 255 Blöcke in positiver und 128 in negativer Richtung jeder Achse; sonst CANVAS_LIMIT. Nicht geladene Chunks lösen CHUNK_NOT_LOADED aus.
+Eine neue Leinwand mit den Blöcken der Welt zwischen zwei Positionen, mit ihren Zuständen und ihren Daten (dem Inhalt von Truhen, dem Text von Schildern); `from` wird zu 0,0,0. Luft wird zu nicht gesetzt, oder zu Luft, wenn `air` TRUE ist. Jede Ecke muss von `from` aus gesehen in den Grenzen einer Leinwand liegen: mit den Standardeinstellungen bis zu 255 Blöcke in positiver und 128 in negativer Richtung jeder Achse; sonst CANVAS_LIMIT. Nicht geladene Chunks werden für die Kopie geladen.
 
 **Parameter und Ergebnisse**
 

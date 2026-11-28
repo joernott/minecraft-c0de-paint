@@ -26,6 +26,11 @@ public class FabricGameTests {
     }
 
     @GameTest(template = SmokeTests.EMPTY_STRUCTURE, timeoutTicks = 200)
+    public void farAreasAreLoadedForRendering(GameTestHelper helper) {
+        RenderTests.farAreasAreLoadedForRendering(helper);
+    }
+
+    @GameTest(template = SmokeTests.EMPTY_STRUCTURE, timeoutTicks = 200)
     public void inventoriesAreFilledFromTheInput(GameTestHelper helper) {
         RenderTests.inventoriesAreFilledFromTheInput(helper);
     }

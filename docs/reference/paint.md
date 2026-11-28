@@ -843,7 +843,7 @@ Without `input`, the program needs allowBlockChanges (`config/c0de.properties` o
 
 **Missing blocks.** With `blocks` "AVAILABLE", the blocks that the inventories hold are placed and the voxels of the others are skipped instead of raising ITEM_MISSING. The result `missing` lists by item id what was left out, blocks and contents, so the program can fetch it and render again: blocks already in place are skipped, and they keep their contents.
 
-Before the first block, RENDER_CANVAS checks the rights, the chunks (CHUNK_NOT_LOADED), the blocks in the inventories (ITEM_MISSING) and a tool for every block that needs one, so an error doesn't leave half a building. A full output (INVENTORY_FULL) or a broken tool stop it later; the message says how many blocks were placed. The process waits while rendering: it places `renderBlocksPerTick` blocks per tick, from bottom to top, and torches, ladders and the like after the other blocks of their layer. Mining takes the time of a player divided by `renderMiningSpeed`.
+The chunks of the area are loaded for the rendering, also far away from all players, and stay loaded for a while; the inventories must lie in loaded chunks (CHUNK_NOT_LOADED). Before the first block, RENDER_CANVAS checks the rights, the blocks in the inventories (ITEM_MISSING) and a tool for every block that needs one, so an error doesn't leave half a building. A full output (INVENTORY_FULL) or a broken tool stop it later; the message says how many blocks were placed. The process waits while rendering: it places `renderBlocksPerTick` blocks per tick, from bottom to top, and torches, ladders and the like after the other blocks of their layer. Mining takes the time of a player divided by `renderMiningSpeed`.
 
 **Parameters and results**
 
@@ -869,7 +869,7 @@ CALL c0de_paint/cpaint/RENDER_CANVAS
 
 ### CANVAS_FROM_WORLD
 
-A new canvas with the blocks of the world between two positions, with their states and their data (the contents of chests, the text of signs); `from` becomes 0,0,0. Air becomes not set, or air if `air` is TRUE. Every corner must lie within the limits of a canvas seen from `from`: with the default settings, up to 255 blocks in the positive and 128 in the negative direction of every axis; otherwise CANVAS_LIMIT. Chunks that are not loaded raise CHUNK_NOT_LOADED.
+A new canvas with the blocks of the world between two positions, with their states and their data (the contents of chests, the text of signs); `from` becomes 0,0,0. Air becomes not set, or air if `air` is TRUE. Every corner must lie within the limits of a canvas seen from `from`: with the default settings, up to 255 blocks in the positive and 128 in the negative direction of every axis; otherwise CANVAS_LIMIT. Chunks that are not loaded are loaded for the copy.
 
 **Parameters and results**
 

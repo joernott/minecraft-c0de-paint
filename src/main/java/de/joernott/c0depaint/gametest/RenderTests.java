@@ -188,6 +188,29 @@ public final class RenderTests {
     }
 
     /**
+     * A canvas far away from all players is built: its chunks are loaded for the rendering, like the parts of long
+     * programs in c0de (task 9.9).
+     */
+    public static void farAreasAreLoadedForRendering(GameTestHelper helper) {
+        clear(helper);
+        chest(helper, new BlockPos(0, 1, 0), new ItemStack(Items.OAK_PLANKS, 9));
+        BlockPos far = helper.absolutePos(new BlockPos(0, 3, 0)).offset(4000, 0, 4000);
+        helper.assertTrue(!helper.getLevel().isLoaded(far), "The far area is loaded before the test");
+        Map<String, Value> inputs = new java.util.HashMap<>(inputs(helper));
+        inputs.put("at", Processes.position(far));
+        Cursor cursor = Processes.cursor(helper, program(WITH_INPUT), inputs);
+        Processes.finish(helper, cursor, () -> {
+            helper.assertTrue(code(cursor) == 0, "The rendering failed: " + cursor.results());
+            for (BlockPos pos : BlockPos.betweenClosed(far, far.offset(2, 0, 2))) {
+                helper.assertTrue(
+                        helper.getLevel().getBlockState(pos).is(Blocks.OAK_PLANKS),
+                        "No planks at " + pos.toShortString());
+            }
+            helper.succeed();
+        });
+    }
+
+    /**
      * A barrel keeps its contents, which come from the input (task 9.2): with "REQUIRED", too few items place nothing;
      * with "AVAILABLE", the barrel gets what there is, a missing block is skipped and both are listed as missing.
      */
