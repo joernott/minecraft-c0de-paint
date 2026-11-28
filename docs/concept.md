@@ -201,6 +201,21 @@ RENDER_CANVAS checks everything it can before placing the first block, so that a
 - that the blocks in `input` and `output` are enough (ITEM_MISSING, naming the first block that is missing);
 - that there is a fitting tool for every block that has to be removed.
 
+### Block data and missing blocks (0.2.0)
+
+Decided by the user on 2026-11-28 (see [block_review.md](block_review.md)):
+- **Block entity data** (the element `data` of BLOCK) is placed with the block: the text of signs, the patterns of banners, the settings of machines.
+- **Blocks with inventories keep their contents** (chests, barrels, shulker boxes, furnaces, hoppers, dispensers, lecterns, jukeboxes, decorated pots and the like). Without `input`, the contents are placed as they are in the data. With `input`, they are refilled from the inventories like the blocks: from `output` first, then from `input`.
+- **The parameter `contents`** STRING of RENDER_CANVAS decides how:
+  - "REQUIRED" (default): every item of the contents must be in the inventories; the check before the first block raises ITEM_MISSING otherwise.
+  - "AVAILABLE": the contents are filled with what the inventories hold; what is missing is left out.
+  - "NONE": inventories are placed empty.
+- **The parameter `blocks`** STRING decides what happens to blocks that the inventories don't hold:
+  - "REQUIRED" (default, as in 0.1.0): ITEM_MISSING in the check before the first block.
+  - "AVAILABLE": the blocks that are there are placed, the voxels of the missing ones are skipped.
+- **The optional result `missing`** HASH INTEGER lists by item id what was left out (blocks and contents), so a program can fetch it and render again: the blocks that are already in place are skipped.
+- Both parameters only matter with `input`; without it, everything is placed.
+
 **Errors during rendering.** A full output inventory (INVENTORY_FULL) or a tool that breaks can only appear during rendering. Then RENDER_CANVAS stops, and the error message says how many blocks were placed.
 
 ### Order and speed
@@ -222,7 +237,7 @@ RENDER_CANVAS checks everything it can before placing the first block, so that a
 
 ## Schematics (0.2.0)
 
-Requested by the user on 2026-11-28: a second library, `INCLUDE c0de_paint/schematics`, reads the schematics that players save with [Litematica](https://github.com/sakura-ryoko/litematica) and [Create](https://github.com/Creators-of-Create/Create) into canvases. The review of BLOCK that it needed is in [block_review.md](block_review.md). The open decisions are marked *(decision)*.
+Requested by the user on 2026-11-28: a second library, `INCLUDE c0de_paint/schematics`, reads the schematics that players save with [Litematica](https://github.com/sakura-ryoko/litematica) and [Create](https://github.com/Creators-of-Create/Create) into canvases. The review of BLOCK that it needed is in [block_review.md](block_review.md). The decisions of the user are recorded there.
 
 ### Files
 
@@ -235,7 +250,7 @@ Requested by the user on 2026-11-28: a second library, `INCLUDE c0de_paint/schem
 - **Older Minecraft versions:** the palette entries and the block entity data are upgraded with the data fixer of Minecraft (`BLOCK_STATE`, `BLOCK_ENTITY`) from the data version of the file, as Litematica does, so renamed blocks come out with their new names. Files of newer versions are read as they are; blocks the server doesn't know show up in SCHEMATIC_MISSING.
 - **Limits:** the server setting `maxSchematicSize` (bytes of the file, 1 KiB to 64 MiB, default 4 MiB) and the bounds of a canvas (`canvasMin`, `canvasMax`); a larger schematic raises SCHEMATIC_TOO_LARGE before anything is drawn.
 - **The client decides:** the client setting `allowSchematics` (default true) in `c0de_paint-client.properties`. With false, the functions raise SCHEMATICS_DISABLED.
-- **Uploads of Create on the server** (`schematics/uploaded/<player>/` on the server) could be a second source with a parameter `source` *(decision; not planned for 0.2.0)*.
+- **Uploads of Create on the server** (`schematics/uploaded/<player>/` on the server) are not read in 0.2.0 (decided by the user on 2026-11-28); they could be a second source later.
 
 ### Functions
 

@@ -33,7 +33,8 @@ Requested by the user on 2026-11-28, before the include `c0de_paint/schematics` 
 5. **A mapping from blocks to items** in the mod layer that RENDER_CANVAS and the lists of the schematics share, so that a list says exactly what a rendering takes: counts of slabs, candles, sea pickles, turtle eggs and snow layers; flower pot plus plant; buckets for water, lava and waterlogged blocks; nothing for the parts of multi-block structures (upper halves, bed heads, piston heads) and for blocks without an item, which are listed apart. RENDER_CANVAS takes buckets of water and lava from the inventories and puts back the empty buckets.
 6. **No new struct** for the lists: a HASH INTEGER by item id, like CANVAS_MATERIALS, keeps them easy to print and to compare with an inventory.
 
-## Decisions for the user
+## Decisions of the user (2026-11-28)
 
-- **Block entity data in survival rendering** (point 3): placed only without `input` (recommended), or never, or always with the contents of inventories stripped (signs and banners keep their data; chests stay empty).
-- **The element name** `data` (recommended; the word of `/data`) or `nbt`.
+- **Block entity data in survival rendering** (point 3): the data is always placed, and blocks with inventories keep their contents, which are refilled from the source inventories. A new parameter `contents` of RENDER_CANVAS chooses whether the contents must be complete ("REQUIRED"), are filled as far as the inventories allow ("AVAILABLE") or are left empty ("NONE"); a parameter `blocks` lets RENDER_CANVAS continue when blocks are missing ("AVAILABLE"). See [concept.md](concept.md#block-data-and-missing-blocks-020). This replaces the recommendation of point 3.
+- **The element name:** `data`.
+- **Sources of schematics:** only the folder `schematics` of the client in 0.2.0; the uploads of Create on the server may come later.
