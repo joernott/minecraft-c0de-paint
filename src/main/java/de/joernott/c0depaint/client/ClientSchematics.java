@@ -8,7 +8,7 @@ import de.joernott.c0depaint.core.PaintException;
 import de.joernott.c0depaint.core.config.PaintConfig;
 import de.joernott.c0depaint.network.SchematicAnswerPayload;
 import de.joernott.c0depaint.network.SchematicCancelPayload;
-import de.joernott.c0depaint.network.SchematicFolder;
+import de.joernott.c0depaint.core.schematic.SchematicFolder;
 import de.joernott.c0depaint.network.SchematicRequestPayload;
 import java.io.IOException;
 import java.nio.file.Path;

@@ -4,7 +4,7 @@ import de.joernott.c0depaint.core.PaintError;
 import de.joernott.c0depaint.core.PaintException;
 import de.joernott.c0depaint.network.PendingFiles;
 import de.joernott.c0depaint.network.SchematicAnswerPayload;
-import de.joernott.c0depaint.network.SchematicFolder;
+import de.joernott.c0depaint.core.schematic.SchematicFolder;
 import de.joernott.c0depaint.network.SchematicRequestPayload;
 import java.nio.file.Path;
 import java.util.Map;

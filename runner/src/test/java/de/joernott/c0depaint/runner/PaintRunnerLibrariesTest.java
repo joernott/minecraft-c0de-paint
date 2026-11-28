@@ -64,6 +64,40 @@ class PaintRunnerLibrariesTest {
         ServiceLoader.load(de.joernott.c0de.core.library.LibraryProvider.class)
                 .forEach(provider -> provider.register(registry));
         assertTrue(registry.find(CpaintLibrary.NAME).isPresent());
+        assertTrue(registry.find(de.joernott.c0depaint.core.library.SchematicsLibrary.NAME).isPresent());
+    }
+
+    /** The runner reads schematics from a folder, with the rules of the client for names (task 9.7). */
+    @Test
+    void schematicsComeFromAFolder(@TempDir Path dir) throws IOException {
+        Files.createDirectories(dir.resolve("castles"));
+        byte[] structure = de.joernott.c0depaint.core.schematic.Nbt.write(new java.util.LinkedHashMap<>(Map.of(
+                "DataVersion", 3955,
+                "size", java.util.List.of(1, 1, 1),
+                "palette", java.util.List.of(Map.of("Name", "minecraft:stone")),
+                "blocks", java.util.List.of(Map.of("pos", java.util.List.of(0, 0, 0), "state", 0)))));
+        Files.write(dir.resolve("castles/keep.nbt"), structure);
+        RunnerSchematics files = new RunnerSchematics(dir);
+        assertEquals(
+                java.util.List.of("castles/keep.nbt"),
+                files.list(null, "", names -> de.joernott.c0de.core.library.NativeResult.of(
+                                new StringValue(String.join(",", names))))
+                        .results()
+                        .get("result")
+                        .text()
+                        .lines()
+                        .toList());
+        assertEquals(
+                structure.length,
+                files.read(null, "castles/keep.nbt", 1000, bytes -> de.joernott.c0de.core.library.NativeResult.of(
+                                new IntegerValue(bytes.length)))
+                        .results()
+                        .get("result")
+                        .equals(new IntegerValue(structure.length))
+                        ? structure.length
+                        : -1);
+        org.junit.jupiter.api.Assertions.assertThrows(
+                IllegalArgumentException.class, () -> files.read(null, "../keep.nbt", 1000, bytes -> null));
     }
 
     @Test

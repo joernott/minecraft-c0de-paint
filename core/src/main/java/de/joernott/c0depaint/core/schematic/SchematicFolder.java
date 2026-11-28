@@ -1,8 +1,7 @@
-package de.joernott.c0depaint.network;
+package de.joernott.c0depaint.core.schematic;
 
 import de.joernott.c0depaint.core.PaintError;
 import de.joernott.c0depaint.core.PaintException;
-import de.joernott.c0depaint.core.schematic.SchematicNames;
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
