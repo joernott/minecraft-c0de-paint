@@ -136,3 +136,5 @@ For the www-c0de project, wait until the c0de-paint changes are done and incorpo
 The tag has been pushed, continue with c0de-paint
 
 I have downloaded some schematics and placed a litematica and a create (.nbt) variant there. Please create a program in the c0de directory that has 2 functions. The first loads and places a schematic. It takes the following variables as input: a string with the name of the variable and a position for the lower left corner for placing it and optionally a hash with blocks I want to replace. The second function prints out the needed blocks and the ones that are missing and puts the latter into an output variable.
+
+Raise the default canvasMax to 255
